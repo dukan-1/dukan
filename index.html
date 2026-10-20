@@ -175,6 +175,39 @@ main.wrap{padding-block:16px 120px}
 .cam{width:44px;height:44px;border-radius:var(--r-sm);border:1.5px solid var(--mode);background:var(--mode-soft);color:var(--mode);display:grid;place-items:center;flex:none}
 .cam svg{width:22px;height:22px}
 .scan-hint{font-size:12px;color:var(--muted);margin:6px 4px 0}
+/* live camera: a dark viewport in both themes, like a scanner window */
+.livecam{position:relative;height:clamp(170px,30vh,260px);border-radius:var(--r);overflow:hidden;background:#0B0F0E;border:2px solid var(--line);transition:border-color .2s}
+.livecam.ok{border-color:var(--ok)}
+.livecam.bad{border-color:var(--danger)}
+#liveReader{position:absolute!important;left:0;right:0;top:50%;transform:translateY(-50%)}
+#liveReader video{display:block}
+.lc-top{position:absolute;top:8px;inset-inline:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:3;pointer-events:none}
+.lc-chip{background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.lc-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:#3CC4A1;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.lc-btns{display:flex;gap:6px;pointer-events:auto}
+.lc-btns button{background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.lc-btns button[aria-pressed="true"]{background:#fff;color:#000}
+.lc-last{position:absolute;bottom:8px;inset-inline:8px;z-index:3;background:rgba(0,0,0,.7);color:#fff;font-size:14px;font-weight:600;padding:6px 12px;border-radius:10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-last.bad{background:rgba(179,38,30,.92)}
+.lc-cover{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;color:#E5EDE9;background:#0B0F0E;font-size:14px}
+.lc-cover p{margin:0;max-width:34ch}
+.livecam[data-state="on"] .lc-cover{display:none}
+.livecam:not([data-state="on"]) .lc-top{display:none}
+.livecam[data-state="error"]{height:auto}
+.livecam[data-state="error"] .lc-cover{position:static}
+.livecam:not([data-state="on"]) .lc-last{display:none}
+.num-in::placeholder{font-family:var(--f-body);letter-spacing:0}
+.nocode-btn{width:100%;justify-content:space-between;margin-top:8px;padding-block:11px;background:var(--surface)}
+.nocode-btn .nl{display:inline-flex;align-items:center;gap:8px}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;max-height:55vh;overflow:auto;padding:2px}
+.pick{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg);text-align:start;min-width:0}
+.pick:hover{border-color:var(--mode)}
+.pick.in{border-color:var(--mode);background:var(--mode-soft)}
+.pick .pn{font-weight:600;line-height:1.35;overflow-wrap:anywhere;padding-inline-end:28px}
+.pick .ppr{color:var(--mode);font-weight:600}
+.pick .pq{font-family:var(--f-num);font-variant-numeric:tabular-nums;position:absolute;top:8px;inset-inline-end:8px;min-width:24px;height:24px;border-radius:999px;background:var(--mode);color:var(--on-accent);font-size:13px;font-weight:700;display:grid;place-items:center;padding-inline:6px}
+.pick.flash{animation:flash 1s ease-out}
 .suggest{position:absolute;inset-inline:0;top:calc(100% + 4px);z-index:15;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);max-height:340px;overflow:auto;padding:4px}
 .sug{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;width:100%;text-align:start;border:0;background:transparent;padding:9px 10px;border-radius:var(--r-sm)}
 .sug[aria-selected="true"],.sug:hover{background:var(--sunk)}
@@ -274,13 +307,18 @@ button.prow:hover{background:var(--sunk)}
 .sheet-actions .primary{flex:1 1 160px}
 
 /* ---------- camera scanner ---------- */
-.scanner{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column}
+.scanner{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;overflow:hidden}
 .scanner-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:calc(12px + env(safe-area-inset-top,0px)) 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff}
 .scanner-top b{font-family:var(--f-display);font-size:16px}
 .scanner-top button{background:#fff;color:#000;border:0;border-radius:999px;padding:8px 18px;font-weight:700}
-#reader{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-#reader video{width:100%!important;height:auto!important;max-height:100%;object-fit:cover}
-.scanner-foot{padding-block:14px calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff;text-align:center;font-size:14px;min-height:64px}
+.scanner-mid{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+#reader{position:relative;width:100%;max-width:560px;margin-inline:auto}
+#reader video{display:block}
+.scanner-tip{color:rgba(255,255,255,.78);font-size:13px;text-align:center;margin:10px 16px 0}
+.scanner-foot{padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff;text-align:center;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.scan-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.scan-actions button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 16px;font-weight:600}
+.scan-actions button[aria-pressed="true"]{background:#fff;color:#000}
 .scanner-foot .last{display:inline-block;background:rgba(255,255,255,.14);padding:6px 12px;border-radius:999px}
 
 /* ---------- toast ---------- */
@@ -478,18 +516,26 @@ window.FIREBASE_CONFIG = {
             <button type="button" class="mode-btn" role="radio" data-m="retail" aria-checked="true"><span class="radio"></span><span class="mt"><span class="mn">تاک</span><span class="ms">بە نرخی تاک</span></span></button>
             <button type="button" class="mode-btn" role="radio" data-m="wholesale" aria-checked="false"><span class="radio"></span><span class="mt"><span class="mn">جوملە</span><span class="ms">بە نرخی جوملە</span></span></button>
           </div>
+          <div id="livecam" class="livecam" data-state="off" aria-label="کامێرای سکان">
+            <div id="liveReader"></div>
+            <div class="lc-top">
+              <span class="lc-chip">سکان دەکات</span>
+              <span class="lc-btns"><button type="button" id="lcTorch" aria-pressed="false" hidden>چرا</button><button type="button" id="lcPause">وەستاندن</button></span>
+            </div>
+            <div id="lcLast" class="lc-last" hidden></div>
+            <div class="lc-cover"><p id="lcText">کامێرا دەکرێتەوە…</p><button type="button" id="lcStart" class="btn primary" hidden>کردنەوەی کامێرا</button></div>
+          </div>
           <div class="scan">
             <div class="scan-box">
-              <label for="scanInput" class="sr">بارکۆد یان ناوی کاڵا</label>
-              <input id="scanInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="enter" placeholder="بارکۆد یان ناوی کاڵا">
-              <button type="button" id="scanCam" class="cam" aria-label="سکان بە کامێرا" title="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button>
+              <label for="scanInput" class="sr">ژمارەی بارکۆد</label>
+              <input id="scanInput" class="num-in" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="enter" placeholder="ژمارەی بارکۆد">
               <button type="button" id="scanGo" class="btn primary">زیادکردن</button>
             </div>
-            <div id="suggest" class="suggest" hidden></div>
-            <p class="scan-hint">کامێرا یان سکانەری بارکۆد (USB، بلوتووس) بەکاربهێنە. بۆ چەند دانە: <span class="num">5*6291041500213</span></p>
+            <p class="scan-hint">بارکۆد بخە بەردەم کامێرا، یان بە سکانەری ئامێر سکانی بکە. بۆ زیادکردنی هەمان کاڵا، دوگمەی + دابگرە.</p>
+            <button type="button" id="noCodeBtn" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="noCodeCount" class="chip num"></span></button>
           </div>
           <div class="ticket">
-            <div class="ticket-head"><span class="tk">پسوولەی فرۆشتن</span><span><span id="cartCount" class="num"></span> <span id="ticketMode" class="chip m-retail">تاک</span></span></div>
+            <div class="ticket-head"><span class="tk">پسوولەی فرۆشتن</span><span><span id="cartCount"></span> <span id="ticketMode" class="chip m-retail">تاک</span></span></div>
             <ul id="cart" class="cart"></ul>
             <div id="cartEmpty" class="empty"><b>پسوولەکە بەتاڵە</b>بارکۆد سکان بکە، یان ناوی کاڵا بنووسە و Enter دابگرە.</div>
           </div>
@@ -608,6 +654,18 @@ window.FIREBASE_CONFIG = {
     </section>
   </main>
 
+  <!-- NO-BARCODE PICKER -->
+  <div id="picker" class="sheet" hidden>
+    <div class="sheet-bg" data-pclose></div>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+      <div class="sheet-head"><h2 id="pickTitle">کاڵای بێ بارکۆد</h2><button type="button" class="x" data-pclose aria-label="داخستن">×</button></div>
+      <label for="pickSearch" class="sr">گەڕان بە ناو</label>
+      <input id="pickSearch" class="inp" placeholder="گەڕان بە ناو" autocomplete="off" hidden>
+      <div id="pickGrid" class="pick-grid"></div>
+      <button type="button" class="btn primary" data-pclose>تەواو</button>
+    </div>
+  </div>
+
   <!-- PRODUCT SHEET -->
   <div id="sheet" class="sheet" hidden>
     <div class="sheet-bg" data-close></div>
@@ -617,7 +675,7 @@ window.FIREBASE_CONFIG = {
         <div class="field span2">
           <label for="fBarcode">بارکۆد</label>
           <div class="inrow"><input id="fBarcode" class="inp num-in" inputmode="numeric" autocomplete="off" placeholder="سکان بکە یان بنووسە"><button type="button" id="fCam" class="cam" aria-label="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button></div>
-          <span class="hint">ئەگەر کاڵاکە بارکۆدی نییە، بەتاڵی بهێڵە.</span>
+          <span class="hint">ئەگەر کاڵاکە بارکۆدی نییە، بەتاڵی بهێڵە. لە کاتی فرۆشتن لە «کاڵای بێ بارکۆد» دەیدۆزیتەوە.</span>
         </div>
         <div class="field span2"><label for="fName">ناوی کاڵا</label><input id="fName" class="inp" autocomplete="off"></div>
         <div class="field"><label for="fCost">نرخی کڕین</label><input id="fCost" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
@@ -639,8 +697,17 @@ window.FIREBASE_CONFIG = {
 <!-- CAMERA SCANNER -->
 <div id="scanner" class="scanner" hidden>
   <div class="scanner-top"><b id="scanTitle">بارکۆد بخە ناو چوارچێوەکە</b><button type="button" id="scanClose">تەواو</button></div>
-  <div id="reader"></div>
-  <div class="scanner-foot"><span id="scanLast" class="last" hidden></span></div>
+  <div class="scanner-mid">
+    <div id="reader"></div>
+    <p class="scanner-tip">مۆبایلەکە ٢٠ تا ٣٠ سانتیمەتر دوور بگرە، بارکۆدەکە بە درێژی بخە ناو چوارچێوەکە، ڕووناکی باش بێت.</p>
+  </div>
+  <div class="scanner-foot">
+    <span id="scanLast" class="last" hidden></span>
+    <div class="scan-actions">
+      <button type="button" id="scanTorch" aria-pressed="false" hidden>چرا</button>
+      <button type="button" id="scanType">نووسینی ژمارەکە بە دەست</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button type="button" id="toastBtn" hidden></button></div>
@@ -665,6 +732,7 @@ function parseNum(s){s=normDigits(s).replace(/[,\s٬]/g,'').replace(/٫/g,'.');c
 function rq(n){return Math.round(n*1000)/1000;}
 function fmt(n){n=Math.round(Number(n)||0);return n.toLocaleString('en-US');}
 function fmtQty(n){if(typeof n!=='number'||!isFinite(n))return '—';return Number.isInteger(n)?n.toLocaleString('en-US'):String(rq(n));}
+function codeKey(s){return normText(s).replace(/\s+/g,'');}
 function normText(s){return normDigits(s).toLowerCase().replace(/ي/g,'ی').replace(/ى/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pad(n){return String(n).padStart(2,'0');}
@@ -710,7 +778,7 @@ $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.get
 
 /* ================= state ================= */
 const S={user:null,role:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
-  sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,sugIdx:-1,sugList:[],open:new Set(),
+  sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
 let app,auth,db;
@@ -808,6 +876,7 @@ function stopAll(){
   if(S.mineUnsub){S.mineUnsub();S.mineUnsub=null;}
   S.products=new Map();S.byCode=new Map();S.costs=new Map();S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
   S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;
+  syncLive();
 }
 function onErr(err){
   if(err&&err.code==='permission-denied'){if(S.user)resolveRole(S.user);return;}
@@ -823,9 +892,9 @@ function start(){
   S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
-    snap.docs.forEach(d=>{const p=Object.assign({},d.data(),{id:d.id});S.products.set(d.id,p);if(p.barcode)S.byCode.set(normText(p.barcode),d.id);});
+    snap.docs.forEach(d=>{const p=Object.assign({},d.data(),{id:d.id});S.products.set(d.id,p);if(p.barcode)S.byCode.set(codeKey(p.barcode),d.id);});
     S.prodLoaded=true;markSync(snap.metadata);
-    renderCart();if(S.tab==='products')renderProducts();if(document.activeElement===scan&&scan.value)renderSuggest();
+    renderCart();if(S.tab==='products')renderProducts();updateNoCode();if(!$('#picker').hidden)renderPicker();
   },onErr));
   if(owner){
     S.unsubs.push(onSnapshot(collection(db,'costs'),snap=>{S.costs=new Map();snap.docs.forEach(d=>S.costs.set(d.id,Number(d.data().cost)||0));if(S.tab==='products')renderProducts();if(S.tab==='reports')renderReports();},onErr));
@@ -858,6 +927,7 @@ function showTab(t){
   if(t==='mine')subscribeMine();
   if(t==='staff')renderStaff();
   updateTotals();
+  syncLive();
   window.scrollTo(0,0);
 }
 
@@ -867,81 +937,84 @@ function setMode(m){
   S.mode=m;$('#tab-sell').dataset.mode=m;
   $$('.mode-btn').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.m===m)));
   const tm=$('#ticketMode');tm.textContent=(m==='wholesale')?'جوملە':'تاک';tm.className='chip m-'+m;
-  renderCart();if(!$('#suggest').hidden)renderSuggest();
+  renderCart();
 }
 
-/* ================= scanning & suggestions ================= */
+/* ================= barcode input (typed or hardware scanner) ================= */
 const scan=$('#scanInput');
-function parseScan(raw){let v=normDigits(raw).trim(),qty=1;const m=v.match(/^(\d+(?:\.\d+)?)\s*[*xX×]\s*(.+)$/);if(m){qty=parseFloat(m[1])||1;v=m[2].trim();}return {v,qty};}
-function findMatches(v){
-  const q=normText(v);if(!q)return [];
-  const out=[];
-  for(const p of S.products.values()){
-    const n=normText(p.name),c=normText(p.barcode||'');let s=-1;
-    if(c&&c===q)s=0;else if(c&&c.startsWith(q))s=1;else if(n.startsWith(q))s=2;else if(n.includes(q))s=3;else if(c&&c.includes(q))s=4;
-    if(s>=0)out.push([s,p]);
-  }
-  out.sort((a,b)=>a[0]-b[0]||String(a[1].name).localeCompare(String(b[1].name),'ar'));
-  return out.slice(0,8).map(x=>x[1]);
-}
-function hideSuggest(){$('#suggest').hidden=true;S.sugIdx=-1;S.sugList=[];}
-function renderSuggest(){
-  const {v}=parseScan(scan.value),box=$('#suggest');
-  if(!v||document.activeElement!==scan){hideSuggest();return;}
-  const list=findMatches(v);S.sugList=list;
-  if(!list.length){
-    const code=/^\d{4,}$/.test(v);
-    box.innerHTML='<div class="sug-none">هیچ کاڵایەک نەدۆزرایەوە'+(code&&S.role==='owner'?' · <button type="button" class="linkbtn" data-newcode="'+esc(v)+'">وەک کاڵای نوێ تۆماری بکە</button>':'')+'</div>';
-    box.hidden=false;return;
-  }
-  box.innerHTML=list.map((p,i)=>'<button type="button" class="sug" data-id="'+esc(p.id)+'" aria-selected="'+(i===S.sugIdx)+'"><span class="sn">'+esc(p.name)+'</span><span class="sp num">'+fmt(unitPrice(p,S.mode))+'</span><span class="sm"><span class="num">'+esc(p.barcode||'بێ بارکۆد')+'</span> · کۆگا: <span class="num">'+fmtQty(p.stock)+'</span></span></button>').join('');
-  box.hidden=false;
-}
-function paintSugSel(){$$('#suggest .sug').forEach((b,i)=>b.setAttribute('aria-selected',String(i===S.sugIdx)));const sel=$$('#suggest .sug')[S.sugIdx];if(sel)sel.scrollIntoView({block:'nearest'});}
-scan.addEventListener('input',()=>{S.sugIdx=-1;renderSuggest();});
-scan.addEventListener('focus',()=>{if(scan.value)renderSuggest();});
-scan.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==scan)hideSuggest();},150));
-scan.addEventListener('keydown',e=>{
-  if(e.key==='ArrowDown'&&S.sugList.length){e.preventDefault();S.sugIdx=Math.min(S.sugList.length-1,S.sugIdx+1);paintSugSel();}
-  else if(e.key==='ArrowUp'&&S.sugList.length){e.preventDefault();S.sugIdx=Math.max(0,S.sugIdx-1);paintSugSel();}
-  else if(e.key==='Enter'){e.preventDefault();submitScan();}
-  else if(e.key==='Escape'){hideSuggest();}
-});
-$('#scanGo').addEventListener('click',submitScan);
-const sug=$('#suggest');
-sug.addEventListener('mousedown',e=>e.preventDefault());
-sug.addEventListener('click',e=>{
-  const nb=e.target.closest('[data-newcode]');
-  if(nb){openSheet(null,{barcode:nb.dataset.newcode},true);hideSuggest();return;}
-  const b=e.target.closest('.sug');if(!b)return;
-  const p=S.products.get(b.dataset.id);if(!p)return;
-  const {qty}=parseScan(scan.value);addToCart(p,qty);scan.value='';hideSuggest();if(fine)scan.focus();
-});
-function productByCode(code){const id=S.byCode.get(normText(code));return id?S.products.get(id):null;}
+function productByCode(code){const id=S.byCode.get(codeKey(code));return id?S.products.get(id):null;}
 function unknownCode(code){
-  if(S.role==='owner')toast('ئەم بارکۆدە تۆمار نەکراوە.','info',{label:'تۆمارکردنی کاڵا',fn:()=>openSheet(null,{barcode:code},true)});
-  else toast('ئەم بارکۆدە تۆمار نەکراوە. بە خاوەنی دوکان بڵێ.','error');
+  if(S.role==='owner')toast('بارکۆدی '+code+' تۆمار نەکراوە.','info',{label:'تۆمارکردنی کاڵا',fn:()=>openSheet(null,{barcode:code},true)});
+  else toast('بارکۆدی '+code+' تۆمار نەکراوە. بە خاوەنی دوکان بڵێ.','error');
+}
+// One place that handles every barcode, whatever read it.
+function handleCode(code){
+  code=codeKey(code);if(!code)return;
+  const p=productByCode(code);
+  if(!p){
+    if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
+    feedback(false,'تۆمار نەکراوە: '+code);unknownCode(code);return;
+  }
+  addToCart(p,1);
+  feedback(true,'✓ '+p.name+' · '+fmt(unitPrice(p,S.mode)));
 }
 function submitScan(){
-  const {v,qty}=parseScan(scan.value);if(!v)return;
-  let p=productByCode(v);
-  if(!p&&S.sugIdx>=0)p=S.sugList[S.sugIdx];
-  if(!p){const m=findMatches(v);if(m.length===1)p=m[0];else if(m.length>1){S.sugList=m;S.sugIdx=0;renderSuggest();paintSugSel();toast('چەند کاڵایەک دۆزرایەوە. یەکێکیان هەڵبژێرە.');return;}}
-  if(!p){
-    if(/^\d{4,}$/.test(normText(v)))unknownCode(normText(v));
-    else toast(S.prodLoaded?'هیچ کاڵایەک بەم ناوە یان بارکۆدە نییە.':'کاڵاکان هێشتا بار دەکرێن…');
-    scan.select();return;
-  }
-  addToCart(p,qty);scan.value='';hideSuggest();
+  const code=codeKey(scan.value);if(!code)return;
+  scan.value='';handleCode(code);
 }
-document.addEventListener('keydown',e=>{
-  if(S.tab!=='sell'||!$('#sheet').hidden||!$('#scanner').hidden||$('#s-app').hidden)return;
-  const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
-  if(e.key&&e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey)scan.focus();
-});
+scan.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitScan();}});
+$('#scanGo').addEventListener('click',submitScan);
 
-/* ================= camera scanner ================= */
-let qrLib=null,qr=null,scanCb=null,scanCont=false,lastCode='',lastAt=0;
+// Hardware scanners type the code fast and press Enter. Catch it even when nothing is focused,
+// and pull it back out of another field (e.g. customer name) if it landed there by mistake.
+const wedge={buf:'',t:0};
+document.addEventListener('keydown',e=>{
+  if(S.tab!=='sell'||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
+  const a=document.activeElement,inField=!!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA');
+  const now=performance.now();
+  if(e.key==='Enter'){
+    const burst=wedge.buf;wedge.buf='';
+    if(!inField){if(scan.value){e.preventDefault();submitScan();}return;}
+    if(a!==scan&&burst.length>=6&&now-wedge.t<120){
+      e.preventDefault();
+      if(typeof a.value==='string'&&a.value.endsWith(burst)){a.value=a.value.slice(0,-burst.length);a.dispatchEvent(new Event('input',{bubbles:true}));}
+      handleCode(burst);
+    }
+    return;
+  }
+  if(e.key&&e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    if(now-wedge.t>60)wedge.buf='';
+    wedge.buf+=normDigits(e.key);wedge.t=now;
+    if(!inField){e.preventDefault();scan.value+=normDigits(e.key);}
+  }else if(e.key==='Backspace'&&!inField&&scan.value){e.preventDefault();scan.value=scan.value.slice(0,-1);}
+},true);
+
+/* ================= scan feedback ================= */
+let audioCtx=null;
+function unlockAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(_){}}
+document.addEventListener('pointerdown',unlockAudio,{passive:true});
+document.addEventListener('keydown',unlockAudio);
+function beep(ok){
+  try{
+    if(!audioCtx||audioCtx.state!=='running')return;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime,d=ok?0.09:0.25;
+    o.type=ok?'sine':'square';o.frequency.value=ok?1250:220;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+d+0.02);
+  }catch(_){}
+}
+let fbTimer;
+function feedback(ok,text){
+  beep(ok);
+  try{if(navigator.vibrate)navigator.vibrate(ok?50:[80,60,80]);}catch(_){}
+  const lc=$('#livecam'),last=$('#lcLast');
+  lc.classList.remove('ok','bad');void lc.offsetWidth;lc.classList.add(ok?'ok':'bad');
+  last.textContent=text;last.classList.toggle('bad',!ok);last.hidden=false;
+  clearTimeout(fbTimer);fbTimer=setTimeout(()=>{lc.classList.remove('ok','bad');},700);
+}
+
+/* ================= camera library ================= */
+let qrLib=null;
 function loadQrLib(){
   if(qrLib)return qrLib;
   qrLib=new Promise((res,rej)=>{
@@ -951,47 +1024,154 @@ function loadQrLib(){
   });
   return qrLib;
 }
-async function openScanner(cb,continuous,title){
-  scanCb=cb;scanCont=continuous;lastCode='';lastAt=0;
-  $('#scanTitle').textContent=title||'بارکۆد بخە ناو چوارچێوەکە';$('#scanLast').hidden=true;
-  $('#scanner').hidden=false;
-  try{await loadQrLib();}catch(e){closeScanner();toast('بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.','error');return;}
+function qrApi(){const L=window.__Html5QrcodeLibrary__||{};return {H:window.Html5Qrcode||L.Html5Qrcode,F:window.Html5QrcodeSupportedFormats||L.Html5QrcodeSupportedFormats};}
+function qrFormats(F){return F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.ITF,F.QR_CODE].filter(x=>x!=null):undefined;}
+function camErrText(e){
+  const n=(e&&(e.name||e.message||String(e)))||'';
+  if(/NotAllowed|Permission/i.test(n))return 'ڕێگە بە کامێرا نەدراوە. لە ڕێکخستنەکانی مۆبایل ڕێگە بدە بە کامێرا بۆ Safari یان Chrome، پاشان دووبارە هەوڵ بدەرەوە.';
+  if(/NotFound|Overconstrained|DevicesNotFound/i.test(n))return 'کامێرا نەدۆزرایەوە. سکانەری ئامێر بەکاربهێنە یان ژمارەکە بنووسە.';
+  if(/NotReadable|TrackStart|Abort/i.test(n))return 'کامێرا لە لایەن ئەپێکی ترەوە بەکاردێت. ئەو ئەپە دابخە و دووبارە هەوڵ بدەرەوە.';
+  return 'کامێرا کار ناکات. سکانەری ئامێر بەکاربهێنە یان ژمارەکە بنووسە.';
+}
+// A little zoom lets the phone stay far enough away to focus (iPhone cameras blur up close).
+function tuneCamera(inst,torchBtn){
+  let caps=null;try{caps=inst.getRunningTrackCameraCapabilities();}catch(_){return;}
+  try{const z=caps.zoomFeature();if(z.isSupported()){const v=Math.min(z.max(),2);if(v>z.min())Promise.resolve(z.apply(v)).catch(()=>{});}}catch(_){}
+  try{if(caps.torchFeature().isSupported())torchBtn.hidden=false;}catch(_){}
+}
+async function setTorch(inst,btn,on){
+  try{await inst.getRunningTrackCameraCapabilities().torchFeature().apply(on);btn.setAttribute('aria-pressed',String(on));return true;}catch(_){return false;}
+}
+
+/* ================= live camera on the sell screen ================= */
+// Runs whenever the sell screen is showing; stops for the product form, the full-screen scanner,
+// another tab, a hidden app, or after a quiet spell (battery). Calls are queued so starts and stops never overlap.
+const IDLE_MS=5*60*1000;
+const L={inst:null,err:null,paused:false,idle:false,last:'',seen:0,timer:null,torch:false,chain:Promise.resolve()};
+function liveWanted(){return !!S.role&&!$('#s-app').hidden&&S.tab==='sell'&&!document.hidden&&$('#sheet').hidden&&$('#picker').hidden&&$('#scanner').hidden&&!L.paused&&!L.err;}
+function syncLive(){L.chain=L.chain.then(applyLive,applyLive);return L.chain;}
+async function applyLive(){
+  const want=liveWanted();
+  if(want&&!L.inst)await startLive();
+  else if(!want&&L.inst)await stopLive();
+  else if(!want)paintLive();
+}
+function paintLive(state,text){
+  const lc=$('#livecam');
+  if(!state)state=L.inst?'on':(L.err?'error':(L.paused?'paused':'off'));
+  lc.dataset.state=state;
+  const btn=$('#lcStart');
+  if(state==='starting'||state==='off'){$('#lcText').textContent='کامێرا دەکرێتەوە…';btn.hidden=true;}
+  else if(state==='paused'){$('#lcText').textContent=L.idle?'کامێرا بۆ پاراستنی باتری وەستا.':'کامێرا وەستێنراوە.';btn.textContent='کردنەوەی کامێرا';btn.hidden=false;}
+  else if(state==='error'){$('#lcText').textContent=text||L.err||'';btn.textContent='دووبارە هەوڵ بدەرەوە';btn.hidden=false;}
+}
+async function startLive(){
+  paintLive('starting');$('#lcLast').hidden=true;
+  try{await loadQrLib();}catch(_){L.err='بارکردنی کامێرا سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.';paintLive();return;}
+  const {H,F}=qrApi();
+  if(!H){L.err='بارکردنی کامێرا سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.';paintLive();return;}
+  const inst=new H('liveReader',{verbose:false,formatsToSupport:qrFormats(F),experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
+  const panelH=()=>$('#livecam').clientHeight||200;
   try{
-    const F=window.Html5QrcodeSupportedFormats;
-    const formats=F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.ITF,F.QR_CODE]:undefined;
-    qr=new window.Html5Qrcode('reader',{verbose:false,formatsToSupport:formats,experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
-    await qr.start({facingMode:'environment'},{fps:12,qrbox:(w,h)=>({width:Math.floor(Math.min(w*0.86,340)),height:Math.floor(Math.min(h*0.42,170))})},onScan,()=>{});
+    await inst.start({facingMode:'environment'},{fps:15,disableFlip:true,
+      qrbox:(w,h)=>({width:Math.max(60,Math.floor(w*0.86)),height:Math.max(60,Math.floor(Math.min(h*0.6,panelH()*0.62)))})},liveOnScan,()=>{});
+  }catch(e){try{inst.clear();}catch(_){}L.err=camErrText(e);paintLive();return;}
+  L.inst=inst;L.torch=false;
+  const tb=$('#lcTorch');tb.hidden=true;tb.setAttribute('aria-pressed','false');
+  tuneCamera(inst,tb);
+  paintLive('on');armIdle();
+}
+async function stopLive(){
+  const inst=L.inst;L.inst=null;clearTimeout(L.timer);
+  if(inst){try{if(inst.isScanning)await inst.stop();}catch(_){}try{inst.clear();}catch(_){}}
+  $('#lcTorch').hidden=true;
+  paintLive();
+}
+function armIdle(){clearTimeout(L.timer);L.timer=setTimeout(()=>{L.paused=true;L.idle=true;syncLive();},IDLE_MS);}
+function liveOnScan(text){
+  const code=codeKey(String(text||''));if(!code)return;
+  const now=Date.now();
+  // The same item held in view keeps decoding; count it once until it leaves the frame for 2 s.
+  if(code===L.last&&now-L.seen<2000){L.seen=now;return;}
+  L.last=code;L.seen=now;armIdle();
+  handleCode(code);
+}
+$('#lcPause').addEventListener('click',()=>{L.paused=true;L.idle=false;syncLive();});
+$('#lcStart').addEventListener('click',()=>{unlockAudio();L.paused=false;L.idle=false;L.err=null;syncLive();});
+$('#lcTorch').addEventListener('click',async()=>{if(!L.inst)return;const want=!L.torch;if(await setTorch(L.inst,$('#lcTorch'),want))L.torch=want;});
+document.addEventListener('visibilitychange',()=>{syncLive();});
+
+/* ================= full-screen scanner (product form) ================= */
+let qr=null,scanCb=null,lastCode='',lastAt=0,scanTarget=null,torchOn=false;
+async function openScanner(cb,title,target){
+  scanCb=cb;scanTarget=target||null;lastCode='';lastAt=0;torchOn=false;
+  $('#scanTitle').textContent=title||'بارکۆد بخە ناو چوارچێوەکە';$('#scanLast').hidden=true;
+  const tb=$('#scanTorch');tb.hidden=true;tb.setAttribute('aria-pressed','false');
+  $('#scanner').hidden=false;
+  await syncLive();   // the live camera must let go of the camera first
+  try{await loadQrLib();}catch(e){closeScanner();toast('بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.','error');return;}
+  if($('#scanner').hidden)return;
+  const {H,F}=qrApi();
+  if(!H){closeScanner();toast('بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.','error');return;}
+  let inst=null;
+  try{
+    inst=new H('reader',{verbose:false,formatsToSupport:qrFormats(F),experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
+    qr=inst;
+    await inst.start({facingMode:'environment'},{fps:15,disableFlip:true,
+      qrbox:(w,h)=>({width:Math.max(60,Math.floor(Math.min(w*0.92,420))),height:Math.max(60,Math.floor(Math.min(h*0.45,220)))})},onScan,()=>{});
+    if(qr!==inst||$('#scanner').hidden){try{await inst.stop();}catch(_){}try{inst.clear();}catch(_){}return;}
+    tuneCamera(inst,tb);
   }catch(e){
-    closeScanner();
-    const n=(e&&(e.name||e.message||String(e)))||'';
-    toast(/NotAllowed|Permission/i.test(n)?'ڕێگە بە کامێرا بدە (لە ڕێکخستنەکانی وێبگەڕەکە) و دووبارە هەوڵ بدەرەوە.':'کامێرا کار ناکات لەم مۆبایلە.','error');
+    if(qr!==inst)return;
+    closeScanner();toast(camErrText(e),'error');
   }
 }
 function onScan(text){
-  const code=normDigits(String(text||'')).trim();if(!code)return;
+  const code=codeKey(String(text||''));if(!code)return;
   const now=Date.now();if(code===lastCode&&now-lastAt<2200)return;
   lastCode=code;lastAt=now;
-  try{if(navigator.vibrate)navigator.vibrate(60);}catch(_){}
-  const label=scanCb?scanCb(code):'';
-  if(scanCont){const el=$('#scanLast');el.textContent=label||code;el.hidden=false;}
-  else closeScanner();
+  beep(true);try{if(navigator.vibrate)navigator.vibrate(60);}catch(_){}
+  if(scanCb)scanCb(code);
+  closeScanner();
 }
 async function closeScanner(){
   $('#scanner').hidden=true;
-  if(qr){try{if(qr.isScanning)await qr.stop();}catch(_){}try{qr.clear();}catch(_){}qr=null;}
+  const inst=qr;qr=null;
+  if(inst){try{if(inst.isScanning)await inst.stop();}catch(_){}try{inst.clear();}catch(_){}}
+  syncLive();
 }
 $('#scanClose').addEventListener('click',closeScanner);
-$('#scanCam').addEventListener('click',()=>{
-  openScanner(code=>{
-    const p=productByCode(code);
-    if(!p){if(S.role==='owner'){closeScanner();unknownCode(code);}else toast('ئەم بارکۆدە تۆمار نەکراوە: '+code,'error');return 'تۆمار نەکراوە: '+code;}
-    const typed=normDigits(scan.value).trim();
-    const q=/^\d+(\.\d+)?$/.test(typed)&&parseFloat(typed)>0&&typed.length<5?parseFloat(typed):1;
-    addToCart(p,q);if(q!==1)scan.value='';
-    return '✓ '+p.name+' · '+fmt(unitPrice(p,S.mode));
-  },true,'بارکۆدەکان یەک لە دوای یەک سکان بکە');
+$('#scanType').addEventListener('click',()=>{const t=scanTarget;closeScanner();if(t){t.focus();try{t.select();}catch(_){}}});
+$('#scanTorch').addEventListener('click',async()=>{if(!qr)return;const want=!torchOn;if(await setTorch(qr,$('#scanTorch'),want))torchOn=want;});
+$('#fCam').addEventListener('click',()=>{unlockAudio();openScanner(code=>{$('#fBarcode').value=code;$('#fBarcode').classList.remove('bad');$('#fName').focus();},'بارکۆدی کاڵاکە سکان بکە',$('#fBarcode'));});
+
+/* ================= items without a barcode ================= */
+function noCodeItems(){return Array.from(S.products.values()).filter(p=>!codeKey(p.barcode||''));}
+function updateNoCode(){const n=noCodeItems().length;$('#noCodeBtn').hidden=n===0;$('#noCodeCount').textContent=String(n);}
+function renderPicker(){
+  const all=noCodeItems(),q=normText($('#pickSearch').value);
+  $('#pickSearch').hidden=all.length<=8;
+  const list=(q?all.filter(p=>normText(p.name).includes(q)):all).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
+  const inCart=new Map(S.cart.map(l=>[l.pid,l.qty]));
+  $('#pickGrid').innerHTML=list.length?list.map(p=>{const q=inCart.get(p.id);
+    return '<button type="button" class="pick'+(q?' in':'')+'" data-pick="'+esc(p.id)+'">'+(q?'<span class="pq">'+fmtQty(q)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span><span class="ppr num">'+fmt(unitPrice(p,S.mode))+'</span></button>';}).join('')
+    :'<p class="muted" style="margin:0;grid-column:1/-1">'+(all.length?'هیچ کاڵایەک بەم ناوە نییە.':'هیچ کاڵایەکی بێ بارکۆد نییە.')+'</p>';
+}
+function openPicker(){
+  $('#picker').dataset.mode=S.mode;$('#pickSearch').value='';renderPicker();$('#picker').hidden=false;syncLive();
+  if(fine&&!$('#pickSearch').hidden)$('#pickSearch').focus();
+}
+function closePicker(){$('#picker').hidden=true;syncLive();if(fine)scan.focus();}
+$('#noCodeBtn').addEventListener('click',()=>{unlockAudio();openPicker();});
+$$('[data-pclose]').forEach(b=>b.addEventListener('click',closePicker));
+$('#picker').addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();});
+$('#pickSearch').addEventListener('input',renderPicker);
+$('#pickGrid').addEventListener('click',e=>{
+  const b=e.target.closest('[data-pick]');if(!b)return;
+  const p=S.products.get(b.dataset.pick);if(!p)return;
+  addToCart(p,1);beep(true);renderPicker();
+  const nb=$('#pickGrid').querySelector('[data-pick="'+CSS.escape(p.id)+'"]');if(nb)nb.classList.add('flash');
 });
-$('#fCam').addEventListener('click',()=>{openScanner(code=>{$('#fBarcode').value=code;$('#fName').focus();return code;},false,'بارکۆدی کاڵاکە سکان بکە');});
 
 /* ================= cart ================= */
 function addToCart(p,qty){
@@ -1020,7 +1200,7 @@ function renderCart(){
   }).join('');
   S.flash=null;
   $('#cartEmpty').hidden=S.cart.length>0;
-  $('#cartCount').textContent=S.cart.length?(fmtQty(rq(sumQty))+' دانە'):'';
+  $('#cartCount').innerHTML=S.cart.length?('<span class="num">'+fmtQty(rq(sumQty))+'</span> دانە'):'';
   updateTotals();
 }
 $('#cart').addEventListener('click',e=>{
@@ -1161,10 +1341,10 @@ function openSheet(id,preset,addAfter){
   F.wh.value=p?plain(p.wholesale):'';F.rt.value=p?plain(p.retail):'';
   Object.values(F).forEach(i=>i.classList.remove('bad'));
   $('#fErr').hidden=true;disarmDel();$('#fDelete').hidden=!p;
-  $('#sheet').hidden=false;updateMargins();
+  $('#sheet').hidden=false;updateMargins();syncLive();
   setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
 }
-function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;}
+function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;syncLive();}
 $$('[data-close]').forEach(b=>b.addEventListener('click',closeSheet));
 $('#sheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 F.bc.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();F.name.focus();}});
@@ -1185,7 +1365,7 @@ $('#pForm').addEventListener('submit',async e=>{
   const cost=parseNum(F.cost.value);
   if(!data.name)return formErr('ناوی کاڵا بنووسە.',F.name);
   if(!(data.retail>0))return formErr('نرخی تاک بنووسە.',F.rt);
-  if(data.barcode){const other=S.byCode.get(normText(data.barcode));if(other&&other!==S.editing){const op=S.products.get(other);return formErr('ئەم بارکۆدە پێشتر بۆ «'+(op?op.name:'کاڵایەکی تر')+'» تۆمارکراوە.',F.bc);}}
+  if(data.barcode){const other=S.byCode.get(codeKey(data.barcode));if(other&&other!==S.editing){const op=S.products.get(other);return formErr('ئەم بارکۆدە پێشتر بۆ «'+(op?op.name:'کاڵایەکی تر')+'» تۆمارکراوە.',F.bc);}}
   const id=S.editing||newId(),after=S.addAfterSave,wasEdit=!!S.editing;
   busy($('#fSave'),true,'پاشەکەوت دەکرێت…');
   try{
@@ -1242,7 +1422,7 @@ $('#pFile').addEventListener('change',async e=>{
     const name=g('name');const retail=parseNum(g('retail'));if(!name||!(retail>0))continue;
     items.push({name,barcode:normDigits(g('barcode')).replace(/\s+/g,''),cost:parseNum(g('cost')),wholesale:parseNum(g('wholesale')),retail,stock:rq(parseNum(g('stock')))});}
   if(!items.length){toast('هیچ ڕیزێکی دروست نەدۆزرایەوە. ناو و نرخی تاک پێویستن.','error');return;}
-  let upd=0;for(const it of items)if(it.barcode&&S.byCode.has(normText(it.barcode)))upd++;
+  let upd=0;for(const it of items)if(it.barcode&&S.byCode.has(codeKey(it.barcode)))upd++;
   S.importRows=items;
   $('#importText').textContent=fmt(items.length)+' کاڵا دۆزرایەوە: '+fmt(items.length-upd)+' نوێ، '+fmt(upd)+' نوێکردنەوە (بە بارکۆد).';
   $('#importBox').hidden=false;
@@ -1254,7 +1434,7 @@ $('#importGo').addEventListener('click',async()=>{
     for(let i=0;i<items.length;i+=200){
       const b=writeBatch(db);
       for(const it of items.slice(i,i+200)){
-        const ex=it.barcode?S.byCode.get(normText(it.barcode)):null;const id=ex||newId();
+        const ex=it.barcode?S.byCode.get(codeKey(it.barcode)):null;const id=ex||newId();
         b.set(doc(db,'products',id),{name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now()});
         b.set(doc(db,'costs',id),{cost:it.cost});
       }

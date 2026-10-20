@@ -208,6 +208,24 @@ main.wrap{padding-block:16px 120px}
 .pick .ppr{color:var(--mode);font-weight:600}
 .pick .pq{font-family:var(--f-num);font-variant-numeric:tabular-nums;position:absolute;top:8px;inset-inline-end:8px;min-width:24px;height:24px;border-radius:999px;background:var(--mode);color:var(--on-accent);font-size:13px;font-weight:700;display:grid;place-items:center;padding-inline:6px}
 .pick.flash{animation:flash 1s ease-out}
+#tab-sell[data-ret="1"]{--mode:var(--danger);--mode-soft:var(--danger-soft)}
+.ticket-head .th-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ret-tog{border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:2px 12px;font-weight:700;font-size:13px;line-height:1.6}
+.ret-tog[aria-pressed="true"]{background:var(--danger);border-color:var(--danger);color:var(--on-accent)}
+.chip.ret{background:var(--danger-soft);color:var(--danger)}
+.sale.ret .st{color:var(--danger)}
+.eitems{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.erow{display:grid;grid-template-columns:6.5em 8em minmax(0,1fr) 32px;gap:6px 10px;align-items:end;padding:10px;border-top:1px dashed var(--line)}
+.erow:first-child{border-top:0}
+.erow .en{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.erow .en span:first-child{overflow-wrap:anywhere;min-width:0}
+.erow label{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted);min-width:0}
+.erow .inp{padding:7px 9px}
+.erow .x{grid-column:4}
+.perms{grid-column:1/-1;display:flex;gap:6px 18px;flex-wrap:wrap;font-size:14px}
+.perms label,.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.perms input,.chk input{width:18px;height:18px;accent-color:var(--retail);margin:0}
+.rename{grid-column:1/-1}
 .suggest{position:absolute;inset-inline:0;top:calc(100% + 4px);z-index:15;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);max-height:340px;overflow:auto;padding:4px}
 .sug{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;width:100%;text-align:start;border:0;background:transparent;padding:9px 10px;border-radius:var(--r-sm)}
 .sug[aria-selected="true"],.sug:hover{background:var(--sunk)}
@@ -260,8 +278,8 @@ main.wrap{padding-block:16px 120px}
 @media (min-width:880px){.paybar{display:none!important}}
 
 /* ---------- products ---------- */
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;min-width:0}
+.stats{display:flex;gap:8px}
+.stat{flex:1 1 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;min-width:0}
 .stat span{display:block;font-size:12px;color:var(--muted);line-height:1.4}
 .stat b{font-size:18px;font-weight:600;display:block;overflow-wrap:anywhere}
 .stat.low b{color:var(--warn)}
@@ -279,6 +297,8 @@ button.prow:hover{background:var(--sunk)}
 .pp.wh b{color:var(--wholesale)}
 .pp.rt b{color:var(--retail)}
 .pstock{justify-self:end}
+.plist.nocost .prow{grid-template-columns:minmax(0,2.2fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr)) 76px}
+.plist.nocost .pc{display:none}
 @media (max-width:760px){
   .phead{display:none}
   .prow{grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:2px 10px}
@@ -493,7 +513,7 @@ window.FIREBASE_CONFIG = {
       <nav class="nav" role="tablist" aria-label="بەشەکان">
         <button type="button" role="tab" data-tab="sell" aria-selected="true"><svg><use href="#i-cart"/></svg>فرۆشتن</button>
         <button type="button" role="tab" data-tab="mine" data-staff aria-selected="false"><svg><use href="#i-receipt"/></svg>فرۆشتنەکانم</button>
-        <button type="button" role="tab" data-tab="products" data-owner aria-selected="false"><svg><use href="#i-box"/></svg>کاڵاکان</button>
+        <button type="button" role="tab" data-tab="products" data-prodtab aria-selected="false"><svg><use href="#i-box"/></svg>کاڵاکان</button>
         <button type="button" role="tab" data-tab="reports" data-owner aria-selected="false"><svg><use href="#i-chart"/></svg>ڕاپۆرت</button>
         <button type="button" role="tab" data-tab="staff" data-owner aria-selected="false"><svg><use href="#i-people"/></svg>شاگردەکان</button>
       </nav>
@@ -535,30 +555,30 @@ window.FIREBASE_CONFIG = {
             <button type="button" id="noCodeBtn" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="noCodeCount" class="chip num"></span></button>
           </div>
           <div class="ticket">
-            <div class="ticket-head"><span class="tk">پسوولەی فرۆشتن</span><span><span id="cartCount"></span> <span id="ticketMode" class="chip m-retail">تاک</span></span></div>
+            <div class="ticket-head"><span class="tk" id="ticketTitle">پسوولەی فرۆشتن</span><span class="th-r"><span id="cartCount"></span><span id="ticketMode" class="chip m-retail">تاک</span><button type="button" id="retBtn" class="ret-tog" aria-pressed="false" hidden>گەڕاوە</button></span></div>
             <ul id="cart" class="cart"></ul>
-            <div id="cartEmpty" class="empty"><b>پسوولەکە بەتاڵە</b>بارکۆد سکان بکە، یان ناوی کاڵا بنووسە و Enter دابگرە.</div>
+            <div id="cartEmpty" class="empty"><b>پسوولەکە بەتاڵە</b><span id="emptyText">بارکۆد بخە بەردەم کامێرا یان سکانی بکە.</span></div>
           </div>
         </div>
         <aside class="pay" aria-label="پارەدان">
           <div class="field">
-            <label for="customer">ناوی کڕیار <span class="muted">(بۆ جوملە و قەرز)</span></label>
+            <label for="customer">ناوی کڕیار <span class="muted" id="customerHint">(بۆ جوملە و قەرز)</span></label>
             <input id="customer" class="inp" autocomplete="off">
             <p id="customerErr" class="ferr" hidden></p>
           </div>
           <div class="row"><span>کۆی کاڵاکان</span><span class="rv"><span id="sumSub" class="num">0</span><span class="cur">د.ع</span></span></div>
-          <div class="two">
+          <div class="two" id="payFields">
             <div class="field"><label for="discount">داشکاندن</label><input id="discount" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
             <div class="field"><label for="paid">پارەی وەرگیراو</label><input id="paid" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="هەمووی"></div>
           </div>
-          <div class="total"><span class="tl">کۆی گشتی</span><span><span id="sumTotal" class="num tv">0</span><span class="cur">د.ع</span></span></div>
+          <div class="total"><span class="tl" id="totalLabel">کۆی گشتی</span><span><span id="sumTotal" class="num tv">0</span><span class="cur">د.ع</span></span></div>
           <div id="changeRow" class="row" hidden><span id="changeLabel" class="rl">باقی بۆ کڕیار</span><span class="rv"><span id="change" class="num">0</span><span class="cur">د.ع</span></span></div>
           <button type="button" id="checkout" class="btn primary big" disabled>تەواوکردنی فرۆشتن</button>
           <button type="button" id="clearCart" class="btn ghost">پاککردنەوەی پسوولە</button>
         </aside>
       </div>
       <div id="paybar" class="paybar" hidden>
-        <div><span class="pbl">کۆی گشتی</span><span id="pbTotal" class="num pbv">0</span><span class="cur">د.ع</span></div>
+        <div><span class="pbl" id="pbLabel">کۆی گشتی</span><span id="pbTotal" class="num pbv">0</span><span class="cur">د.ع</span></div>
         <button type="button" id="pbCheckout" class="btn primary">تەواوکردنی فرۆشتن</button>
       </div>
     </section>
@@ -576,23 +596,23 @@ window.FIREBASE_CONFIG = {
     <section id="tab-products" class="sec" role="tabpanel" hidden>
       <div class="stats">
         <div class="stat"><span>ژمارەی کاڵا</span><b id="pCount" class="num">0</b></div>
-        <div class="stat"><span>بەهای کۆگا (بە نرخی کڕین)</span><b><span id="pValue" class="num">0</span><span class="cur">د.ع</span></b></div>
+        <div class="stat" data-owner><span>بەهای کۆگا (بە نرخی کڕین)</span><b><span id="pValue" class="num">0</span><span class="cur">د.ع</span></b></div>
         <div class="stat low"><span>کەم ماوە یان نەماوە</span><b id="pLow" class="num">0</b></div>
       </div>
       <div class="tools">
         <label for="pSearch" class="sr">گەڕان</label>
         <input id="pSearch" class="inp" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off">
         <button type="button" id="pAdd" class="btn primary">+ کاڵای نوێ</button>
-        <button type="button" id="pImport" class="btn ghost">هاوردەکردن لە Excel</button>
-        <button type="button" id="pExport" class="btn ghost">داگرتن</button>
+        <button type="button" id="pImport" class="btn ghost" data-owner>هاوردەکردن لە Excel</button>
+        <button type="button" id="pExport" class="btn ghost" data-owner>داگرتن</button>
         <input type="file" id="pFile" accept=".csv,text/csv,text/plain" hidden>
       </div>
       <div id="importBox" class="banner ok" hidden><span id="importText"></span><button type="button" id="importGo" class="btn primary sm">هاوردەکردن</button><button type="button" id="importCancel" class="btn ghost sm">هەڵوەشاندنەوە</button></div>
-      <div class="plist">
-        <div class="prow phead" aria-hidden="true"><span>کاڵا</span><span>بارکۆد</span><span>کڕین</span><span>جوملە</span><span>تاک</span><span class="pstock">کۆگا</span></div>
+      <div class="plist" id="plist">
+        <div class="prow phead" aria-hidden="true"><span>کاڵا</span><span>بارکۆد</span><span class="pc">کڕین</span><span>جوملە</span><span>تاک</span><span class="pstock">کۆگا</span></div>
         <div id="pBody"></div>
       </div>
-      <p class="hint" style="margin:0">بۆ هاوردەکردن، فایلی CSV بەکاربهێنە بەم ڕیزبەندییە: ناو، بارکۆد، نرخی کڕین، نرخی جوملە، نرخی تاک، کۆگا. لە Excel دا «Save As ← CSV UTF-8» هەڵبژێرە.</p>
+      <p class="hint" style="margin:0" data-owner>بۆ هاوردەکردن، فایلی CSV بەکاربهێنە بەم ڕیزبەندییە: ناو، بارکۆد، نرخی کڕین، نرخی جوملە، نرخی تاک، کۆگا. لە Excel دا «Save As ← CSV UTF-8» هەڵبژێرە.</p>
     </section>
 
     <!-- REPORTS (owner) -->
@@ -607,7 +627,7 @@ window.FIREBASE_CONFIG = {
       </div>
       <p id="rLabel" class="rlabel"></p>
       <div class="kpis">
-        <div class="kpi"><span>کۆی فرۆشتن</span><b><span id="kSales" class="num">0</span></b><small>دینار</small></div>
+        <div class="kpi"><span>کۆی فرۆشتن (بێ گەڕاوە)</span><b><span id="kSales" class="num">0</span></b><small id="kSalesN">دینار</small></div>
         <div class="kpi profit"><span>قازانج</span><b><span id="kProfit" class="num">0</span></b><small id="kMargin">بە نرخی کڕینی ئێستا</small></div>
         <div class="kpi"><span>ژمارەی پسوولە</span><b><span id="kCount" class="num">0</span></b><small id="kAvg">—</small></div>
         <div class="kpi debt"><span>کۆی قەرزی ماوە</span><b><span id="kDebt" class="num">0</span></b><small id="kDebtN">لە هەموو ماوەکان</small></div>
@@ -642,9 +662,13 @@ window.FIREBASE_CONFIG = {
           <div class="field"><label for="sName">ناوی شاگرد</label><input id="sName" class="inp" autocomplete="off"></div>
           <div class="field"><label for="sEmail">ئیمەیڵ</label><input id="sEmail" class="inp ltr-in" type="email" inputmode="email" autocapitalize="off" spellcheck="false" autocomplete="off"></div>
           <div class="field"><label for="sPass">پاسوێرد (لانیکەم ٦ پیت یان ژمارە)</label><div class="pw"><input id="sPass" class="inp ltr-in" type="password" autocomplete="new-password"><button type="button" data-eye="sPass">پیشاندان</button></div></div>
+          <div class="perms">
+            <label class="chk"><input type="checkbox" id="sCanAdd"> دەتوانێت کاڵا زیاد بکات</label>
+            <label class="chk"><input type="checkbox" id="sCanRet" checked> دەتوانێت گەڕاوە وەربگرێت</label>
+          </div>
           <p id="sMsg" class="msg" hidden></p>
           <button type="submit" id="sBtn" class="btn primary">دروستکردنی ئەکاونت</button>
-          <p class="hint" style="margin:0">ئیمەیڵ و پاسوێردەکە بدە بە شاگردەکە. دەتوانێت لە مۆبایلی خۆی بچێتە ژوورەوە و تەنها دەتوانێت بفرۆشێت.</p>
+          <p class="hint" style="margin:0">ئیمەیڵ و پاسوێردەکە بدە بە شاگردەکە. شاگرد ڕاپۆرت، قازانج و نرخی کڕین نابینێت.</p>
         </form>
       </div>
       <div class="panel">
@@ -666,6 +690,25 @@ window.FIREBASE_CONFIG = {
     </div>
   </div>
 
+  <!-- RECEIPT EDIT SHEET -->
+  <div id="saleSheet" class="sheet" hidden>
+    <div class="sheet-bg" data-sclose></div>
+    <form id="saleForm" class="sheet-card" novalidate role="dialog" aria-modal="true" aria-labelledby="saleTitle">
+      <div class="sheet-head"><h2 id="saleTitle">دەستکاریکردنی پسوولە</h2><button type="button" class="x" data-sclose aria-label="داخستن">×</button></div>
+      <p id="eMeta" class="hint" style="margin:0"></p>
+      <div class="field"><label for="eCustomer">ناوی کڕیار</label><input id="eCustomer" class="inp" autocomplete="off"></div>
+      <div id="eItems" class="eitems"></div>
+      <div class="two" id="ePayRow">
+        <div class="field"><label for="eDiscount">داشکاندن</label><input id="eDiscount" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field"><label for="ePaid">پارەی وەرگیراو</label><input id="ePaid" class="inp num-in" inputmode="decimal" autocomplete="off"></div>
+      </div>
+      <div class="total"><span class="tl" id="eTotalL">کۆی گشتی</span><span><span id="eTotal" class="num tv">0</span><span class="cur">د.ع</span></span></div>
+      <div id="eDebtRow" class="row" data-kind="debt" hidden><span class="rl">قەرزی ماوە</span><span class="rv"><span id="eDebt" class="num">0</span><span class="cur">د.ع</span></span></div>
+      <p id="eErr" class="ferr" hidden></p>
+      <div class="sheet-actions"><button type="submit" id="eSave" class="btn primary">پاشەکەوتکردن</button><button type="button" class="btn ghost" data-sclose>داخستن</button></div>
+    </form>
+  </div>
+
   <!-- PRODUCT SHEET -->
   <div id="sheet" class="sheet" hidden>
     <div class="sheet-bg" data-close></div>
@@ -678,7 +721,7 @@ window.FIREBASE_CONFIG = {
           <span class="hint">ئەگەر کاڵاکە بارکۆدی نییە، بەتاڵی بهێڵە. لە کاتی فرۆشتن لە «کاڵای بێ بارکۆد» دەیدۆزیتەوە.</span>
         </div>
         <div class="field span2"><label for="fName">ناوی کاڵا</label><input id="fName" class="inp" autocomplete="off"></div>
-        <div class="field"><label for="fCost">نرخی کڕین</label><input id="fCost" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field" id="fCostWrap"><label for="fCost">نرخی کڕین</label><input id="fCost" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
@@ -777,7 +820,7 @@ function busy(btn,on,label){if(on){btn.dataset.label=btn.textContent;btn.textCon
 $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.eye);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'شاردنەوە':'پیشاندان';}));
 
 /* ================= state ================= */
-const S={user:null,role:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
+const S={user:null,role:null,perm:{add:false,ret:false},ret:false,renaming:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
   sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
@@ -840,10 +883,11 @@ async function resolveRole(u){
   screen('boot');S.user=u;
   try{
     const os=await getDoc(doc(db,'meta','owner'));
-    if(os.exists()&&os.data().uid===u.uid){S.role='owner';S.myName=os.data().name||u.displayName||u.email;return start();}
+    if(os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true};S.myName=os.data().name||u.displayName||u.email;return start();}
     const us=await getDoc(doc(db,'users',u.uid));
-    if(us.exists()){const d=us.data();if(d.role==='staff'&&d.active===true){S.role='staff';S.myName=d.name||u.email;return start();}
-      return denied(d.active===false?'paused':'none',!os.exists());}
+    if(us.exists()){const d=us.data();
+      if(d.role==='staff'&&d.active===true&&!d.removed){S.role='staff';S.perm=staffPerm(d);S.myName=d.name||u.email;return start();}
+      return denied(d.removed?'removed':(d.active===false?'paused':'none'),!os.exists());}
     return denied('none',!os.exists());
   }catch(err){denied('error',false,err);}
 }
@@ -851,7 +895,8 @@ function denied(kind,canClaim,err){
   stopAll();screen('denied');
   $('#dEmail').textContent=S.user?S.user.email:'';
   $('#dClaim').hidden=!canClaim;
-  if(kind==='paused'){$('#dTitle').textContent='ئەکاونتەکەت ڕاگیراوە';$('#dText').textContent='خاوەنی دوکان ئەم ئەکاونتەی ڕاگرتووە. بۆ زانیاری زیاتر قسەی لەگەڵ بکە.';}
+  if(kind==='removed'){$('#dTitle').textContent='ئەکاونتەکەت لابراوە';$('#dText').textContent='خاوەنی دوکان ئەم ئەکاونتەی لابردووە. بۆ زانیاری زیاتر قسەی لەگەڵ بکە.';}
+  else if(kind==='paused'){$('#dTitle').textContent='ئەکاونتەکەت ڕاگیراوە';$('#dText').textContent='خاوەنی دوکان ئەم ئەکاونتەی ڕاگرتووە. بۆ زانیاری زیاتر قسەی لەگەڵ بکە.';}
   else if(kind==='error'){$('#dTitle').textContent='پەیوەندی سەرکەوتوو نەبوو';$('#dText').textContent=errMsg(err);}
   else{$('#dTitle').textContent='ئەم ئەکاونتە هێشتا زیاد نەکراوە';$('#dText').textContent=canClaim?'هێشتا خاوەنی دوکان دیاری نەکراوە. ئەگەر تۆ خاوەنی دوکانیت، ئەم ئەکاونتە بکە بە خاوەن.':'داوا لە خاوەنی دوکان بکە لە بەشی «شاگردەکان» ئەکاونتت بۆ دروست بکات.';}
 }
@@ -875,8 +920,19 @@ function stopAll(){
   if(S.rangeUnsub){S.rangeUnsub();S.rangeUnsub=null;}
   if(S.mineUnsub){S.mineUnsub();S.mineUnsub=null;}
   S.products=new Map();S.byCode=new Map();S.costs=new Map();S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
-  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;
+  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false};
+  if(S.ret)setReturn(false);
   syncLive();
+}
+function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false};}
+// Show or hide what this person may do; runs at start and whenever the owner changes a staff member's permissions.
+function applyPerms(){
+  const owner=S.role==='owner';
+  $$('[data-prodtab]').forEach(el=>{el.hidden=!(owner||S.perm.add);});
+  $('#retBtn').hidden=!(owner||S.perm.ret);
+  if(S.ret&&!S.perm.ret)setReturn(false);
+  if(S.tab==='products'&&!owner&&!S.perm.add)showTab('sell');
+  if(S.tab==='products')renderProducts();
 }
 function onErr(err){
   if(err&&err.code==='permission-denied'){if(S.user)resolveRole(S.user);return;}
@@ -888,6 +944,12 @@ function start(){
   $$('[data-owner]').forEach(el=>{el.hidden=!owner;});
   $$('[data-staff]').forEach(el=>{el.hidden=owner;});
   $('#meName').textContent=S.myName;$('#meRole').textContent=owner?'خاوەن':'شاگرد';$('#meRole').className='chip '+(owner?'m-wholesale':'m-retail');
+  applyPerms();
+  if(!owner)S.unsubs.push(onSnapshot(doc(db,'users',S.user.uid),s=>{
+    const d=s.exists()?s.data():null;
+    if(!d||d.active!==true||d.removed){resolveRole(S.user);return;}
+    S.perm=staffPerm(d);applyPerms();
+  },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
   S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
@@ -898,10 +960,10 @@ function start(){
   },onErr));
   if(owner){
     S.unsubs.push(onSnapshot(collection(db,'costs'),snap=>{S.costs=new Map();snap.docs.forEach(d=>S.costs.set(d.id,Number(d.data().cost)||0));if(S.tab==='products')renderProducts();if(S.tab==='reports')renderReports();},onErr));
-    S.unsubs.push(onSnapshot(collection(db,'users'),snap=>{S.staff=new Map();snap.docs.forEach(d=>{const v=d.data();if(v.role==='staff')S.staff.set(d.id,Object.assign({},v,{id:d.id}));});renderStaff();},onErr));
+    S.unsubs.push(onSnapshot(collection(db,'users'),snap=>{S.staff=new Map();snap.docs.forEach(d=>{const v=d.data();if(v.role==='staff')S.staff.set(d.id,Object.assign({},v,{id:d.id}));});if(!S.renaming||!$('#rn-'+S.renaming))renderStaff();},onErr));
     S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();},onErr));
   }
-  setMode('retail');showTab('sell');
+  setMode('retail');setReturn(false);showTab('sell');
 }
 function setStatus(kind,text){$('#status').dataset.s=kind;$('#statusText').textContent=text;}
 function markSync(meta){
@@ -916,7 +978,7 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 function showTab(t){
-  if(S.role!=='owner'&&['products','reports','staff'].includes(t))t='sell';
+  if(S.role!=='owner'&&(['reports','staff'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   S.tab=t;
   $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
@@ -940,11 +1002,30 @@ function setMode(m){
   renderCart();
 }
 
+/* ================= return mode ================= */
+function checkoutLabel(){return S.ret?'تەواوکردنی گەڕاوە':'تەواوکردنی فرۆشتن';}
+function setReturn(on){
+  if(on&&!(S.role==='owner'||S.perm.ret))on=false;
+  S.ret=!!on;
+  $('#tab-sell').dataset.ret=S.ret?'1':'0';
+  $('#retBtn').setAttribute('aria-pressed',String(S.ret));
+  $('#ticketTitle').textContent=S.ret?'پسوولەی گەڕاوە':'پسوولەی فرۆشتن';
+  $('#emptyText').textContent=S.ret?'ئەو کاڵایانەی کڕیار دەیانگەڕێنێتەوە سکان بکە.':'بارکۆد بخە بەردەم کامێرا یان سکانی بکە.';
+  $('#customerHint').textContent=S.ret?'(ئارەزوومەندانە)':'(بۆ جوملە و قەرز)';
+  $('#payFields').hidden=S.ret;
+  $('#totalLabel').textContent=S.ret?'پارەی گەڕاوە بۆ کڕیار':'کۆی گشتی';
+  $('#pbLabel').textContent=S.ret?'پارەی گەڕاوە':'کۆی گشتی';
+  $('#checkout').textContent=checkoutLabel();$('#pbCheckout').textContent=checkoutLabel();
+  if(S.ret){$('#discount').value='';$('#paid').value='';$('#customerErr').hidden=true;$('#customer').classList.remove('bad');}
+  renderCart();
+}
+$('#retBtn').addEventListener('click',()=>setReturn(!S.ret));
+
 /* ================= barcode input (typed or hardware scanner) ================= */
 const scan=$('#scanInput');
 function productByCode(code){const id=S.byCode.get(codeKey(code));return id?S.products.get(id):null;}
 function unknownCode(code){
-  if(S.role==='owner')toast('بارکۆدی '+code+' تۆمار نەکراوە.','info',{label:'تۆمارکردنی کاڵا',fn:()=>openSheet(null,{barcode:code},true)});
+  if(S.role==='owner'||S.perm.add)toast('بارکۆدی '+code+' تۆمار نەکراوە.','info',{label:'تۆمارکردنی کاڵا',fn:()=>openSheet(null,{barcode:code},true)});
   else toast('بارکۆدی '+code+' تۆمار نەکراوە. بە خاوەنی دوکان بڵێ.','error');
 }
 // One place that handles every barcode, whatever read it.
@@ -1186,7 +1267,7 @@ function renderCart(){
   let sumQty=0;
   $('#cart').innerHTML=S.cart.map((l,i)=>{
     const {p,price,noWh}=lineInfo(l);sumQty+=l.qty;
-    const short=(typeof p.stock==='number')&&(p.stock-l.qty<0);
+    const short=!S.ret&&(typeof p.stock==='number')&&(p.stock-l.qty<0);
     return '<li class="line'+(S.flash===l.pid?' flash':'')+'" data-i="'+i+'">'+
       '<div class="lmain"><div class="ln">'+esc(p.name)+'</div><div class="lm">'+
         (p.barcode?'<span class="num">'+esc(p.barcode)+'</span>':'<span>بێ بارکۆد</span>')+
@@ -1221,6 +1302,7 @@ $('#cart').addEventListener('change',e=>{
 $('#cart').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.qty input')){e.preventDefault();e.target.blur();}});
 function totals(){
   let sub=0;for(const l of S.cart){const {price}=lineInfo(l);sub+=price*l.qty;}
+  if(S.ret)return {sub,discount:0,total:sub,paid:sub,paidEntered:false};
   const discount=Math.min(Math.max(0,parseNum($('#discount').value)),sub);
   const total=Math.max(0,sub-discount);
   const pr=$('#paid').value.trim();
@@ -1241,7 +1323,7 @@ function updateTotals(){
 }
 ['#discount','#paid'].forEach(s=>$(s).addEventListener('input',updateTotals));
 $('#customer').addEventListener('input',()=>{$('#customerErr').hidden=true;$('#customer').classList.remove('bad');});
-$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';renderCart();});
+$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';if(S.ret)setReturn(false);else renderCart();});
 $('#checkout').addEventListener('click',checkout);
 $('#pbCheckout').addEventListener('click',checkout);
 
@@ -1252,6 +1334,7 @@ async function commitSoft(promise){
 }
 async function checkout(){
   if(S.saving||!S.cart.length||!S.role)return;
+  if(S.ret)return checkoutReturn();
   const t=totals(),customer=$('#customer').value.trim(),debt=Math.max(0,t.total-t.paid);
   if(debt>0&&!customer){
     const ce=$('#customerErr');ce.textContent='بۆ فرۆشتنی بە قەرز، ناوی کڕیار بنووسە.';ce.hidden=false;$('#customer').classList.add('bad');$('#customer').focus();
@@ -1272,7 +1355,25 @@ async function checkout(){
     const extra=debt>0?' (قەرز: '+fmt(debt)+')':'';
     toast(r==='ok'?('پسوولە تۆمارکرا · '+fmt(sale.total)+' د.ع'+extra):('لەسەر مۆبایلەکە پاشەکەوت کرا · '+fmt(sale.total)+' د.ع. کە ئینتەرنێت هاتەوە دەنێردرێت.'));
   }catch(e){toast(errMsg(e),'error');}
-  finally{S.saving=false;$('#checkout').textContent='تەواوکردنی فرۆشتن';updateTotals();if(fine)scan.focus();}
+  finally{S.saving=false;$('#checkout').textContent=checkoutLabel();updateTotals();if(fine)scan.focus();}
+}
+async function checkoutReturn(){
+  if(!(S.role==='owner'||S.perm.ret)){toast('ڕێگەت نییە گەڕاوە وەربگریت.','error');return;}
+  const t=totals(),customer=$('#customer').value.trim(),now=Date.now();
+  const items=S.cart.map(l=>{const {p,price}=lineInfo(l);return {pid:l.pid,name:p.name,barcode:p.barcode||'',qty:l.qty,price:price};});
+  const rec={type:'return',at:now,day:dayKey(now),mode:S.mode,customer:customer,items:items,sub:t.sub,discount:0,total:t.sub,paid:t.sub,debt:0,
+    seller:S.user.uid,sellerName:S.myName,void:false};
+  S.saving=true;updateTotals();$('#checkout').textContent='پاشەکەوت دەکرێت…';
+  try{
+    const b=writeBatch(db);
+    b.set(doc(collection(db,'sales')),rec);
+    const deltas=new Map();for(const it of items)deltas.set(it.pid,(deltas.get(it.pid)||0)+it.qty);
+    for(const [pid,q] of deltas)if(S.products.has(pid))b.update(doc(db,'products',pid),{stock:increment(q)});
+    const r=await commitSoft(b.commit());
+    S.cart=[];$('#customer').value='';setReturn(false);
+    toast((r==='ok'?'گەڕاوە تۆمارکرا':'گەڕاوە لەسەر مۆبایلەکە پاشەکەوت کرا')+' · '+fmt(rec.total)+' د.ع بدەرەوە بە کڕیار.');
+  }catch(e){toast(errMsg(e),'error');}
+  finally{S.saving=false;$('#checkout').textContent=checkoutLabel();$('#pbCheckout').textContent=checkoutLabel();updateTotals();if(fine)scan.focus();}
 }
 
 /* ================= my sales (staff) ================= */
@@ -1287,7 +1388,7 @@ function subscribeMine(){
 }
 function renderMine(){
   const live=S.mine.filter(s=>!s.void);
-  $('#mTotal').textContent=fmt(live.reduce((a,s)=>a+(s.total||0),0));$('#mCount').textContent=fmt(live.length);
+  $('#mTotal').textContent=fmt(live.reduce((a,s)=>a+sgn(s)*(s.total||0),0));$('#mCount').textContent=fmt(live.filter(s=>!isRet(s)).length);
   $('#mDate').textContent=longDate(new Date());
   const ul=$('#mList');
   if(!S.mineLoaded){ul.innerHTML='<li class="empty">بار دەکرێت…</li>';return;}
@@ -1299,7 +1400,10 @@ $('#mList').addEventListener('click',e=>{const tg=e.target.closest('[data-toggle
 /* ================= products (owner) ================= */
 $('#pSearch').addEventListener('input',renderProducts);
 $('#pAdd').addEventListener('click',()=>openSheet(null,{},false));
-$('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(b)openSheet(b.dataset.id,{},false);});
+$('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(!b)return;
+  if(canEditProduct(S.products.get(b.dataset.id)))openSheet(b.dataset.id,{},false);
+  else toast('تەنها خاوەنی دوکان دەتوانێت دەستکاری ئەم کاڵایە بکات.');});
+function canEditProduct(p){return S.role==='owner'||(!!p&&S.perm.add&&p.createdBy===S.user.uid);}
 function costOf(pid){return S.costs.get(pid)||0;}
 function renderProducts(){
   const all=Array.from(S.products.values());
@@ -1309,6 +1413,7 @@ function renderProducts(){
   const q=normText($('#pSearch').value);
   const list=(q?all.filter(p=>normText(p.name).includes(q)||normText(p.barcode||'').includes(q)):all).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
   const body=$('#pBody');
+  $('#plist').classList.toggle('nocost',S.role!=='owner');
   $('.phead').hidden=!(S.prodLoaded&&list.length);
   if(!S.prodLoaded){body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
   if(!all.length){body.innerHTML='<div class="empty"><b>هێشتا هیچ کاڵایەک تۆمار نەکراوە</b>یەکەم کاڵا زیاد بکە، یان لیستەکەت لە Excel هاوردە بکە.<br><button type="button" class="btn primary" id="emptyAdd">+ کاڵای نوێ</button></div>';$('#emptyAdd').onclick=()=>openSheet(null,{},false);return;}
@@ -1320,7 +1425,7 @@ function renderProducts(){
     return '<button type="button" class="prow" data-id="'+esc(p.id)+'">'+
       '<span class="pname">'+esc(p.name)+'</span>'+
       '<span class="pcode num">'+esc(p.barcode||'—')+'</span>'+
-      '<span class="pp"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
+      '<span class="pp pc"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
       '<span class="pp wh"><small>جوملە</small><b class="num">'+(p.wholesale?fmt(p.wholesale):'—')+'</b></span>'+
       '<span class="pp rt"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
       '<span class="pstock"><span class="chip '+cls+'">'+(st<=0?'نەماوە':fmtQty(st))+'</span></span></button>';
@@ -1332,15 +1437,18 @@ const F={bc:$('#fBarcode'),name:$('#fName'),cost:$('#fCost'),stock:$('#fStock'),
 function plain(n){return n?String(n):'';}
 function newId(){return doc(collection(db,'products')).id;}
 function openSheet(id,preset,addAfter){
-  if(S.role!=='owner')return;
-  S.editing=id;S.addAfterSave=!!addAfter;
+  const owner=S.role==='owner';
+  if(!owner&&!S.perm.add)return;
   const p=id?S.products.get(id):null;
+  if(p&&!canEditProduct(p))return;
+  S.editing=id;S.addAfterSave=!!addAfter;
+  $('#fCostWrap').hidden=!owner;$('#fMargins').hidden=!owner;
   $('#sheetTitle').textContent=p?'دەستکاریکردنی کاڵا':'کاڵای نوێ';
   F.bc.value=p?(p.barcode||''):((preset&&preset.barcode)||'');
   F.name.value=p?p.name:'';F.cost.value=p?plain(costOf(id)):'';F.stock.value=p?plain(p.stock):'';
   F.wh.value=p?plain(p.wholesale):'';F.rt.value=p?plain(p.retail):'';
   Object.values(F).forEach(i=>i.classList.remove('bad'));
-  $('#fErr').hidden=true;disarmDel();$('#fDelete').hidden=!p;
+  $('#fErr').hidden=true;disarmDel();$('#fDelete').hidden=!p||!owner;
   $('#sheet').hidden=false;updateMargins();syncLive();
   setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
 }
@@ -1360,16 +1468,18 @@ function updateMargins(){
 }
 function formErr(msg,input){const e=$('#fErr');e.textContent=msg;e.hidden=false;if(input){input.classList.add('bad');input.focus();}}
 $('#pForm').addEventListener('submit',async e=>{
-  e.preventDefault();if(S.role!=='owner')return;
+  e.preventDefault();const owner=S.role==='owner';if(!owner&&!S.perm.add)return;
   const data={barcode:normDigits(F.bc.value).replace(/\s+/g,''),name:F.name.value.trim(),wholesale:parseNum(F.wh.value),retail:parseNum(F.rt.value),stock:rq(parseNum(F.stock.value)),updatedAt:Date.now()};
   const cost=parseNum(F.cost.value);
   if(!data.name)return formErr('ناوی کاڵا بنووسە.',F.name);
   if(!(data.retail>0))return formErr('نرخی تاک بنووسە.',F.rt);
   if(data.barcode){const other=S.byCode.get(codeKey(data.barcode));if(other&&other!==S.editing){const op=S.products.get(other);return formErr('ئەم بارکۆدە پێشتر بۆ «'+(op?op.name:'کاڵایەکی تر')+'» تۆمارکراوە.',F.bc);}}
   const id=S.editing||newId(),after=S.addAfterSave,wasEdit=!!S.editing;
+  const prev=S.editing?S.products.get(S.editing):null;
+  data.createdBy=(prev&&prev.createdBy)||S.user.uid;
   busy($('#fSave'),true,'پاشەکەوت دەکرێت…');
   try{
-    const b=writeBatch(db);b.set(doc(db,'products',id),data);b.set(doc(db,'costs',id),{cost:cost});
+    const b=writeBatch(db);b.set(doc(db,'products',id),data);if(owner)b.set(doc(db,'costs',id),{cost:cost});
     const r=await commitSoft(b.commit());
     const p=Object.assign({id:id},data);
     closeSheet();
@@ -1435,7 +1545,8 @@ $('#importGo').addEventListener('click',async()=>{
       const b=writeBatch(db);
       for(const it of items.slice(i,i+200)){
         const ex=it.barcode?S.byCode.get(codeKey(it.barcode)):null;const id=ex||newId();
-        b.set(doc(db,'products',id),{name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now()});
+        const prevP=ex?S.products.get(ex):null;
+        b.set(doc(db,'products',id),{name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid});
         b.set(doc(db,'costs',id),{cost:it.cost});
       }
       await commitSoft(b.commit());
@@ -1475,10 +1586,12 @@ function subscribeRange(){
     S.sales=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));S.salesLoaded=true;renderReports();
   },onErr);
 }
+function isRet(s){return s.type==='return';}
+function sgn(s){return isRet(s)?-1:1;}
 function saleProfit(s){let p=0;for(const it of s.items||[])p+=it.qty*(it.price-costOf(it.pid));return p-(s.discount||0);}
-function rangeSales(){const src=S.range==='debts'?S.debts.filter(s=>!s.void):S.sales;return src.slice().sort((x,y)=>y.at-x.at);}
+function rangeSales(){const src=S.range==='debts'?S.debts.filter(s=>!s.void&&!isRet(s)):S.sales;return src.slice().sort((x,y)=>y.at-x.at);}
 function saleRow(s,showSeller,actions){
-  const open=S.open.has(s.id),d=debtOf(s),n=(s.items||[]).length;
+  const open=S.open.has(s.id),d=isRet(s)?0:debtOf(s),n=(s.items||[]).length,ret=isRet(s);
   const single=S.tab==='mine'||['today','yesterday'].includes(S.range);
   const dt=new Date(s.at);const when=single?hm(s.at):(dt.getDate()+'/'+(dt.getMonth()+1)+' '+hm(s.at));
   let body='';
@@ -1486,47 +1599,55 @@ function saleRow(s,showSeller,actions){
     body='<div class="sale-b">'+(s.items||[]).map(it=>'<div class="it"><span class="in">'+esc(it.name)+'</span><span class="num muted">'+fmtQty(it.qty)+' × '+fmt(it.price)+'</span><span class="num">'+fmt(it.qty*it.price)+'</span></div>').join('')+
       '<div class="sale-sum">'+
       (s.discount?'<div class="row"><span>داشکاندن</span><span class="num">−'+fmt(s.discount)+'</span></div>':'')+
-      '<div class="row"><span>کۆی گشتی</span><span class="num rv">'+fmt(s.total)+'</span></div>'+
-      '<div class="row"><span>دراوە</span><span class="num">'+fmt(s.paid==null?s.total:s.paid)+'</span></div>'+
+      (ret?'<div class="row" data-kind="debt"><span class="rl">پارەی گەڕاوە بۆ کڕیار</span><span class="num rv">'+fmt(s.total)+'</span></div>'
+          :'<div class="row"><span>کۆی گشتی</span><span class="num rv">'+fmt(s.total)+'</span></div>'+
+           '<div class="row"><span>دراوە</span><span class="num">'+fmt(s.paid==null?s.total:s.paid)+'</span></div>')+
       (d>0?'<div class="row" data-kind="debt"><span class="rl">قەرزی ماوە</span><span class="num rv">'+fmt(d)+'</span></div>':'')+
-      (showSeller?'<div class="row"><span class="muted">فرۆشیار</span><span>'+esc(s.sellerName||'—')+'</span></div>':'')+
-      (actions?'<div class="row"><span class="muted">قازانج</span><span class="num muted">'+fmt(saleProfit(s))+'</span></div>':'')+
+      (showSeller?'<div class="row"><span class="muted">'+(ret?'وەرگر':'فرۆشیار')+'</span><span>'+esc(s.sellerName||'—')+'</span></div>':'')+
+      (actions&&!s.void?'<div class="row"><span class="muted">قازانج</span><span class="num muted">'+fmt(sgn(s)*saleProfit(s))+'</span></div>':'')+
+      (s.editedAt?'<div class="row"><span class="muted">دەستکاری کراوە</span><span class="num muted">'+new Date(s.editedAt).getDate()+'/'+(new Date(s.editedAt).getMonth()+1)+' '+hm(s.editedAt)+'</span></div>':'')+
       '</div>'+
-      (s.void?'<span class="chip danger" style="align-self:flex-start">ئەم پسوولەیە هەڵوەشێنراوەتەوە</span>':
-        (actions?'<div class="sale-actions">'+(d>0?'<button type="button" class="btn ghost sm" data-pay="'+esc(s.id)+'">قەرزەکە وەرگیرا</button>':'')+'<button type="button" class="btn danger sm" data-void="'+esc(s.id)+'">هەڵوەشاندنەوەی پسوولە</button></div>':''))+
+      (s.void?'<span class="chip danger" style="align-self:flex-start">ئەم پسوولەیە هەڵوەشێنراوەتەوە</span>':'')+
+      (actions?'<div class="sale-actions">'+
+        (d>0&&!s.void?'<button type="button" class="btn ghost sm" data-pay="'+esc(s.id)+'">قەرزەکە وەرگیرا</button>':'')+
+        (!s.void?'<button type="button" class="btn ghost sm" data-edit="'+esc(s.id)+'">دەستکاریکردن</button>':'')+
+        '<button type="button" class="btn danger sm" data-del="'+esc(s.id)+'">سڕینەوە</button></div>':'')+
       '</div>';
   }
-  return '<li class="sale'+(s.void?' void':'')+'"><button type="button" class="sale-h" data-toggle="'+esc(s.id)+'" aria-expanded="'+open+'">'+
+  return '<li class="sale'+(s.void?' void':'')+(ret?' ret':'')+'"><button type="button" class="sale-h" data-toggle="'+esc(s.id)+'" aria-expanded="'+open+'">'+
     '<span class="tm num">'+when+'</span>'+
-    '<span class="chip m-'+(s.mode==='wholesale'?'wholesale':'retail')+'">'+(s.mode==='wholesale'?'جوملە':'تاک')+'</span>'+
+    (ret?'<span class="chip ret">گەڕاوە</span>':'<span class="chip m-'+(s.mode==='wholesale'?'wholesale':'retail')+'">'+(s.mode==='wholesale'?'جوملە':'تاک')+'</span>')+
     '<span class="who"><span class="wn">'+(s.customer?esc(s.customer):(fmt(n)+' جۆر کاڵا'))+'</span>'+(d>0&&!s.void?'<span class="chip danger">قەرز <span class="num">'+fmt(d)+'</span></span>':'')+(s.void?'<span class="chip">هەڵوەشێنراوە</span>':'')+'</span>'+
-    '<span class="st num">'+fmt(s.total)+'</span></button>'+body+'</li>';
+    '<span class="st num">'+(ret?'−':'')+fmt(s.total)+'</span></button>'+body+'</li>';
 }
 function renderReports(){
   if(S.tab!=='reports')return;
   const sales=rangeSales(),live=sales.filter(s=>!s.void);
   S.saleIndex=new Map(sales.map(s=>[s.id,s]));
-  let total=0,profit=0,rT=0,wT=0;
-  for(const s of live){total+=s.total||0;profit+=saleProfit(s);if(s.mode==='wholesale')wT+=s.total||0;else rT+=s.total||0;}
-  let debtAll=0,debtN=0;for(const s of S.debts){if(!s.void&&debtOf(s)>0){debtAll+=debtOf(s);debtN++;}}
+  let total=0,profit=0,rT=0,wT=0,retT=0,retN=0,saleN=0;
+  for(const s of live){const g=sgn(s),v=s.total||0;total+=g*v;profit+=g*saleProfit(s);if(s.mode==='wholesale')wT+=g*v;else rT+=g*v;if(g<0){retT+=v;retN++;}else saleN++;}
+  rT=Math.max(0,rT);wT=Math.max(0,wT);
+  let debtAll=0,debtN=0;for(const s of S.debts){if(!s.void&&!isRet(s)&&debtOf(s)>0){debtAll+=debtOf(s);debtN++;}}
   if(S.range==='debts')$('#rLabel').textContent='هەموو ئەو پسوولانەی هێشتا قەرزیان لەسەرە';
   else{const [a,b]=rangeBounds(S.range);$('#rLabel').textContent=a===b?longDate(keyToDate(a)):(longDate(keyToDate(a))+' تا '+longDate(keyToDate(b)));}
   $('#kSales').textContent=fmt(total);$('#kProfit').textContent=fmt(profit);
+  $('#kSalesN').textContent=retN?('گەڕاوە: '+fmt(retT)+' د.ع ('+fmt(retN)+')'):'دینار';
   $('#kMargin').textContent=total>0?('ڕێژە '+Math.round(profit/total*100)+'% · بە نرخی کڕینی ئێستا'):'بە نرخی کڕینی ئێستا';
-  $('#kCount').textContent=fmt(live.length);$('#kAvg').textContent=live.length?('تێکڕا: '+fmt(total/live.length)+' د.ع'):'—';
+  $('#kCount').textContent=fmt(saleN);$('#kAvg').textContent=saleN?('تێکڕا: '+fmt((total+retT)/saleN)+' د.ع'):'—';
   $('#kDebt').textContent=fmt(debtAll);$('#kDebtN').textContent=debtN?(fmt(debtN)+' پسوولە'):'هیچ قەرزێک نییە';
   const bars=$('#splitBar').children,sum=rT+wT;
   bars[0].style.width=(sum?rT/sum*100:0)+'%';bars[1].style.width=(sum?wT/sum*100:0)+'%';
   $('#lgR').textContent=fmt(rT);$('#lgW').textContent=fmt(wT);
   // by seller
-  const sel=new Map();for(const s of live){const k=s.seller||'?';const v=sel.get(k)||{name:s.sellerName||'—',t:0,n:0};v.t+=s.total||0;v.n++;sel.set(k,v);}
+  const sel=new Map();for(const s of live){const k=s.seller||'?';const v=sel.get(k)||{name:s.sellerName||'—',t:0,n:0};v.t+=sgn(s)*(s.total||0);if(!isRet(s))v.n++;sel.set(k,v);}
   const sl=Array.from(sel.values()).sort((a,b)=>b.t-a.t);
   $('#bySeller').innerHTML=sl.length?sl.map(v=>'<li><span class="tn">'+esc(v.name)+'</span><span class="num">'+fmt(v.t)+'</span><span class="tq">'+fmt(v.n)+' پسوولە</span></li>').join(''):'<li class="muted" style="display:block;font-size:13px">هیچ فرۆشتنێک نییە.</li>';
   // daily
   const multi=['week','month','lastmonth'].includes(S.range);$('#daysPanel').hidden=!multi;
   if(multi){
     const [a,b]=rangeBounds(S.range),per=new Map();
-    for(const s of live){const k=s.day||dayKey(s.at);const v=per.get(k)||{r:0,w:0};if(s.mode==='wholesale')v.w+=s.total||0;else v.r+=s.total||0;per.set(k,v);}
+    for(const s of live){const k=s.day||dayKey(s.at);const v=per.get(k)||{r:0,w:0};if(s.mode==='wholesale')v.w+=sgn(s)*(s.total||0);else v.r+=sgn(s)*(s.total||0);per.set(k,v);}
+    for(const v of per.values()){v.r=Math.max(0,v.r);v.w=Math.max(0,v.w);}
     const days=[];for(let d=keyToDate(a);dayKey(d)<=b;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))days.push(dayKey(d));
     days.reverse();let max=0;for(const k of days){const v=per.get(k);if(v)max=Math.max(max,v.r+v.w);}
     const today=dayKey(Date.now());
@@ -1534,8 +1655,8 @@ function renderReports(){
       return '<div class="drow'+(k===today?' today':'')+'"><span class="dlab">'+WD[d.getDay()]+' <span class="num">'+d.getDate()+'</span></span><div class="dbar"><i class="r" style="width:'+(max?v.r/max*100:0)+'%"></i><i class="w" style="width:'+(max?v.w/max*100:0)+'%"></i></div><span class="dval num">'+(v.r+v.w?fmt(v.r+v.w):'—')+'</span></div>';}).join('');
   }
   // top
-  const agg=new Map();for(const s of live)for(const it of s.items||[]){const k=it.pid||it.name;const v=agg.get(k)||{name:it.name,q:0,rev:0};v.q+=it.qty;v.rev+=it.qty*it.price;agg.set(k,v);}
-  const top=Array.from(agg.values()).sort((a,b)=>b.rev-a.rev).slice(0,5);
+  const agg=new Map();for(const s of live)for(const it of s.items||[]){const k=it.pid||it.name;const v=agg.get(k)||{name:it.name,q:0,rev:0};v.q+=sgn(s)*it.qty;v.rev+=sgn(s)*it.qty*it.price;agg.set(k,v);}
+  const top=Array.from(agg.values()).filter(v=>v.q>0).sort((a,b)=>b.rev-a.rev).slice(0,5);
   $('#top5').innerHTML=top.length?top.map(v=>'<li><span class="tn">'+esc(v.name)+'</span><span class="num">'+fmt(v.rev)+'</span><span class="tq">'+fmtQty(rq(v.q))+' دانە</span></li>').join(''):'<li class="muted" style="display:block;font-size:13px">لەم ماوەیەدا هیچ کاڵایەک نەفرۆشراوە.</li>';
   // list
   const ul=$('#salesList');
@@ -1551,25 +1672,104 @@ function arm(btn,label,fn){
 $('#salesList').addEventListener('click',e=>{
   const tg=e.target.closest('[data-toggle]');
   if(tg){const id=tg.dataset.toggle;if(S.open.has(id))S.open.delete(id);else S.open.add(id);renderReports();return;}
-  const vb=e.target.closest('[data-void]');if(vb){const s=S.saleIndex.get(vb.dataset.void);if(s)arm(vb,'دڵنیایت؟ دووبارە دابگرە',()=>voidSale(s));return;}
+  const db_=e.target.closest('[data-del]');if(db_){const s=S.saleIndex.get(db_.dataset.del);if(s)arm(db_,'دڵنیایت؟ دووبارە دابگرە',()=>deleteSale(s));return;}
+  const eb=e.target.closest('[data-edit]');if(eb){const s=S.saleIndex.get(eb.dataset.edit);if(s)openSaleEdit(s);return;}
   const pb=e.target.closest('[data-pay]');if(pb){const s=S.saleIndex.get(pb.dataset.pay);if(s)arm(pb,'دڵنیایت؟ دووبارە دابگرە',()=>payDebt(s));}
 });
-async function voidSale(s){
+// Stock moves back by the difference: a sale took items out, a return put them in.
+function stockDeltas(s,newItems){
+  const m=new Map(),g=sgn(s);
+  for(const it of s.items||[])m.set(it.pid,(m.get(it.pid)||0)+g*it.qty);
+  for(const it of newItems||[])m.set(it.pid,(m.get(it.pid)||0)-g*it.qty);
+  return m;
+}
+async function deleteSale(s){
   try{
-    const b=writeBatch(db);b.update(doc(db,'sales',s.id),{void:true,voidAt:Date.now(),debt:0});
-    const deltas=new Map();for(const it of s.items||[])deltas.set(it.pid,(deltas.get(it.pid)||0)+it.qty);
-    for(const [pid,q] of deltas)if(S.products.has(pid))b.update(doc(db,'products',pid),{stock:increment(q)});
-    await commitSoft(b.commit());toast('پسوولەکە هەڵوەشایەوە و بڕەکان گەڕانەوە کۆگا.');
+    const b=writeBatch(db);b.delete(doc(db,'sales',s.id));
+    if(!s.void)for(const [pid,q] of stockDeltas(s,[]))if(q&&S.products.has(pid))b.update(doc(db,'products',pid),{stock:increment(rq(q))});
+    await commitSoft(b.commit());S.open.delete(s.id);
+    toast(isRet(s)?'گەڕاوەکە سڕایەوە و کۆگا ڕاستکرایەوە.':'پسوولەکە سڕایەوە و کاڵاکان گەڕانەوە کۆگا.');
   }catch(e){toast(errMsg(e),'error');}
 }
+
+/* ---------- receipt edit sheet ---------- */
+const E={s:null,items:[]};
+function openSaleEdit(s){
+  if(S.role!=='owner')return;
+  E.s=s;E.items=(s.items||[]).map(it=>Object.assign({},it));
+  const ret=isRet(s),dt=new Date(s.at);
+  $('#saleTitle').textContent=ret?'دەستکاریکردنی گەڕاوە':'دەستکاریکردنی پسوولە';
+  $('#eMeta').textContent=longDate(dt)+' · '+hm(s.at)+' · '+(s.sellerName||'')+' · '+(s.mode==='wholesale'?'جوملە':'تاک');
+  $('#eCustomer').value=s.customer||'';
+  $('#eDiscount').value=s.discount?String(s.discount):'';
+  $('#ePaid').value=String(s.paid==null?s.total:s.paid);
+  $('#ePayRow').hidden=ret;
+  $('#eTotalL').textContent=ret?'پارەی گەڕاوە':'کۆی گشتی';
+  $('#eErr').hidden=true;
+  renderEItems();$('#saleSheet').hidden=false;
+}
+function closeSaleEdit(){$('#saleSheet').hidden=true;E.s=null;}
+function renderEItems(){
+  $('#eItems').innerHTML=E.items.map((it,i)=>'<div class="erow" data-i="'+i+'">'+
+    '<div class="en"><span>'+esc(it.name)+'</span><span class="num elt">'+fmt(it.qty*it.price)+'</span></div>'+
+    '<label for="eq-'+i+'">بڕ<input id="eq-'+i+'" class="inp num-in" data-f="qty" inputmode="decimal" value="'+esc(fmtQty(it.qty))+'"></label>'+
+    '<label for="ep-'+i+'">نرخی دانە<input id="ep-'+i+'" class="inp num-in" data-f="price" inputmode="decimal" value="'+esc(String(it.price))+'"></label>'+
+    '<span></span><button type="button" class="x" data-erm aria-label="لابردن">×</button></div>').join('')||'<p class="muted" style="margin:10px">هیچ کاڵایەک نەماوە.</p>';
+  eRecalc();
+}
+function eTotals(){
+  const ret=isRet(E.s);let sub=0;for(const it of E.items)sub+=it.qty*it.price;
+  const discount=ret?0:Math.min(Math.max(0,parseNum($('#eDiscount').value)),sub);
+  const total=Math.max(0,sub-discount);
+  const pr=$('#ePaid').value.trim();
+  const paid=ret?total:Math.min(total,pr===''?total:Math.max(0,parseNum(pr)));
+  return {sub,discount,total,paid,debt:Math.max(0,total-paid)};
+}
+function eRecalc(){
+  const t=eTotals();
+  $('#eTotal').textContent=fmt(t.total);
+  $('#eDebtRow').hidden=!(t.debt>0);$('#eDebt').textContent=fmt(t.debt);
+}
+$('#eItems').addEventListener('input',e=>{
+  const inp=e.target.closest('[data-f]');if(!inp)return;
+  const row=inp.closest('.erow'),it=E.items[+row.dataset.i];if(!it)return;
+  const v=parseNum(inp.value);
+  if(inp.dataset.f==='qty')it.qty=rq(Math.max(0,v));else it.price=Math.max(0,v);
+  row.querySelector('.elt').textContent=fmt(it.qty*it.price);eRecalc();
+});
+$('#eItems').addEventListener('click',e=>{
+  if(!e.target.closest('[data-erm]'))return;
+  const row=e.target.closest('.erow');E.items.splice(+row.dataset.i,1);renderEItems();
+});
+['#eDiscount','#ePaid'].forEach(x=>$(x).addEventListener('input',eRecalc));
+$$('[data-sclose]').forEach(b=>b.addEventListener('click',closeSaleEdit));
+$('#saleSheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeSaleEdit();});
+$('#saleForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(!E.s)return;
+  const err=m=>{const el=$('#eErr');el.textContent=m;el.hidden=false;};
+  const items=E.items.filter(it=>it.qty>0);
+  if(!items.length)return err('لانیکەم یەک کاڵا پێویستە. بۆ لابردنی هەموو پسوولەکە «سڕینەوە» بەکاربهێنە.');
+  const t=eTotals(),customer=$('#eCustomer').value.trim();
+  if(t.debt>0&&!customer)return err('بۆ پسوولەی قەرز، ناوی کڕیار بنووسە.');
+  const s=E.s,clean=items.map(it=>({pid:it.pid,name:it.name,barcode:it.barcode||'',qty:it.qty,price:it.price}));
+  const btn=$('#eSave');busy(btn,true,'پاشەکەوت دەکرێت…');
+  try{
+    const b=writeBatch(db);
+    b.update(doc(db,'sales',s.id),{customer:customer,items:clean,sub:t.sub,discount:t.discount,total:t.total,paid:t.paid,debt:Math.round(t.debt),editedAt:Date.now()});
+    if(!s.void)for(const [pid,q] of stockDeltas(s,clean))if(q&&S.products.has(pid))b.update(doc(db,'products',pid),{stock:increment(rq(q))});
+    await commitSoft(b.commit());
+    closeSaleEdit();toast('پسوولەکە نوێکرایەوە.');
+  }catch(ex){err(errMsg(ex));}
+  finally{busy(btn,false);}
+});
 async function payDebt(s){
   try{await commitSoft(updateDoc(doc(db,'sales',s.id),{paid:s.total,debt:0,paidAt:Date.now()}));toast('قەرزی '+(s.customer||'کڕیار')+' وەرگیرا.');}
   catch(e){toast(errMsg(e),'error');}
 }
 $('#sExport').addEventListener('click',()=>{
   const sales=rangeSales();
-  const rows=[['بەروار','کات','جۆر','فرۆشیار','کڕیار','کاڵا','بارکۆد','بڕ','نرخ','کۆ','داشکاندن','کۆی پسوولە','دراوە','قەرز','دۆخ']];
-  for(const s of sales)(s.items||[]).forEach((it,i)=>rows.push([s.day||dayKey(s.at),hm(s.at),s.mode==='wholesale'?'جوملە':'تاک',s.sellerName||'',s.customer||'',it.name,it.barcode||'',it.qty,it.price,rq(it.qty*it.price),i?'':s.discount||0,i?'':s.total,i?'':(s.paid==null?s.total:s.paid),i?'':debtOf(s),s.void?'هەڵوەشێنراوە':'']));
+  const rows=[['بەروار','کات','پسوولە','نرخ','فرۆشیار','کڕیار','کاڵا','بارکۆد','بڕ','نرخی دانە','کۆ','داشکاندن','کۆی پسوولە','دراوە','قەرز','دۆخ']];
+  for(const s of sales)(s.items||[]).forEach((it,i)=>rows.push([s.day||dayKey(s.at),hm(s.at),isRet(s)?'گەڕاوە':'فرۆشتن',s.mode==='wholesale'?'جوملە':'تاک',s.sellerName||'',s.customer||'',it.name,it.barcode||'',it.qty,it.price,rq(it.qty*it.price),i?'':s.discount||0,i?'':s.total,i?'':(s.paid==null?s.total:s.paid),i?'':debtOf(s),s.void?'هەڵوەشێنراوە':'']));
   saveCsv('sales_'+(S.range==='debts'?'debts':rangeBounds(S.range).join('_'))+'.csv',rows);
 });
 
@@ -1581,6 +1781,7 @@ $('#f-shop').addEventListener('submit',async e=>{
 $('#f-staff').addEventListener('submit',async e=>{
   e.preventDefault();
   const name=$('#sName').value.trim(),email=$('#sEmail').value.trim().toLowerCase(),pw=$('#sPass').value;
+  const perms={canAddProducts:$('#sCanAdd').checked,canReturn:$('#sCanRet').checked};
   if(!name)return setMsg($('#sMsg'),'ناوی شاگرد بنووسە.');
   if(!email)return setMsg($('#sMsg'),'ئیمەیڵ بنووسە.');
   if(pw.length<6)return setMsg($('#sMsg'),'پاسوێرد دەبێت لانیکەم ٦ پیت یان ژمارە بێت.');
@@ -1592,32 +1793,66 @@ $('#f-staff').addEventListener('submit',async e=>{
     const sa=initializeAuth(sec,{persistence:inMemoryPersistence});
     const cred=await createUserWithEmailAndPassword(sa,email,pw);
     try{await updateProfile(cred.user,{displayName:name});}catch(_){}
-    await setDoc(doc(db,'users',cred.user.uid),{name:name,email:email,role:'staff',active:true,createdAt:Date.now()});
+    await setDoc(doc(db,'users',cred.user.uid),Object.assign({name:name,email:email,role:'staff',active:true,createdAt:Date.now()},perms));
     await signOut(sa).catch(()=>{});
     setMsg($('#sMsg'),'ئەکاونتی '+name+' دروست کرا. ئیمەیڵ: '+email,true);
-    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';
+    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;
   }catch(err){
     if(err&&err.code==='auth/email-already-in-use'){
       const ex=Array.from(S.staff.values()).find(x=>(x.email||'').toLowerCase()===email);
-      setMsg($('#sMsg'),ex?('ئەم ئیمەیڵە هی «'+ex.name+'» ە. لە لیستی خوارەوە دەتوانیت چالاکی بکەیتەوە.'):'ئەم ئیمەیڵە پێشتر ئەکاونتی هەیە. ئیمەیڵێکی تر بەکاربهێنە.');
+      if(ex&&ex.removed){
+        // A removed staff member coming back: reuse their account, the old password still applies.
+        try{
+          await updateDoc(doc(db,'users',ex.id),Object.assign({name:name,active:true,removed:false},perms));
+          try{await sendPasswordResetEmail(auth,email);}catch(_){}
+          setMsg($('#sMsg'),'ئەکاونتی '+name+' دووبارە چالاک کرایەوە. پاسوێردە کۆنەکەی وەک خۆیەتی؛ ئیمەیڵی گۆڕینی پاسوێردی بۆ نێردرا.',true);
+          $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;
+        }catch(e2){setMsg($('#sMsg'),errMsg(e2));}
+      }else setMsg($('#sMsg'),ex?('ئەم ئیمەیڵە هی «'+ex.name+'» ە.'):'ئەم ئیمەیڵە پێشتر ئەکاونتی هەیە. ئیمەیڵێکی تر بەکاربهێنە.');
     }else setMsg($('#sMsg'),errMsg(err));
   }finally{if(sec)deleteApp(sec).catch(()=>{});busy($('#sBtn'),false);}
 });
 function renderStaff(){
   if(S.tab!=='staff')return;
-  const list=Array.from(S.staff.values()).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
+  const list=Array.from(S.staff.values()).filter(x=>!x.removed).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
   const ul=$('#staffList');
   if(!list.length){ul.innerHTML='<li style="display:block" class="muted">هێشتا هیچ شاگردێک زیاد نەکراوە.</li>';return;}
-  ul.innerHTML=list.map(s=>'<li><div><div class="sn">'+esc(s.name)+' <span class="chip '+(s.active?'ok':'danger')+'">'+(s.active?'چالاک':'ڕاگیراو')+'</span></div><div class="se">'+esc(s.email)+'</div></div><span></span>'+
-    '<div class="sa"><button type="button" class="btn ghost sm" data-toggle-staff="'+esc(s.id)+'">'+(s.active?'ڕاگرتن':'چالاککردنەوە')+'</button><button type="button" class="btn ghost sm" data-reset="'+esc(s.email)+'">ناردنی ئیمەیڵی گۆڕینی پاسوێرد</button></div></li>').join('');
+  ul.innerHTML=list.map(s=>{const id=esc(s.id),pa=s.canAddProducts===true,pr=s.canReturn!==false;
+    return '<li><div><div class="sn">'+esc(s.name)+' <span class="chip '+(s.active?'ok':'danger')+'">'+(s.active?'چالاک':'ڕاگیراو')+'</span></div><div class="se">'+esc(s.email)+'</div></div><span></span>'+
+    (S.renaming===s.id?'<form class="inrow rename" data-rename="'+id+'" novalidate><label for="rn-'+id+'" class="sr">ناوی نوێ</label><input id="rn-'+id+'" class="inp" value="'+esc(s.name)+'" autocomplete="off"><button type="submit" class="btn primary sm">پاشەکەوت</button><button type="button" class="btn ghost sm" data-rename-cancel>داخستن</button></form>':'')+
+    '<div class="perms"><label class="chk"><input type="checkbox" id="pa-'+id+'" data-perm="canAddProducts" data-uid="'+id+'"'+(pa?' checked':'')+'> زیادکردنی کاڵا</label>'+
+    '<label class="chk"><input type="checkbox" id="pr-'+id+'" data-perm="canReturn" data-uid="'+id+'"'+(pr?' checked':'')+'> گەڕاوە</label></div>'+
+    '<div class="sa"><button type="button" class="btn ghost sm" data-toggle-staff="'+id+'">'+(s.active?'ڕاگرتن':'چالاککردنەوە')+'</button>'+
+    '<button type="button" class="btn ghost sm" data-rename-open="'+id+'">گۆڕینی ناو</button>'+
+    '<button type="button" class="btn ghost sm" data-reset="'+esc(s.email)+'">ئیمەیڵی گۆڕینی پاسوێرد</button>'+
+    '<button type="button" class="btn danger sm" data-remove="'+id+'">سڕینەوە</button></div></li>';}).join('');
+  if(S.renaming){const i=$('#rn-'+S.renaming);if(i){i.focus();i.select();}}
 }
 $('#staffList').addEventListener('click',async e=>{
   const t=e.target.closest('[data-toggle-staff]');
   if(t){const s=S.staff.get(t.dataset.toggleStaff);if(!s)return;
     const go=async()=>{try{await commitSoft(updateDoc(doc(db,'users',s.id),{active:!s.active}));toast(s.active?(s.name+' ڕاگیرا.'):(s.name+' چالاک کرایەوە.'));}catch(err){toast(errMsg(err),'error');}};
     if(s.active)arm(t,'دڵنیایت؟ دووبارە دابگرە',go);else go();return;}
+  const ro=e.target.closest('[data-rename-open]');if(ro){S.renaming=ro.dataset.renameOpen;renderStaff();return;}
+  if(e.target.closest('[data-rename-cancel]')){S.renaming=null;renderStaff();return;}
+  const rm=e.target.closest('[data-remove]');
+  if(rm){const s=S.staff.get(rm.dataset.remove);if(!s)return;
+    arm(rm,'دڵنیایت؟ دووبارە دابگرە',async()=>{try{await commitSoft(updateDoc(doc(db,'users',s.id),{active:false,removed:true,removedAt:Date.now()}));toast(s.name+' لابرا. ئیتر ناتوانێت بچێتە ژوورەوە.');}catch(err){toast(errMsg(err),'error');}});return;}
   const r=e.target.closest('[data-reset]');
   if(r){try{await sendPasswordResetEmail(auth,r.dataset.reset);toast('ئیمەیڵی گۆڕینی پاسوێرد نێردرا بۆ '+r.dataset.reset);}catch(err){toast(errMsg(err),'error');}}
+});
+$('#staffList').addEventListener('change',async e=>{
+  const c=e.target.closest('[data-perm]');if(!c)return;
+  const s=S.staff.get(c.dataset.uid);if(!s)return;
+  const f=c.dataset.perm,on=c.checked,label=f==='canAddProducts'?'زیادکردنی کاڵا':'گەڕاوە';
+  try{await commitSoft(updateDoc(doc(db,'users',s.id),{[f]:on}));toast(s.name+': '+label+' '+(on?'ڕێگەی پێدرا.':'ڕێگەی لێ گیرا.'));}
+  catch(err){c.checked=!on;toast(errMsg(err),'error');}
+});
+$('#staffList').addEventListener('submit',async e=>{
+  const f=e.target.closest('[data-rename]');if(!f)return;e.preventDefault();
+  const uid=f.dataset.rename,name=$('#rn-'+uid).value.trim();if(!name){toast('ناو بنووسە.','error');return;}
+  try{await commitSoft(updateDoc(doc(db,'users',uid),{name:name}));S.renaming=null;renderStaff();toast('ناوەکە گۆڕدرا.');}
+  catch(err){toast(errMsg(err),'error');}
 });
 
 renderCart();

@@ -759,7 +759,7 @@ window.FIREBASE_CONFIG = {
           <div class="perms">
             <label class="chk"><input type="checkbox" id="sCanAdd"> دەتوانێت کاڵا زیاد بکات</label>
             <label class="chk"><input type="checkbox" id="sCanRet" checked> دەتوانێت گەڕاوە وەربگرێت</label>
-            <label class="chk"><input type="checkbox" id="sCanBuy"> دەتوانێت کڕین تۆمار بکات</label>
+            <label class="chk"><input type="checkbox" id="sCanBuy"> دەتوانێت نرخی کڕین ببینێت و بینووسێت</label>
           </div>
           <p id="sMsg" class="msg" hidden></p>
           <button type="submit" id="sBtn" class="btn primary">دروستکردنی ئەکاونت</button>
@@ -930,7 +930,7 @@ function busy(btn,on,label){if(on){btn.dataset.label=btn.textContent;btn.textCon
 $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.eye);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'شاردنەوە':'پیشاندان';}));
 
 /* ================= state ================= */
-const S={user:null,role:null,perm:{add:false,ret:false},ret:false,renaming:null,expenses:[],expUnsub:null,lowOnly:false,lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
+const S={user:null,role:null,costUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,lowOnly:false,lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
   sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
@@ -993,7 +993,7 @@ async function resolveRole(u){
   screen('boot');S.user=u;
   try{
     const os=await getDoc(doc(db,'meta','owner'));
-    if(os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,buy:true};S.myName=os.data().name||u.displayName||u.email;return start();}
+    if(os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true};S.myName=os.data().name||u.displayName||u.email;return start();}
     const us=await getDoc(doc(db,'users',u.uid));
     if(us.exists()){const d=us.data();
       if(d.role==='staff'&&d.active===true&&!d.removed){S.role='staff';S.perm=staffPerm(d);S.myName=d.name||u.email;return start();}
@@ -1033,17 +1033,25 @@ function stopAll(){
   S.expenses=[];S.lastBackup=undefined;S.lowOnly=false;
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
   S.products=new Map();S.byCode=new Map();S.costs=new Map();S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
-  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,buy:false};
+  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false};
+  if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(S.ret)setReturn(false);
   syncLive();
 }
-function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,buy:d.canPurchase===true};}
+function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
 // Show or hide what this person may do; runs at start and whenever the owner changes a staff member's permissions.
 function applyPerms(){
   const owner=S.role==='owner';
   $$('[data-prodtab]').forEach(el=>{el.hidden=!(owner||S.perm.add);});
-  $$('[data-buytab]').forEach(el=>{el.hidden=!(owner||S.perm.buy);});
-  if(S.tab==='buy'&&!owner&&!S.perm.buy)showTab('sell');
+  $$('[data-buytab]').forEach(el=>{el.hidden=!owner;});
+  if(S.tab==='buy'&&!owner)showTab('sell');
+  // Staff allowed to see purchase prices read them live; switching it off drops them at once.
+  if(!owner){
+    if(S.perm.cost&&!S.costUnsub){
+      S.costUnsub=onSnapshot(collection(db,'costs'),snap=>{S.costs=new Map();snap.docs.forEach(d=>S.costs.set(d.id,Number(d.data().cost)||0));if(S.tab==='products')renderProducts();},()=>{S.costs=new Map();});
+    }else if(!S.perm.cost&&S.costUnsub){S.costUnsub();S.costUnsub=null;S.costs=new Map();}
+    if(!S.perm.cost&&!$('#sheet').hidden){$('#fCostWrap').hidden=true;$('#fMargins').hidden=true;}
+  }
   $('#retBtn').hidden=!(owner||S.perm.ret);
   if(S.ret&&!S.perm.ret)setReturn(false);
   if(S.tab==='products'&&!owner&&!S.perm.add)showTab('sell');
@@ -1094,7 +1102,7 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff'].includes(t)||(t==='products'&&!S.perm.add)||(t==='buy'&&!S.perm.buy)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   S.tab=t;
   $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
@@ -1717,7 +1725,7 @@ function renderProducts(){
   if(S.lowOnly)list=list.filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
   else list=list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
   const body=$('#pBody');
-  $('#plist').classList.toggle('nocost',S.role!=='owner');
+  $('#plist').classList.toggle('nocost',!(S.role==='owner'||S.perm.cost));
   $('.phead').hidden=!(S.prodLoaded&&list.length);
   if(!S.prodLoaded){body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
   if(!all.length){body.innerHTML='<div class="empty"><b>هێشتا هیچ کاڵایەک تۆمار نەکراوە</b>یەکەم کاڵا زیاد بکە، یان لیستەکەت لە Excel هاوردە بکە.<br><button type="button" class="btn primary" id="emptyAdd">+ کاڵای نوێ</button></div>';$('#emptyAdd').onclick=()=>openSheet(null,{},false);return;}
@@ -1746,7 +1754,7 @@ function openSheet(id,preset,addAfter){
   const p=id?S.products.get(id):null;
   if(p&&!canEditProduct(p))return;
   S.editing=id;S.addAfterSave=!!addAfter;S.addTarget=(preset&&preset.target)||'sell';
-  $('#fCostWrap').hidden=!owner;$('#fMargins').hidden=!owner;
+  $('#fCostWrap').hidden=!(owner||S.perm.cost);$('#fMargins').hidden=!(owner||S.perm.cost);
   // A new item registered during a purchase starts at 0; the purchase itself adds the quantity.
   F.stock.closest('.field').hidden=!p&&!!addAfter&&S.addTarget==='buy';
   $('#sheetTitle').textContent=p?'دەستکاریکردنی کاڵا':'کاڵای نوێ';
@@ -1788,7 +1796,8 @@ $('#pForm').addEventListener('submit',async e=>{
   data.createdBy=(prev&&prev.createdBy)||S.user.uid;
   busy($('#fSave'),true,'پاشەکەوت دەکرێت…');
   try{
-    const b=writeBatch(db);b.set(doc(db,'products',id),data);if(owner)b.set(doc(db,'costs',id),{cost:cost});
+    const b=writeBatch(db);b.set(doc(db,'products',id),data);
+    if(owner||(S.perm.cost&&!$('#fCostWrap').hidden&&F.cost.value.trim()!==''))b.set(doc(db,'costs',id),{cost:cost});
     const r=await commitSoft(b.commit());
     const p=Object.assign({id:id},data);
     closeSheet();
@@ -2269,7 +2278,7 @@ function renderStaff(){
     (S.renaming===s.id?'<form class="inrow rename" data-rename="'+id+'" novalidate><label for="rn-'+id+'" class="sr">ناوی نوێ</label><input id="rn-'+id+'" class="inp" value="'+esc(s.name)+'" autocomplete="off"><button type="submit" class="btn primary sm">پاشەکەوت</button><button type="button" class="btn ghost sm" data-rename-cancel>داخستن</button></form>':'')+
     '<div class="perms"><label class="chk"><input type="checkbox" id="pa-'+id+'" data-perm="canAddProducts" data-uid="'+id+'"'+(pa?' checked':'')+'> زیادکردنی کاڵا</label>'+
     '<label class="chk"><input type="checkbox" id="pr-'+id+'" data-perm="canReturn" data-uid="'+id+'"'+(pr?' checked':'')+'> گەڕاوە</label>'+
-    '<label class="chk"><input type="checkbox" id="pb-'+id+'" data-perm="canPurchase" data-uid="'+id+'"'+(s.canPurchase===true?' checked':'')+'> کڕین</label></div>'+
+    '<label class="chk"><input type="checkbox" id="pb-'+id+'" data-perm="canPurchase" data-uid="'+id+'"'+(s.canPurchase===true?' checked':'')+'> نرخی کڕین</label></div>'+
     '<div class="sa"><button type="button" class="btn ghost sm" data-toggle-staff="'+id+'">'+(s.active?'ڕاگرتن':'چالاککردنەوە')+'</button>'+
     '<button type="button" class="btn ghost sm" data-rename-open="'+id+'">گۆڕینی ناو</button>'+
     '<button type="button" class="btn ghost sm" data-reset="'+esc(s.email)+'">ئیمەیڵی گۆڕینی پاسوێرد</button>'+
@@ -2292,7 +2301,7 @@ $('#staffList').addEventListener('click',async e=>{
 $('#staffList').addEventListener('change',async e=>{
   const c=e.target.closest('[data-perm]');if(!c)return;
   const s=S.staff.get(c.dataset.uid);if(!s)return;
-  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'کڕین'}[f]||f;
+  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'نرخی کڕین'}[f]||f;
   try{await commitSoft(updateDoc(doc(db,'users',s.id),{[f]:on}));toast(s.name+': '+label+' '+(on?'ڕێگەی پێدرا.':'ڕێگەی لێ گیرا.'));}
   catch(err){c.checked=!on;toast(errMsg(err),'error');}
 });

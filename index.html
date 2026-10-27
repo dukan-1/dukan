@@ -288,6 +288,9 @@ button.stat .hint{display:block;margin-top:2px}
   .line .lt{grid-column:2 / 4;grid-row:2}
 }
 @keyframes flash{from{background:var(--mode-soft)}to{background:transparent}}
+.prow.flash{animation:flash 1.6s ease-out}
+.psearch{display:flex;gap:8px;flex:1 1 240px;min-width:0}
+.psearch .inp{flex:1;min-width:0}
 .line.flash{animation:flash 1.4s ease-out}
 .empty{padding:30px 18px;text-align:center;color:var(--muted);font-size:14px}
 .empty b{display:block;color:var(--ink);font-family:var(--f-display);font-size:16px;margin-bottom:6px;font-weight:700}
@@ -678,7 +681,10 @@ window.FIREBASE_CONFIG = {
       </div>
       <div class="tools">
         <label for="pSearch" class="sr">گەڕان</label>
-        <input id="pSearch" class="inp" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off">
+        <div class="psearch">
+          <input id="pSearch" class="inp" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off" enterkeyhint="search">
+          <button type="button" id="pCam" class="cam" aria-label="گەڕان بە سکانی بارکۆد" title="گەڕان بە سکانی بارکۆد"><svg><use href="#i-cam"/></svg></button>
+        </div>
         <button type="button" id="pAdd" class="btn primary">+ کاڵای نوێ</button>
         <button type="button" id="pImport" class="btn ghost" data-owner>هاوردەکردن لە Excel</button>
         <button type="button" id="pExport" class="btn ghost" data-owner>داگرتن</button>
@@ -1176,8 +1182,9 @@ $('#scanGo').addEventListener('click',submitScan);
 // and pull it back out of another field (e.g. customer name) if it landed there by mistake.
 const wedge={buf:'',t:0};
 document.addEventListener('keydown',e=>{
-  if((S.tab!=='sell'&&S.tab!=='buy')||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
-  const box=S.tab==='buy'?$('#bScan'):scan,go=S.tab==='buy'?submitBuyScan:submitScan,hit=S.tab==='buy'?handleBuyCode:handleCode;
+  if(!['sell','buy','products'].includes(S.tab)||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
+  const T={sell:[scan,submitScan,handleCode],buy:[$('#bScan'),submitBuyScan,handleBuyCode],products:[$('#pSearch'),()=>findByBarcode($('#pSearch').value),findByBarcode]}[S.tab];
+  const box=T[0],go=T[1],hit=T[2];
   const a=document.activeElement,inField=!!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA');
   const now=performance.now();
   if(e.key==='Enter'){
@@ -1191,6 +1198,8 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key&&e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    // On the products list the box still shows the last search: a fresh scan replaces it.
+    if(!inField&&S.tab==='products'&&now-wedge.t>1500)box.value='';
     if(now-wedge.t>60)wedge.buf='';
     wedge.buf+=normDigits(e.key);wedge.t=now;
     if(!inField){e.preventDefault();box.value+=normDigits(e.key);}
@@ -1693,6 +1702,31 @@ $('#mList').addEventListener('click',e=>{const tg=e.target.closest('[data-toggle
 
 /* ================= products (owner) ================= */
 $('#pSearch').addEventListener('input',renderProducts);
+// Find a product by its barcode: from the camera, a hardware scanner, or a number typed and confirmed with Enter.
+function findByBarcode(raw){
+  const code=codeKey(raw);if(!code)return '';
+  S.lowOnly=false;$('#pSearch').value=code;
+  const p=productByCode(code);
+  renderProducts();
+  if(!p){
+    beep(false);
+    if(S.role==='owner'||S.perm.add)toast('بارکۆدی '+code+' تۆمار نەکراوە.','info',{label:'تۆمارکردنی کاڵا',fn:()=>openSheet(null,{barcode:code},false)});
+    else toast('بارکۆدی '+code+' تۆمار نەکراوە.','error');
+    return '';
+  }
+  beep(true);
+  const row=$('#pBody').querySelector('.prow[data-id="'+CSS.escape(p.id)+'"]');
+  if(row){row.classList.remove('flash');void row.offsetWidth;row.classList.add('flash');row.scrollIntoView({block:'nearest'});}
+  toast(p.name+' · کۆگا: '+fmtQty(typeof p.stock==='number'?p.stock:0)+' · تاک: '+fmt(p.retail)+(canEditProduct(p)?' · بۆ دەستکاری دەستی لێبدە':''));
+  return '';
+}
+$('#pSearch').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  if(/^\d{4,}$/.test(codeKey($('#pSearch').value)))findByBarcode($('#pSearch').value);
+  else $('#pSearch').blur();
+});
+$('#pCam').addEventListener('click',()=>{unlockAudio();openScanner(findByBarcode,'بارکۆدی کاڵاکە سکان بکە',$('#pSearch'));});
 $('#pAdd').addEventListener('click',()=>openSheet(null,{},false));
 $('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(!b)return;
   if(canEditProduct(S.products.get(b.dataset.id)))openSheet(b.dataset.id,{},false);

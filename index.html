@@ -217,6 +217,20 @@ main.wrap{padding-block:16px 120px}
 .mtile .mnote.warn{color:var(--warn)}
 .mtile .mnote.danger{color:var(--danger)}
 .mtile .chev{color:var(--muted);flex:none;width:20px;height:20px}
+.mtile[data-pv="all"] .mi{background:var(--retail-soft);color:var(--retail)}
+.mtile[data-pv="low"] .mi{background:var(--warn-soft);color:var(--warn)}
+.mtile[data-pv="search"] .mi{background:var(--sunk);color:var(--ink)}
+.mtile[data-pv="price"] .mi{background:var(--wholesale-soft);color:var(--wholesale)}
+.mtile[data-pv="new"] .mi{background:var(--ok-soft);color:var(--ok)}
+.mtile[data-pv="excel"] .mi{background:var(--sunk);color:var(--ok)}
+.mtile .mbig{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;direction:ltr;unicode-bidi:isolate}
+.backbar .pvc{margin-inline-start:auto;font-size:13px;color:var(--muted)}
+.pkinds{display:flex;gap:6px;flex-wrap:wrap}
+.pkinds button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px;color:var(--muted)}
+.pkinds button[aria-pressed="true"]{border-color:var(--wholesale);background:var(--wholesale-soft);color:var(--wholesale)}
+.pp.hit{background:var(--warn-soft);border-radius:6px;padding-inline:4px}
+.xbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.xbtns .btn{padding-block:16px;font-size:16px}
 .backbar{display:flex;align-items:center;gap:10px}
 .backbar h2{margin:0;font-family:var(--f-display);font-size:18px;font-weight:700}
 .backbar .btn svg{width:18px;height:18px}
@@ -495,6 +509,10 @@ window.FIREBASE_CONFIG = {
  <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></g></symbol>
  <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
  <symbol id="i-next" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21 19.5H3z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r=".6" fill="currentColor"/></g></symbol>
+ <symbol id="i-tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1 1 0 0 1 0 1.4l-7.3 7.3a1 1 0 0 1-1.4 0z"/><circle cx="8" cy="8" r="1.6"/></g></symbol>
+ <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+ <symbol id="i-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12l6 6M15 12l-6 6"/></g></symbol>
  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.5 20.5"/></g></symbol>
  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5"/></g></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h10"/></g></symbol>
@@ -712,31 +730,48 @@ window.FIREBASE_CONFIG = {
       <div class="panel"><h3>پسوولەکانی ئەمڕۆم</h3><ul class="sales" id="mList"></ul></div>
     </section>
 
-    <!-- PRODUCTS (owner) -->
+    <!-- PRODUCTS -->
     <section id="tab-products" class="sec" role="tabpanel" hidden>
-      <div class="stats">
-        <div class="stat"><span>ژمارەی کاڵا</span><b id="pCount" class="num">0</b></div>
-        <div class="stat" data-owner><span>بەهای کۆگا (بە نرخی کڕین)</span><b><span id="pValue" class="num">0</span><span class="cur">د.ع</span></b></div>
-        <button type="button" class="stat low" id="lowBtn" aria-pressed="false"><span>کەم ماوە یان نەماوە</span><b id="pLow" class="num">0</b><span class="hint" id="lowHint">دەستی لێبدە بۆ لیستەکە</span></button>
+      <div id="pHome" class="menu-grid">
+        <button type="button" class="mtile" data-pv="all"><span class="mi"><svg><use href="#i-box"/></svg></span><span class="mtx"><b>هەموو کاڵاکان</b><span class="msub"><span class="mbig" id="pCount">0</span> کاڵا</span><span class="mnote" id="pValueLine" data-owner>بەهای کۆگا: <span class="num" id="pValue">0</span> د.ع (بە نرخی کڕین)</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="low"><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span><span class="mnote warn">لیستەکە بۆ کۆمپانیا بنێرە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="search"><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">بە نووسین، کامێرا یان سکانەری ئامێر</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">نرخێک بنووسە، کاڵاکانی ئەو نرخە دەردەکەون</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="new"><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">زیادکردنی کاڵا، بە بارکۆد یان بێ بارکۆد</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتنی لیستی کاڵاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
       </div>
-      <div class="tools">
-        <label for="pSearch" class="sr">گەڕان</label>
-        <div class="psearch">
-          <input id="pSearch" class="inp" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off" enterkeyhint="search">
+      <div id="pView" class="sec" hidden>
+        <div class="backbar"><button type="button" class="btn ghost sm" data-pback><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2 id="pvTitle"></h2><span class="pvc" id="pvCount"></span></div>
+        <div id="pvSearch" class="psearch" hidden>
+          <label for="pSearch" class="sr">گەڕان بە ناو یان بارکۆد</label>
+          <input id="pSearch" class="inp" type="search" placeholder="ناو یان بارکۆد بنووسە" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
           <button type="button" id="pCam" class="cam" aria-label="گەڕان بە سکانی بارکۆد" title="گەڕان بە سکانی بارکۆد"><svg><use href="#i-cam"/></svg></button>
         </div>
-        <button type="button" id="pAdd" class="btn primary">+ کاڵای نوێ</button>
-        <button type="button" id="pImport" class="btn ghost" data-owner>هاوردەکردن لە Excel</button>
-        <button type="button" id="pExport" class="btn ghost" data-owner>داگرتن</button>
-        <input type="file" id="pFile" accept=".csv,text/csv,text/plain" hidden>
+        <div id="pvPrice" class="sec" style="gap:8px" hidden>
+          <label for="pPrice" class="sr">نرخ</label>
+          <input id="pPrice" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="نرخ بنووسە، بۆ نموونە 5000">
+          <div class="pkinds" id="pKinds" role="group" aria-label="جۆری نرخ">
+            <button type="button" data-k="any" aria-pressed="true">هەموو نرخەکان</button>
+            <button type="button" data-k="retail" aria-pressed="false">تاک</button>
+            <button type="button" data-k="wholesale" aria-pressed="false">جوملە</button>
+            <button type="button" data-k="cost" aria-pressed="false" id="pKindCost">کڕین</button>
+          </div>
+        </div>
+        <div id="lowTools" class="banner" hidden><span>ئەم لیستە بۆ کۆمپانیا بنێرە بۆ ئەوەی بزانن چیت پێویستە.</span><button type="button" id="lowShare" class="btn primary sm">ناردنی لیست</button></div>
+        <div id="pvExcel" class="sec" hidden>
+          <div class="xbtns">
+            <button type="button" id="pImport" class="btn primary">هاوردەکردن لە Excel</button>
+            <button type="button" id="pExport" class="btn ghost">داگرتنی لیستی کاڵاکان</button>
+          </div>
+          <input type="file" id="pFile" accept=".csv,text/csv,text/plain" hidden>
+          <div id="importBox" class="banner ok" hidden><span id="importText"></span><button type="button" id="importGo" class="btn primary sm">هاوردەکردن</button><button type="button" id="importCancel" class="btn ghost sm">هەڵوەشاندنەوە</button></div>
+          <p class="hint" style="margin:0">بۆ هاوردەکردن، فایلی CSV بەکاربهێنە بەم ڕیزبەندییە: ناو، بارکۆد، نرخی کڕین، نرخی جوملە، نرخی تاک، کۆگا. لە Excel دا «Save As ← CSV UTF-8» هەڵبژێرە. «داگرتن» هەموو کاڵاکان بەو شێوەیە دەدات کە دەتوانیت لە Excel بیکەیتەوە.</p>
+        </div>
+        <div class="plist" id="plist">
+          <div class="prow phead" aria-hidden="true"><span>کاڵا</span><span>بارکۆد</span><span class="pc">کڕین</span><span>جوملە</span><span>تاک</span><span class="pstock">کۆگا</span></div>
+          <div id="pBody"></div>
+        </div>
       </div>
-      <div id="lowTools" class="banner" hidden><span>تەنها کاڵا کەم ماوەکان پیشان دەدرێن.</span><button type="button" id="lowShare" class="btn primary sm">ناردنی لیست</button><button type="button" id="lowClear" class="btn ghost sm">هەموو کاڵاکان</button></div>
-      <div id="importBox" class="banner ok" hidden><span id="importText"></span><button type="button" id="importGo" class="btn primary sm">هاوردەکردن</button><button type="button" id="importCancel" class="btn ghost sm">هەڵوەشاندنەوە</button></div>
-      <div class="plist" id="plist">
-        <div class="prow phead" aria-hidden="true"><span>کاڵا</span><span>بارکۆد</span><span class="pc">کڕین</span><span>جوملە</span><span>تاک</span><span class="pstock">کۆگا</span></div>
-        <div id="pBody"></div>
-      </div>
-      <p class="hint" style="margin:0" data-owner>بۆ هاوردەکردن، فایلی CSV بەکاربهێنە بەم ڕیزبەندییە: ناو، بارکۆد، نرخی کڕین، نرخی جوملە، نرخی تاک، کۆگا. لە Excel دا «Save As ← CSV UTF-8» هەڵبژێرە.</p>
     </section>
 
     <!-- REPORTS (owner) -->
@@ -979,7 +1014,7 @@ function busy(btn,on,label){if(on){btn.dataset.label=btn.textContent;btn.textCon
 $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.eye);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'شاردنەوە':'پیشاندان';}));
 
 /* ================= state ================= */
-const S={user:null,role:null,costUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,lowOnly:false,lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
+const S={user:null,role:null,costUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,pview:'home',priceKind:'any',lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
   sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
@@ -1079,7 +1114,7 @@ function stopAll(){
   if(S.rangeUnsub){S.rangeUnsub();S.rangeUnsub=null;}
   if(S.mineUnsub){S.mineUnsub();S.mineUnsub=null;}
   if(S.expUnsub){S.expUnsub();S.expUnsub=null;}
-  S.expenses=[];S.lastBackup=undefined;S.lowOnly=false;
+  S.expenses=[];S.lastBackup=undefined;S.pview='home';
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
   S.products=new Map();S.byCode=new Map();S.costs=new Map();S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
   S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false};
@@ -1149,7 +1184,7 @@ function netChange(){$('#offBanner').hidden=navigator.onLine;if(S.role)markSync(
 window.addEventListener('online',netChange);window.addEventListener('offline',netChange);netChange();
 
 /* ================= tabs ================= */
-$$('.nav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+$$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab==='products')S.pview='home';showTab(b.dataset.tab);}));
 function showTab(t){
   if(S.role!=='owner'&&(['reports','staff','buy','menu'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
@@ -1765,7 +1800,7 @@ $('#pSearch').addEventListener('input',renderProducts);
 // Find a product by its barcode: from the camera, a hardware scanner, or a number typed and confirmed with Enter.
 function findByBarcode(raw){
   const code=codeKey(raw);if(!code)return '';
-  S.lowOnly=false;$('#pSearch').value=code;
+  S.pview='search';$('#pSearch').value=code;
   const p=productByCode(code);
   renderProducts();
   if(!p){
@@ -1787,7 +1822,6 @@ $('#pSearch').addEventListener('keydown',e=>{
   else $('#pSearch').blur();
 });
 $('#pCam').addEventListener('click',()=>{unlockAudio();openScanner(findByBarcode,'بارکۆدی کاڵاکە سکان بکە',$('#pSearch'));});
-$('#pAdd').addEventListener('click',()=>openSheet(null,{},false));
 $('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(!b)return;
   if(canEditProduct(S.products.get(b.dataset.id)))openSheet(b.dataset.id,{},false);
   else toast('تەنها خاوەنی دوکان دەتوانێت دەستکاری ئەم کاڵایە بکات.');});
@@ -1795,8 +1829,18 @@ function canEditProduct(p){return S.role==='owner'||(!!p&&S.perm.add&&p.createdB
 function costOf(pid){return S.costs.get(pid)||0;}
 function lowOf(p){return typeof p.minStock==='number'&&p.minStock>=0?p.minStock:LOW;}
 function isLow(p){return (typeof p.stock==='number'?p.stock:0)<=lowOf(p);}
-$('#lowBtn').addEventListener('click',()=>{S.lowOnly=!S.lowOnly;renderProducts();});
-$('#lowClear').addEventListener('click',()=>{S.lowOnly=false;renderProducts();});
+// The products page is a set of buttons; each opens its own view with a way back.
+function openPView(v){
+  if(v==='new'){openSheet(null,{},false);return;}
+  S.pview=v;renderProducts();window.scrollTo(0,0);
+  if(v==='search'){const i=$('#pSearch');i.focus();try{i.select();}catch(_){}}
+  if(v==='price'){const i=$('#pPrice');i.focus();try{i.select();}catch(_){}}
+}
+$$('[data-pv]').forEach(b=>b.addEventListener('click',()=>openPView(b.dataset.pv)));
+$$('[data-pback]').forEach(b=>b.addEventListener('click',()=>{S.pview='home';$('#importBox').hidden=true;renderProducts();window.scrollTo(0,0);}));
+$('#pPrice').addEventListener('input',renderProducts);
+$('#pPrice').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#pPrice').blur();}});
+$('#pKinds').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;S.priceKind=b.dataset.k;renderProducts();});
 $('#lowShare').addEventListener('click',async()=>{
   const list=Array.from(S.products.values()).filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
   if(!list.length){toast('هیچ کاڵایەک کەم نەماوە.');return;}
@@ -1807,33 +1851,57 @@ $('#lowShare').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(text);toast('لیستەکە کۆپی کرا. لە WhatsApp دایبنێ.');}
   catch(_){toast('ناردن سەرکەوتوو نەبوو.','error');}
 });
+const PV_TITLES={all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',excel:'Excel'};
+function priceHits(p,price,kind,seeCost){
+  const r=x=>Math.round(Number(x)||0),hit={retail:r(p.retail)===price,wholesale:r(p.wholesale)===price,cost:seeCost&&r(costOf(p.id))===price};
+  const ok=kind==='any'?(hit.retail||hit.wholesale||hit.cost):!!hit[kind];
+  return ok?hit:null;
+}
 function renderProducts(){
-  const all=Array.from(S.products.values());
+  const owner=S.role==='owner',seeCost=owner||S.perm.cost,all=Array.from(S.products.values());
   let value=0,low=0;
   for(const p of all){const st=typeof p.stock==='number'?p.stock:0;value+=Math.max(0,st)*costOf(p.id);if(isLow(p))low++;}
   $('#pCount').textContent=fmt(all.length);$('#pValue').textContent=fmt(value);$('#pLow').textContent=fmt(low);
-  $('#lowBtn').setAttribute('aria-pressed',String(S.lowOnly));$('#lowTools').hidden=!S.lowOnly;
-  $('#lowHint').textContent=S.lowOnly?'دەستی لێبدە بۆ هەموو کاڵاکان':'دەستی لێبدە بۆ لیستەکە';
-  const q=normText($('#pSearch').value);
-  let list=q?all.filter(p=>fold(p.name).includes(fold(q))||normText(p.barcode||'').includes(q)):all;
-  if(S.lowOnly)list=list.filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
-  else list=list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
+  let v=S.pview||'home';
+  if(v==='excel'&&!owner)v=S.pview='home';
+  $('#pHome').hidden=v!=='home';$('#pView').hidden=v==='home';
+  if(v==='home')return;
+  $('#pvTitle').textContent=PV_TITLES[v]||'';
+  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#lowTools').hidden=v!=='low';$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
+  $('#pKindCost').hidden=!seeCost;if(!seeCost&&S.priceKind==='cost')S.priceKind='any';
+  $$('#pKinds [data-k]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===S.priceKind)));
+  if(v==='excel'){$('#pvCount').textContent='';return;}
+  const byName=(a,b)=>String(a.name).localeCompare(String(b.name),'ar');
+  let list=[],hits=new Map(),hint='';
+  if(v==='all')list=all.sort(byName);
+  else if(v==='low')list=all.filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
+  else if(v==='search'){
+    const q=normText($('#pSearch').value);
+    if(q)list=all.filter(p=>fold(p.name).includes(fold(q))||normText(p.barcode||'').includes(q)).sort(byName);
+    else hint='ناوی کاڵا یان ژمارەی بارکۆد بنووسە، یان دوگمەی کامێرا دابگرە.';
+  }else if(v==='price'){
+    const price=Math.round(parseNum($('#pPrice').value));
+    if(price>0){for(const p of all){const h=priceHits(p,price,S.priceKind,seeCost);if(h){list.push(p);hits.set(p.id,h);}}list.sort(byName);}
+    else hint='نرخێک بنووسە. ئەو کاڵایانەی هەمان نرخیان هەیە دەردەکەون.';
+  }
+  $('#pvCount').innerHTML=hint?'':('<span class="num">'+fmt(list.length)+'</span> کاڵا');
   const body=$('#pBody');
-  $('#plist').classList.toggle('nocost',!(S.role==='owner'||S.perm.cost));
+  $('#plist').classList.toggle('nocost',!seeCost);
   $('.phead').hidden=!(S.prodLoaded&&list.length);
   if(!S.prodLoaded){body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
-  if(!all.length){body.innerHTML='<div class="empty"><b>هێشتا هیچ کاڵایەک تۆمار نەکراوە</b>یەکەم کاڵا زیاد بکە، یان لیستەکەت لە Excel هاوردە بکە.<br><button type="button" class="btn primary" id="emptyAdd">+ کاڵای نوێ</button></div>';$('#emptyAdd').onclick=()=>openSheet(null,{},false);return;}
-  if(!list.length){body.innerHTML='<div class="empty">'+(S.lowOnly?'<b>هیچ کاڵایەک کەم نەماوە</b>هەموو کاڵاکان بڕی پێویستیان هەیە.':'هیچ کاڵایەک بەم گەڕانە نەدۆزرایەوە.')+'</div>';return;}
+  if(hint){body.innerHTML='<div class="empty">'+hint+'</div>';return;}
+  if(!all.length){body.innerHTML='<div class="empty"><b>هێشتا هیچ کاڵایەک تۆمار نەکراوە</b>یەکەم کاڵا زیاد بکە'+(owner?'، یان لیستەکەت لە Excel هاوردە بکە':'')+'.<br><button type="button" class="btn primary" id="emptyAdd">+ کاڵای نوێ</button></div>';$('#emptyAdd').onclick=()=>openSheet(null,{},false);return;}
+  if(!list.length){body.innerHTML='<div class="empty">'+(v==='low'?'<b>هیچ کاڵایەک کەم نەماوە</b>هەموو کاڵاکان بڕی پێویستیان هەیە.':(v==='price'?'هیچ کاڵایەک بەم نرخە نییە.':'هیچ کاڵایەک بەم گەڕانە نەدۆزرایەوە.'))+'</div>';return;}
   const shown=list.slice(0,400);
   body.innerHTML=shown.map(p=>{
-    const st=typeof p.stock==='number'?p.stock:0,c=costOf(p.id);
+    const st=typeof p.stock==='number'?p.stock:0,c=costOf(p.id),h=hits.get(p.id)||{};
     const cls=st<=0?'danger':(isLow(p)?'warn':'ok');
     return '<button type="button" class="prow" data-id="'+esc(p.id)+'">'+
       '<span class="pname">'+esc(p.name)+'</span>'+
       '<span class="pcode num">'+esc(p.barcode||'—')+'</span>'+
-      '<span class="pp pc"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
-      '<span class="pp wh"><small>جوملە</small><b class="num">'+(p.wholesale?fmt(p.wholesale):'—')+'</b></span>'+
-      '<span class="pp rt"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
+      '<span class="pp pc'+(h.cost?' hit':'')+'"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
+      '<span class="pp wh'+(h.wholesale?' hit':'')+'"><small>جوملە</small><b class="num">'+(p.wholesale?fmt(p.wholesale):'—')+'</b></span>'+
+      '<span class="pp rt'+(h.retail?' hit':'')+'"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
       '<span class="pstock"><span class="chip '+cls+'">'+(st<=0?'نەماوە':fmtQty(st))+'</span></span></button>';
   }).join('')+(list.length>400?'<div class="more">'+fmt(list.length-400)+' کاڵای تر هەیە. بۆ دۆزینەوەیان گەڕان بەکاربهێنە.</div>':'');
 }

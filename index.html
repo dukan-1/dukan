@@ -229,6 +229,22 @@ main.wrap{padding-block:16px 120px}
 .pkinds button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px;color:var(--muted)}
 .pkinds button[aria-pressed="true"]{border-color:var(--wholesale);background:var(--wholesale-soft);color:var(--wholesale)}
 .pp.hit{background:var(--warn-soft);border-radius:6px;padding-inline:4px}
+.pp.sortk b{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.mtile[data-pv="dup"] .mi{background:var(--danger-soft);color:var(--danger)}
+.dgh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;background:var(--sunk);font-weight:700;font-size:14px;border-top:1px solid var(--line)}
+.dgh:first-child{border-top:0}
+.dgh .dgk{min-width:0;overflow-wrap:anywhere}
+.dgh .chip{flex:none}
+.exist{display:flex;flex-direction:column;gap:12px;padding:14px;border:1.5px solid var(--warn);background:var(--warn-soft);border-radius:var(--r)}
+.exist-h{display:flex;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;align-items:baseline}
+.exist-h .en2{font-family:var(--f-display);font-size:17px;font-weight:700;overflow-wrap:anywhere}
+.exist p{margin:0;font-size:14px}
+.exist .qty{background:var(--surface)}
+.exist .qty input{width:4.5em;font-size:18px}
+.exist-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.exist-acts .primary{flex:1 1 160px}
+#pForm.exist-mode .grid2,#pForm.exist-mode .margins,#pForm.exist-mode .sheet-actions,#pForm.exist-mode #fErr{display:none!important}
+.pv-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .xbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
 .xbtns .btn{padding-block:16px;font-size:16px}
 .backbar{display:flex;align-items:center;gap:10px}
@@ -513,6 +529,7 @@ window.FIREBASE_CONFIG = {
  <symbol id="i-tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1 1 0 0 1 0 1.4l-7.3 7.3a1 1 0 0 1-1.4 0z"/><circle cx="8" cy="8" r="1.6"/></g></symbol>
  <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g></symbol>
  <symbol id="i-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12l6 6M15 12l-6 6"/></g></symbol>
+ <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></g></symbol>
  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.5 20.5"/></g></symbol>
  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5"/></g></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h10"/></g></symbol>
@@ -737,6 +754,7 @@ window.FIREBASE_CONFIG = {
         <button type="button" class="mtile" data-pv="low"><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span><span class="mnote warn">لیستەکە بۆ کۆمپانیا بنێرە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-pv="search"><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">بە نووسین، کامێرا یان سکانەری ئامێر</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">نرخێک بنووسە، کاڵاکانی ئەو نرخە دەردەکەون</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-pv="dup"><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="msub">هەمان ناو، هەمان بارکۆد یان هەمان نرخ</span><span class="mnote" id="pDupNote"></span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-pv="new"><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">زیادکردنی کاڵا، بە بارکۆد یان بێ بارکۆد</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتنی لیستی کاڵاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
       </div>
@@ -756,6 +774,26 @@ window.FIREBASE_CONFIG = {
             <button type="button" data-k="wholesale" aria-pressed="false">جوملە</button>
             <button type="button" data-k="cost" aria-pressed="false" id="pKindCost">کڕین</button>
           </div>
+          <div class="pv-row">
+            <div class="pkinds" id="pSort" role="group" aria-label="ڕیزکردن بەپێی نرخ">
+              <button type="button" data-s="asc" aria-pressed="true">لە کەمەوە بۆ زۆر</button>
+              <button type="button" data-s="desc" aria-pressed="false">لە زۆرەوە بۆ کەم</button>
+            </div>
+            <button type="button" class="btn ghost sm" data-pv="dup">کاڵا دووبارەکان</button>
+          </div>
+        </div>
+        <div id="pvDup" class="sec" style="gap:8px" hidden>
+          <div class="pkinds" id="dKinds" role="group" aria-label="دووبارە بەپێی">
+            <button type="button" data-d="name" aria-pressed="true">هەمان ناو</button>
+            <button type="button" data-d="barcode" aria-pressed="false">هەمان بارکۆد</button>
+            <button type="button" data-d="price" aria-pressed="false">هەمان نرخ</button>
+          </div>
+          <div class="pkinds" id="dPriceKinds" role="group" aria-label="جۆری نرخ" hidden>
+            <button type="button" data-dk="retail" aria-pressed="true">تاک</button>
+            <button type="button" data-dk="wholesale" aria-pressed="false">جوملە</button>
+            <button type="button" data-dk="cost" aria-pressed="false" id="dKindCost">کڕین</button>
+          </div>
+          <p class="hint" id="dHint" style="margin:0"></p>
         </div>
         <div id="lowTools" class="banner" hidden><span>ئەم لیستە بۆ کۆمپانیا بنێرە بۆ ئەوەی بزانن چیت پێویستە.</span><button type="button" id="lowShare" class="btn primary sm">ناردنی لیست</button></div>
         <div id="pvExcel" class="sec" hidden>
@@ -919,6 +957,15 @@ window.FIREBASE_CONFIG = {
         <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
       </div>
+      <div id="fExist" class="exist" hidden>
+        <div class="exist-h"><span class="en2" id="feName"></span><span>کۆگا ئێستا: <b class="num" id="feStock">0</b></span></div>
+        <p>ئەم کاڵایە پێشتر تۆمار کراوە (بارکۆد <span class="num" id="feCode"></span>). چەند دانەی زیاد دەکەیت بۆ سەر ئەوانەی هەن؟</p>
+        <div class="exist-acts">
+          <div class="qty"><button type="button" id="feMinus" aria-label="کەمکردنەوە">−</button><input id="feQty" value="1" inputmode="decimal" aria-label="ژمارەی دانە"><button type="button" id="fePlus" aria-label="زیادکردن">+</button></div>
+          <button type="button" id="feAdd" class="btn primary">زیادکردن بۆ کۆگا</button>
+        </div>
+        <div class="exist-acts"><button type="button" id="feCancel" class="btn ghost sm">پاشگەزبوونەوە</button><button type="button" id="feEdit" class="btn ghost sm">دەستکاریکردنی کاڵاکە</button></div>
+      </div>
       <div class="margins" id="fMargins"></div>
       <p id="fErr" class="ferr" hidden></p>
       <div class="sheet-actions">
@@ -1014,7 +1061,7 @@ function busy(btn,on,label){if(on){btn.dataset.label=btn.textContent;btn.textCon
 $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.eye);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'شاردنەوە':'پیشاندان';}));
 
 /* ================= state ================= */
-const S={user:null,role:null,costUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,pview:'home',priceKind:'any',lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
+const S={user:null,role:null,costUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,pview:'home',priceKind:'any',priceSort:'asc',dupBy:'name',dupPrice:'retail',lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
   sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
@@ -1444,7 +1491,7 @@ async function closeScanner(){
 $('#scanClose').addEventListener('click',closeScanner);
 $('#scanType').addEventListener('click',()=>{const t=scanTarget;closeScanner();if(t){t.focus();try{t.select();}catch(_){}}});
 $('#scanTorch').addEventListener('click',async()=>{if(!qr)return;const want=!torchOn;if(await setTorch(qr,$('#scanTorch'),want))torchOn=want;});
-$('#fCam').addEventListener('click',()=>{unlockAudio();openScanner(code=>{$('#fBarcode').value=code;$('#fBarcode').classList.remove('bad');$('#fName').focus();return '';},'بارکۆدی کاڵاکە سکان بکە',$('#fBarcode'));});
+$('#fCam').addEventListener('click',()=>formScan());
 
 /* ================= items without a barcode ================= */
 function noCodeItems(){return Array.from(S.products.values()).filter(p=>!codeKey(p.barcode||''));}
@@ -1831,7 +1878,7 @@ function lowOf(p){return typeof p.minStock==='number'&&p.minStock>=0?p.minStock:
 function isLow(p){return (typeof p.stock==='number'?p.stock:0)<=lowOf(p);}
 // The products page is a set of buttons; each opens its own view with a way back.
 function openPView(v){
-  if(v==='new'){openSheet(null,{},false);return;}
+  if(v==='new'){openSheet(null,{batch:true},false);return;}
   S.pview=v;renderProducts();window.scrollTo(0,0);
   if(v==='search'){const i=$('#pSearch');i.focus();try{i.select();}catch(_){}}
   if(v==='price'){const i=$('#pPrice');i.focus();try{i.select();}catch(_){}}
@@ -1841,6 +1888,9 @@ $$('[data-pback]').forEach(b=>b.addEventListener('click',()=>{S.pview='home';$('
 $('#pPrice').addEventListener('input',renderProducts);
 $('#pPrice').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#pPrice').blur();}});
 $('#pKinds').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;S.priceKind=b.dataset.k;renderProducts();});
+$('#pSort').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;S.priceSort=b.dataset.s;renderProducts();});
+$('#dKinds').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;S.dupBy=b.dataset.d;renderProducts();});
+$('#dPriceKinds').addEventListener('click',e=>{const b=e.target.closest('[data-dk]');if(!b)return;S.dupPrice=b.dataset.dk;renderProducts();});
 $('#lowShare').addEventListener('click',async()=>{
   const list=Array.from(S.products.values()).filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
   if(!list.length){toast('هیچ کاڵایەک کەم نەماوە.');return;}
@@ -1851,28 +1901,78 @@ $('#lowShare').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(text);toast('لیستەکە کۆپی کرا. لە WhatsApp دایبنێ.');}
   catch(_){toast('ناردن سەرکەوتوو نەبوو.','error');}
 });
-const PV_TITLES={all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',excel:'Excel'};
+const PV_TITLES={all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',dup:'کاڵا دووبارەکان',excel:'Excel'};
 function priceHits(p,price,kind,seeCost){
   const r=x=>Math.round(Number(x)||0),hit={retail:r(p.retail)===price,wholesale:r(p.wholesale)===price,cost:seeCost&&r(costOf(p.id))===price};
   const ok=kind==='any'?(hit.retail||hit.wholesale||hit.cost):!!hit[kind];
   return ok?hit:null;
 }
+function priceOf(p,k){return Math.round(Number(k==='cost'?costOf(p.id):p[k])||0);}
+// Items that share a name, a barcode or a price, in groups of two or more.
+function dupGroups(by,pk,seeCost){
+  const m=new Map();
+  for(const p of S.products.values()){
+    let k='';
+    if(by==='name')k=fold(p.name);
+    else if(by==='barcode')k=codeKey(p.barcode||'');
+    else{const v=pk==='cost'&&!seeCost?0:priceOf(p,pk);k=v>0?String(v):'';}
+    if(!k)continue;
+    if(!m.has(k))m.set(k,[]);m.get(k).push(p);
+  }
+  return Array.from(m.entries()).filter(e=>e[1].length>1)
+    .sort((x,y)=>by==='price'?Number(x[0])-Number(y[0]):(y[1].length-x[1].length||x[0].localeCompare(y[0],'ar')));
+}
+function rowHtml(p,h,sortk){
+  const st=typeof p.stock==='number'?p.stock:0,c=costOf(p.id);h=h||{};
+  const cls=st<=0?'danger':(isLow(p)?'warn':'ok'),sk=k=>(sortk===k?' sortk':'')+(h[k]?' hit':'');
+  return '<button type="button" class="prow" data-id="'+esc(p.id)+'">'+
+    '<span class="pname">'+esc(p.name)+'</span>'+
+    '<span class="pcode num">'+esc(p.barcode||'—')+'</span>'+
+    '<span class="pp pc'+sk('cost')+'"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
+    '<span class="pp wh'+sk('wholesale')+'"><small>جوملە</small><b class="num">'+(p.wholesale?fmt(p.wholesale):'—')+'</b></span>'+
+    '<span class="pp rt'+sk('retail')+'"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
+    '<span class="pstock"><span class="chip '+cls+'">'+(st<=0?'نەماوە':fmtQty(st))+'</span></span></button>';
+}
+function setPressed(sel,attr,val){$$(sel+' ['+attr+']').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute(attr)===val)));}
 function renderProducts(){
   const owner=S.role==='owner',seeCost=owner||S.perm.cost,all=Array.from(S.products.values());
   let value=0,low=0;
   for(const p of all){const st=typeof p.stock==='number'?p.stock:0;value+=Math.max(0,st)*costOf(p.id);if(isLow(p))low++;}
   $('#pCount').textContent=fmt(all.length);$('#pValue').textContent=fmt(value);$('#pLow').textContent=fmt(low);
+  const dupIds=new Set();for(const by of ['name','barcode'])for(const g of dupGroups(by))g[1].forEach(p=>dupIds.add(p.id));
+  const dn=$('#pDupNote');dn.className='mnote'+(dupIds.size?' danger':'');
+  dn.textContent=dupIds.size?(fmt(dupIds.size)+' کاڵا ناو یان بارکۆدیان دووبارەیە'):'هیچ ناو یان بارکۆدێکی دووبارە نییە';
   let v=S.pview||'home';
   if(v==='excel'&&!owner)v=S.pview='home';
   $('#pHome').hidden=v!=='home';$('#pView').hidden=v==='home';
   if(v==='home')return;
   $('#pvTitle').textContent=PV_TITLES[v]||'';
-  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#lowTools').hidden=v!=='low';$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
+  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
   $('#pKindCost').hidden=!seeCost;if(!seeCost&&S.priceKind==='cost')S.priceKind='any';
-  $$('#pKinds [data-k]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===S.priceKind)));
+  $('#dKindCost').hidden=!seeCost;if(!seeCost&&S.dupPrice==='cost')S.dupPrice='retail';
+  setPressed('#pKinds','data-k',S.priceKind);setPressed('#pSort','data-s',S.priceSort);
+  setPressed('#dKinds','data-d',S.dupBy);setPressed('#dPriceKinds','data-dk',S.dupPrice);$('#dPriceKinds').hidden=S.dupBy!=='price';
   if(v==='excel'){$('#pvCount').textContent='';return;}
+  const body=$('#pBody');
+  $('#plist').classList.toggle('nocost',!seeCost);
+  if(!S.prodLoaded){$('.phead').hidden=true;body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
+  if(v==='dup'){
+    const groups=dupGroups(S.dupBy,S.dupPrice,seeCost),n=groups.reduce((a,g)=>a+g[1].length,0);
+    $('#dHint').textContent=S.dupBy==='name'?'ئەو کاڵایانەی ناویان وەک یەکە. ئەگەر یەکێکیان زیادەیە، دەستی لێبدە و بیسڕەوە یان ناوەکەی بگۆڕە.'
+      :S.dupBy==='barcode'?'ئەو کاڵایانەی بارکۆدیان وەک یەکە. لە کاتی سکان تەنها یەکێکیان دەدۆزرێتەوە، بۆیە باشترە یەکێکیان چاک بکەیتەوە.'
+      :'ئەو کاڵایانەی هەمان نرخیان هەیە، لە نرخی کەمەوە بۆ زۆر.';
+    $('#pvCount').innerHTML=groups.length?('<span class="num">'+fmt(groups.length)+'</span> گرووپ · <span class="num">'+fmt(n)+'</span> کاڵا'):'';
+    $('.phead').hidden=!groups.length;
+    if(!groups.length){body.innerHTML='<div class="empty"><b>هیچ دووبارەیەک نییە</b>'+(S.dupBy==='price'?'هیچ دوو کاڵایەک هەمان نرخیان نییە.':'هیچ دوو کاڵایەک '+(S.dupBy==='name'?'هەمان ناویان':'هەمان بارکۆدیان')+' نییە.')+'</div>';return;}
+    const byName=(a,b)=>String(a.name).localeCompare(String(b.name),'ar');
+    body.innerHTML=groups.slice(0,200).map(([k,ps])=>{
+      const label=S.dupBy==='price'?('<span class="num">'+fmt(Number(k))+'</span> د.ع'):S.dupBy==='barcode'?('<span class="num">'+esc(k)+'</span>'):esc(ps[0].name);
+      return '<div class="dgh"><span class="dgk">'+label+'</span><span class="chip danger"><span class="num">'+fmt(ps.length)+'</span> کاڵا</span></div>'+ps.slice().sort(byName).map(p=>rowHtml(p,null,S.dupBy==='price'?S.dupPrice:'')).join('');
+    }).join('')+(groups.length>200?'<div class="more">'+fmt(groups.length-200)+' گرووپی تر هەیە.</div>':'');
+    return;
+  }
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name),'ar');
-  let list=[],hits=new Map(),hint='';
+  let list=[],hits=new Map(),hint='',sortk='';
   if(v==='all')list=all.sort(byName);
   else if(v==='low')list=all.filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
   else if(v==='search'){
@@ -1880,30 +1980,20 @@ function renderProducts(){
     if(q)list=all.filter(p=>fold(p.name).includes(fold(q))||normText(p.barcode||'').includes(q)).sort(byName);
     else hint='ناوی کاڵا یان ژمارەی بارکۆد بنووسە، یان دوگمەی کامێرا دابگرە.';
   }else if(v==='price'){
+    // With no price typed, every item is listed in price order; with a price, only the items at that price.
     const price=Math.round(parseNum($('#pPrice').value));
-    if(price>0){for(const p of all){const h=priceHits(p,price,S.priceKind,seeCost);if(h){list.push(p);hits.set(p.id,h);}}list.sort(byName);}
-    else hint='نرخێک بنووسە. ئەو کاڵایانەی هەمان نرخیان هەیە دەردەکەون.';
+    sortk=S.priceKind==='any'?'retail':S.priceKind;
+    if(price>0){for(const p of all){const h=priceHits(p,price,S.priceKind,seeCost);if(h){list.push(p);hits.set(p.id,h);}}}
+    else list=all.slice();
+    const dir=S.priceSort==='desc'?-1:1;
+    list.sort((a,b)=>{const x=priceOf(a,sortk),y=priceOf(b,sortk);if(!x!==!y)return x?-1:1;return (x-y)*dir||byName(a,b);});
   }
   $('#pvCount').innerHTML=hint?'':('<span class="num">'+fmt(list.length)+'</span> کاڵا');
-  const body=$('#pBody');
-  $('#plist').classList.toggle('nocost',!seeCost);
-  $('.phead').hidden=!(S.prodLoaded&&list.length);
-  if(!S.prodLoaded){body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
+  $('.phead').hidden=!list.length;
   if(hint){body.innerHTML='<div class="empty">'+hint+'</div>';return;}
   if(!all.length){body.innerHTML='<div class="empty"><b>هێشتا هیچ کاڵایەک تۆمار نەکراوە</b>یەکەم کاڵا زیاد بکە'+(owner?'، یان لیستەکەت لە Excel هاوردە بکە':'')+'.<br><button type="button" class="btn primary" id="emptyAdd">+ کاڵای نوێ</button></div>';$('#emptyAdd').onclick=()=>openSheet(null,{},false);return;}
   if(!list.length){body.innerHTML='<div class="empty">'+(v==='low'?'<b>هیچ کاڵایەک کەم نەماوە</b>هەموو کاڵاکان بڕی پێویستیان هەیە.':(v==='price'?'هیچ کاڵایەک بەم نرخە نییە.':'هیچ کاڵایەک بەم گەڕانە نەدۆزرایەوە.'))+'</div>';return;}
-  const shown=list.slice(0,400);
-  body.innerHTML=shown.map(p=>{
-    const st=typeof p.stock==='number'?p.stock:0,c=costOf(p.id),h=hits.get(p.id)||{};
-    const cls=st<=0?'danger':(isLow(p)?'warn':'ok');
-    return '<button type="button" class="prow" data-id="'+esc(p.id)+'">'+
-      '<span class="pname">'+esc(p.name)+'</span>'+
-      '<span class="pcode num">'+esc(p.barcode||'—')+'</span>'+
-      '<span class="pp pc'+(h.cost?' hit':'')+'"><small>کڕین</small><b class="num">'+(c?fmt(c):'—')+'</b></span>'+
-      '<span class="pp wh'+(h.wholesale?' hit':'')+'"><small>جوملە</small><b class="num">'+(p.wholesale?fmt(p.wholesale):'—')+'</b></span>'+
-      '<span class="pp rt'+(h.retail?' hit':'')+'"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
-      '<span class="pstock"><span class="chip '+cls+'">'+(st<=0?'نەماوە':fmtQty(st))+'</span></span></button>';
-  }).join('')+(list.length>400?'<div class="more">'+fmt(list.length-400)+' کاڵای تر هەیە. بۆ دۆزینەوەیان گەڕان بەکاربهێنە.</div>':'');
+  body.innerHTML=list.slice(0,400).map(p=>rowHtml(p,hits.get(p.id),sortk)).join('')+(list.length>400?'<div class="more">'+fmt(list.length-400)+' کاڵای تر هەیە. بۆ دۆزینەوەیان گەڕان بەکاربهێنە.</div>':'');
 }
 
 /* ---------- product sheet ---------- */
@@ -1916,6 +2006,8 @@ function openSheet(id,preset,addAfter){
   const p=id?S.products.get(id):null;
   if(p&&!canEditProduct(p))return;
   S.editing=id;S.addAfterSave=!!addAfter;S.addTarget=(preset&&preset.target)||'sell';
+  // Opened from «کاڵای نوێ», the form stays open after each save for the next item.
+  S.batchNew=!p&&!addAfter&&!!(preset&&preset.batch);S.batchCount=0;hideExisting();
   $('#fCostWrap').hidden=!(owner||S.perm.cost);$('#fMargins').hidden=!(owner||S.perm.cost);
   // A new item registered during a purchase starts at 0; the purchase itself adds the quantity.
   F.stock.closest('.field').hidden=!p&&!!addAfter&&S.addTarget==='buy';
@@ -1929,10 +2021,58 @@ function openSheet(id,preset,addAfter){
   $('#sheet').hidden=false;updateMargins();syncLive();
   setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
 }
-function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;syncLive();}
+function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;S.batchNew=false;hideExisting();syncLive();}
+function newTitle(){$('#sheetTitle').textContent=S.batchCount?('کاڵای نوێ · '+fmt(S.batchCount)+' زیاد کرا'):'کاڵای نوێ';}
+function resetNewForm(){
+  S.editing=null;hideExisting();
+  [F.bc,F.name,F.cost,F.stock,F.wh,F.rt,F.min].forEach(i=>{i.value='';i.classList.remove('bad');});
+  $('#fErr').hidden=true;$('#fDelete').hidden=true;updateMargins();newTitle();
+}
+/* ---------- a barcode that is already registered ---------- */
+function showExisting(p){
+  S.existing=p.id;
+  $('#feName').textContent=p.name;$('#feStock').textContent=fmtQty(typeof p.stock==='number'?p.stock:0);$('#feCode').textContent=p.barcode||'';
+  $('#feQty').value='1';$('#feEdit').hidden=!canEditProduct(p);
+  $('#fExist').hidden=false;$('#pForm').classList.add('exist-mode');
+  setTimeout(()=>{const q=$('#feQty');q.focus();try{q.select();}catch(_){}},80);
+}
+function hideExisting(){S.existing=null;$('#fExist').hidden=true;$('#pForm').classList.remove('exist-mode');}
+// When adding a new item, a scanned or typed barcode that already exists switches to "add stock".
+function checkExisting(code){
+  if(S.editing||S.addAfterSave)return false;
+  const p=productByCode(code);if(!p)return false;
+  showExisting(p);return true;
+}
+function onFormCode(code){
+  F.bc.value=code;F.bc.classList.remove('bad');
+  if(!checkExisting(code))F.name.focus();
+  return '';
+}
+function formScan(){unlockAudio();openScanner(onFormCode,'بارکۆدی کاڵاکە سکان بکە',F.bc);}
+$('#feMinus').addEventListener('click',()=>{$('#feQty').value=fmtQty(Math.max(1,rq(parseNum($('#feQty').value)-1)));});
+$('#fePlus').addEventListener('click',()=>{$('#feQty').value=fmtQty(rq(parseNum($('#feQty').value)+1));});
+$('#feQty').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#feAdd').click();}});
+$('#feCancel').addEventListener('click',()=>{hideExisting();F.bc.value='';F.bc.focus();});
+$('#feEdit').addEventListener('click',()=>{const id=S.existing;if(id){const b=S.batchNew;openSheet(id,{},false);S.batchNew=b;}});
+$('#feAdd').addEventListener('click',async()=>{
+  const p=S.existing?S.products.get(S.existing):null,q=rq(parseNum($('#feQty').value));
+  if(!p)return;
+  if(!(q>0)){$('#feQty').focus();return;}
+  const btn=$('#feAdd');busy(btn,true,'زیاد دەکرێت…');
+  try{
+    const r=await commitSoft(updateDoc(doc(db,'products',p.id),{stock:increment(q)}));
+    const now=rq((typeof p.stock==='number'?p.stock:0)+q);
+    toast(fmtQty(q)+' دانە زیاد کرا بۆ «'+p.name+'» · کۆگا ئێستا: '+fmtQty(now)+(r==='pending'?' (کە ئینتەرنێت هاتەوە دەنێردرێت)':''));
+    hideExisting();
+    if(S.batchNew){S.batchCount++;resetNewForm();formScan();}
+    else{F.bc.value='';F.bc.focus();}
+  }catch(err){toast(errMsg(err),'error');}
+  finally{busy(btn,false);}
+});
 $$('[data-close]').forEach(b=>b.addEventListener('click',closeSheet));
 $('#sheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
-F.bc.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();F.name.focus();}});
+F.bc.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!checkExisting(codeKey(F.bc.value)))F.name.focus();}});
+F.bc.addEventListener('change',()=>{const c=codeKey(F.bc.value);if(c)checkExisting(c);});
 [F.cost,F.wh,F.rt].forEach(i=>i.addEventListener('input',updateMargins));
 Object.values(F).forEach(i=>i.addEventListener('input',()=>i.classList.remove('bad')));
 function updateMargins(){
@@ -1946,11 +2086,13 @@ function updateMargins(){
 function formErr(msg,input){const e=$('#fErr');e.textContent=msg;e.hidden=false;if(input){input.classList.add('bad');input.focus();}}
 $('#pForm').addEventListener('submit',async e=>{
   e.preventDefault();const owner=S.role==='owner';if(!owner&&!S.perm.add)return;
+  if(!$('#fExist').hidden)return;
   const data={barcode:normDigits(F.bc.value).replace(/\s+/g,''),name:F.name.value.trim(),wholesale:parseNum(F.wh.value),retail:parseNum(F.rt.value),stock:rq(parseNum(F.stock.value)),updatedAt:Date.now()};
   const cost=parseNum(F.cost.value);
   if(F.min.value.trim()!=='')data.minStock=rq(Math.max(0,parseNum(F.min.value)));
   if(!data.name)return formErr('ناوی کاڵا بنووسە.',F.name);
   if(!(data.retail>0))return formErr('نرخی تاک بنووسە.',F.rt);
+  if(data.barcode&&!S.editing&&!S.addAfterSave&&checkExisting(codeKey(data.barcode)))return;
   if(data.barcode){const other=S.byCode.get(codeKey(data.barcode));if(other&&other!==S.editing){const op=S.products.get(other);return formErr('ئەم بارکۆدە پێشتر بۆ «'+(op?op.name:'کاڵایەکی تر')+'» تۆمارکراوە.',F.bc);}}
   if(F.stock.closest('.field').hidden)data.stock=0;
   const id=S.editing||newId(),after=S.addAfterSave,wasEdit=!!S.editing;
@@ -1962,6 +2104,12 @@ $('#pForm').addEventListener('submit',async e=>{
     if(owner||(S.perm.cost&&!$('#fCostWrap').hidden&&F.cost.value.trim()!==''))b.set(doc(db,'costs',id),{cost:cost});
     const r=await commitSoft(b.commit());
     const p=Object.assign({id:id},data);
+    if(!wasEdit&&S.batchNew){
+      // Ready for the next item straight away: clear the form and open the camera.
+      S.batchCount++;resetNewForm();
+      toast('«'+data.name+'» زیاد کرا. کاڵای دواتر سکان بکە.'+(r==='pending'?' (کە ئینتەرنێت هاتەوە دەنێردرێت)':''));
+      formScan();return;
+    }
     closeSheet();
     toast((wasEdit?'گۆڕانکارییەکان پاشەکەوت کران.':'کاڵاکە زیاد کرا.')+(r==='pending'?' (کە ئینتەرنێت هاتەوە دەنێردرێت)':''));
     if(after){if(!S.products.has(id))S.products.set(id,p);const pp=S.products.get(id)||p;

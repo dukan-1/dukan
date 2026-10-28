@@ -198,7 +198,29 @@ main.wrap{padding-block:16px 120px}
 .livecam[data-state="error"] .lc-cover{position:static}
 .livecam:not([data-state="on"]) .lc-last{display:none}
 .num-in::placeholder{font-family:var(--f-body);letter-spacing:0}
-.nocode-btn{width:100%;justify-content:space-between;margin-top:8px;padding-block:11px;background:var(--surface)}
+.nocode-btn{width:100%;justify-content:space-between;padding-block:11px;background:var(--surface)}
+.alt-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.alt-btns .nocode-btn{flex:1 1 150px;width:auto;min-width:0}
+.pick .pst{font-size:11px;color:var(--muted)}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
+.mtile{display:flex;align-items:center;gap:14px;padding:18px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-align:start;font:inherit;color:inherit;cursor:pointer;min-width:0;box-shadow:var(--shadow)}
+.mtile:hover{border-color:var(--muted)}
+.mtile .mi{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;flex:none}
+.mtile .mi svg{width:28px;height:28px}
+.mtile[data-go="reports"] .mi{background:var(--ok-soft);color:var(--ok)}
+.mtile[data-go="buy"] .mi{background:var(--wholesale-soft);color:var(--wholesale)}
+.mtile[data-go="staff"] .mi{background:var(--sunk);color:var(--ink)}
+.mtile .mtx{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.mtile b{font-family:var(--f-display);font-size:18px;font-weight:700;line-height:1.35}
+.mtile .msub{font-size:13px;color:var(--muted)}
+.mtile .mnote{font-size:12px;font-weight:600}
+.mtile .mnote.warn{color:var(--warn)}
+.mtile .mnote.danger{color:var(--danger)}
+.mtile .chev{color:var(--muted);flex:none;width:20px;height:20px}
+.backbar{display:flex;align-items:center;gap:10px}
+.backbar h2{margin:0;font-family:var(--f-display);font-size:18px;font-weight:700}
+.backbar .btn svg{width:18px;height:18px}
+.pick-more{grid-column:1/-1;margin:4px 0 0;font-size:13px;color:var(--muted)}
 .nocode-btn .nl{display:inline-flex;align-items:center;gap:8px}
 .pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;max-height:55vh;overflow:auto;padding:2px}
 .pick{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg);text-align:start;min-width:0}
@@ -470,6 +492,10 @@ window.FIREBASE_CONFIG = {
   <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6M9 16h3"/></g></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 8h3.2l1.8-2.8h7l1.8 2.8h3.2v11h-17z"/><circle cx="12" cy="13.2" r="3.6"/></g></symbol>
  <symbol id="i-truck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6h11v10h-11z"/><path d="M13.5 9.5h4l3 3.2V16h-7"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></g></symbol>
+ <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></g></symbol>
+ <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-next" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.5 20.5"/></g></symbol>
  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5"/></g></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h10"/></g></symbol>
 </svg>
@@ -548,11 +574,9 @@ window.FIREBASE_CONFIG = {
       </div>
       <nav class="nav" role="tablist" aria-label="بەشەکان">
         <button type="button" role="tab" data-tab="sell" aria-selected="true"><svg><use href="#i-cart"/></svg>فرۆشتن</button>
-        <button type="button" role="tab" data-tab="buy" data-buytab aria-selected="false" hidden><svg><use href="#i-truck"/></svg>کڕین</button>
         <button type="button" role="tab" data-tab="mine" data-staff aria-selected="false"><svg><use href="#i-receipt"/></svg>فرۆشتنەکانم</button>
         <button type="button" role="tab" data-tab="products" data-prodtab aria-selected="false"><svg><use href="#i-box"/></svg>کاڵاکان</button>
-        <button type="button" role="tab" data-tab="reports" data-owner aria-selected="false"><svg><use href="#i-chart"/></svg>ڕاپۆرت</button>
-        <button type="button" role="tab" data-tab="staff" data-owner aria-selected="false"><svg><use href="#i-gear"/></svg>ڕێکخستن</button>
+        <button type="button" role="tab" data-tab="menu" data-owner aria-selected="false"><svg><use href="#i-grid"/></svg>بەڕێوەبردن</button>
       </nav>
       <div class="me">
         <span class="me-name" id="meName"></span>
@@ -590,7 +614,10 @@ window.FIREBASE_CONFIG = {
               <button type="button" id="scanGo" class="btn primary">زیادکردن</button>
             </div>
             <p class="scan-hint">بارکۆد بخە بەردەم کامێرا، یان بە سکانەری ئامێر سکانی بکە. بۆ زیادکردنی هەمان کاڵا، دوگمەی + دابگرە.</p>
-            <button type="button" id="noCodeBtn" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="noCodeCount" class="chip num"></span></button>
+            <div class="alt-btns">
+              <button type="button" id="byNameBtn" class="btn ghost nocode-btn"><span class="nl"><svg><use href="#i-search"/></svg>فرۆشتن بە ناو</span></button>
+              <button type="button" id="noCodeBtn" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="noCodeCount" class="chip num"></span></button>
+            </div>
           </div>
           <div class="ticket">
             <div class="ticket-head"><span class="tk" id="ticketTitle">پسوولەی فرۆشتن</span><span class="th-r"><span id="cartCount"></span><span id="ticketMode" class="chip m-retail">تاک</span><button type="button" id="retBtn" class="ret-tog" aria-pressed="false" hidden>گەڕاوە</button></span></div>
@@ -621,8 +648,18 @@ window.FIREBASE_CONFIG = {
       </div>
     </section>
 
+    <!-- MANAGEMENT MENU (owner) -->
+    <section id="tab-menu" class="sec" role="tabpanel" hidden>
+      <div class="menu-grid">
+        <button type="button" class="mtile" data-go="reports"><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>ڕاپۆرت</b><span class="msub">فرۆشتن، قازانج، خەرجی و قەرزی کڕیاران</span><span class="mnote danger" id="mnReports" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-go="buy"><span class="mi"><svg><use href="#i-truck"/></svg></span><span class="mtx"><b>کڕین</b><span class="msub">هاتنی کاڵا لە کۆمپانیا و قەرزی کۆمپانیاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-go="staff"><span class="mi"><svg><use href="#i-gear"/></svg></span><span class="mtx"><b>ڕێکخستن</b><span class="msub">شاگردەکان، یەدەگ و ناوی دوکان</span><span class="mnote" id="mnStaff" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
+      </div>
+    </section>
+
     <!-- PURCHASES -->
     <section id="tab-buy" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>کڕین</h2></div>
       <div class="sell-grid">
         <div class="sell-main">
           <div class="field">
@@ -638,7 +675,10 @@ window.FIREBASE_CONFIG = {
               <button type="button" id="bGo" class="btn primary">زیادکردن</button>
             </div>
             <p class="scan-hint">بارکۆدی کاڵا هاتووەکان سکان بکە، بڕ و نرخی کڕینی دانە بنووسە. کۆگا خۆی زیاد دەبێت.</p>
-            <button type="button" id="bNoCode" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="bNoCodeCount" class="chip num"></span></button>
+            <div class="alt-btns">
+              <button type="button" id="bByName" class="btn ghost nocode-btn"><span class="nl"><svg><use href="#i-search"/></svg>گەڕان بە ناو</span></button>
+              <button type="button" id="bNoCode" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="bNoCodeCount" class="chip num"></span></button>
+            </div>
           </div>
           <div class="ticket">
             <div class="ticket-head"><span class="tk">پسوولەی کڕین</span><span id="bCount"></span></div>
@@ -701,6 +741,7 @@ window.FIREBASE_CONFIG = {
 
     <!-- REPORTS (owner) -->
     <section id="tab-reports" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>ڕاپۆرت</h2></div>
       <div class="ranges" role="group" aria-label="ماوە">
         <button type="button" data-r="today" aria-pressed="true">ئەمڕۆ</button>
         <button type="button" data-r="yesterday" aria-pressed="false">دوێنێ</button>
@@ -742,6 +783,7 @@ window.FIREBASE_CONFIG = {
 
     <!-- STAFF (owner) -->
     <section id="tab-staff" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>ڕێکخستن</h2></div>
       <div class="panel">
         <h3>ناوی دوکان</h3>
         <form id="f-shop" class="inrow" novalidate><label for="shopInput" class="sr">ناوی دوکان</label><input id="shopInput" class="inp" autocomplete="off"><button type="submit" class="btn primary">پاشەکەوت</button></form>
@@ -785,7 +827,7 @@ window.FIREBASE_CONFIG = {
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
       <div class="sheet-head"><h2 id="pickTitle">کاڵای بێ بارکۆد</h2><button type="button" class="x" data-pclose aria-label="داخستن">×</button></div>
       <label for="pickSearch" class="sr">گەڕان بە ناو</label>
-      <input id="pickSearch" class="inp" placeholder="گەڕان بە ناو" autocomplete="off" hidden>
+      <input id="pickSearch" class="inp" type="search" placeholder="گەڕان بە ناو" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" hidden>
       <div id="pickGrid" class="pick-grid"></div>
       <button type="button" class="btn primary" data-pclose>تەواو</button>
     </div>
@@ -891,6 +933,7 @@ function parseNum(s){s=normDigits(s).replace(/[,\s٬]/g,'').replace(/٫/g,'.');c
 function rq(n){return Math.round(n*1000)/1000;}
 function fmt(n){n=Math.round(Number(n)||0);return n.toLocaleString('en-US');}
 function fmtQty(n){if(typeof n!=='number'||!isFinite(n))return '—';return Number.isInteger(n)?n.toLocaleString('en-US'):String(rq(n));}
+function fold(s){return normText(s).replace(/[ەة]/g,'ه').replace(/[أإآ]/g,'ا').replace(/ؤ/g,'و').replace(/ـ/g,'').replace(/[\u064B-\u0652]/g,'');}
 function codeKey(s){return normText(s).replace(/\s+/g,'');}
 function normText(s){return normDigits(s).toLowerCase().replace(/ي/g,'ی').replace(/ى/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1091,7 +1134,7 @@ function start(){
     S.unsubs.push(onSnapshot(collection(db,'costs'),snap=>{S.costs=new Map();snap.docs.forEach(d=>S.costs.set(d.id,Number(d.data().cost)||0));if(S.tab==='products')renderProducts();if(S.tab==='reports')renderReports();},onErr));
     S.unsubs.push(onSnapshot(collection(db,'users'),snap=>{S.staff=new Map();snap.docs.forEach(d=>{const v=d.data();if(v.role==='staff')S.staff.set(d.id,Object.assign({},v,{id:d.id}));});if(!S.renaming||!$('#rn-'+S.renaming))renderStaff();},onErr));
     S.unsubs.push(onSnapshot(doc(db,'meta','backup'),snap=>{S.lastBackup=snap.exists()?(snap.data().at||null):null;updateBackupUI();},()=>{}));
-    S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();},onErr));
+    S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();renderMenu();},onErr));
   }
   setMode('retail');setReturn(false);showTab('sell');
 }
@@ -1108,11 +1151,14 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff','buy'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy','menu'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   S.tab=t;
-  $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  ['sell','buy','mine','products','reports','staff'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  // Reports, purchases and settings open from the management page, so its tab stays lit for them.
+  const navKey=['reports','buy','staff'].includes(t)?'menu':t;
+  $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===navKey)));
+  ['sell','buy','mine','products','reports','staff','menu'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  if(t==='menu')renderMenu();
   if(t==='sell'&&fine)setTimeout(()=>scan.focus(),0);
   if(t==='products')renderProducts();
   if(t==='reports'){if(!S.rangeUnsub&&S.range!=='debts')subscribeRange();renderReports();}
@@ -1368,24 +1414,37 @@ $('#fCam').addEventListener('click',()=>{unlockAudio();openScanner(code=>{$('#fB
 /* ================= items without a barcode ================= */
 function noCodeItems(){return Array.from(S.products.values()).filter(p=>!codeKey(p.barcode||''));}
 function updateNoCode(){const n=noCodeItems().length;$('#noCodeBtn').hidden=n===0;$('#noCodeCount').textContent=String(n);$('#bNoCode').hidden=n===0;$('#bNoCodeCount').textContent=String(n);}
+// The picker lists either the items without a barcode, or every item searchable by name.
+const PICK_MAX=60;
 function renderPicker(){
-  const all=noCodeItems(),q=normText($('#pickSearch').value);
-  $('#pickSearch').hidden=all.length<=8;
-  const list=(q?all.filter(p=>normText(p.name).includes(q)):all).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
+  const byName=S.pickMode==='name',all=byName?Array.from(S.products.values()):noCodeItems(),q=fold($('#pickSearch').value);
+  $('#pickTitle').textContent=byName?(S.tab==='buy'?'گەڕان بە ناو':'فرۆشتن بە ناو'):'کاڵای بێ بارکۆد';
+  $('#pickSearch').placeholder=byName?'ناوی کاڵا بنووسە':'گەڕان بە ناو';
+  $('#pickSearch').hidden=!byName&&all.length<=8;
+  let list=q?all.filter(p=>fold(p.name).includes(q)||(byName&&codeKey(p.barcode||'').includes(q))):all;
+  // names that start with what was typed come first
+  list=list.sort((a,b)=>(q?(fold(a.name).startsWith(q)?0:1)-(fold(b.name).startsWith(q)?0:1):0)||String(a.name).localeCompare(String(b.name),'ar'));
+  const more=Math.max(0,list.length-PICK_MAX);list=list.slice(0,PICK_MAX);
   const buy=S.tab==='buy',inCart=new Map((buy?B.lines:S.cart).map(l=>[l.pid,l.qty]));
-  $('#pickGrid').innerHTML=list.length?list.map(p=>{const q=inCart.get(p.id);
-    return '<button type="button" class="pick'+(q?' in':'')+'" data-pick="'+esc(p.id)+'">'+(q?'<span class="pq">'+fmtQty(q)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span><span class="ppr num">'+(buy?'کۆگا: '+fmtQty(typeof p.stock==='number'?p.stock:0):fmt(unitPrice(p,S.mode)))+'</span></button>';}).join('')
-    :'<p class="muted" style="margin:0;grid-column:1/-1">'+(all.length?'هیچ کاڵایەک بەم ناوە نییە.':'هیچ کاڵایەکی بێ بارکۆد نییە.')+'</p>';
+  $('#pickGrid').innerHTML=list.length?list.map(p=>{const n=inCart.get(p.id),st=fmtQty(typeof p.stock==='number'?p.stock:0);
+    return '<button type="button" class="pick'+(n?' in':'')+'" data-pick="'+esc(p.id)+'">'+(n?'<span class="pq">'+fmtQty(n)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span>'+
+      (buy?'<span class="ppr num">کۆگا: '+st+'</span>':'<span class="ppr num">'+fmt(unitPrice(p,S.mode))+'</span><span class="pst">کۆگا: <span class="num">'+st+'</span></span>')+'</button>';}).join('')+
+      (more?'<p class="pick-more">'+fmt(more)+' کاڵای تر هەیە. پیتی زیاتر بنووسە بۆ دۆزینەوە.</p>':'')
+    :'<p class="muted" style="margin:0;grid-column:1/-1">'+(q?'هیچ کاڵایەک بەم ناوە نییە.':(byName?'هێشتا هیچ کاڵایەک تۆمار نەکراوە.':'هیچ کاڵایەکی بێ بارکۆد نییە.'))+'</p>';
 }
-function openPicker(){
+function openPicker(mode){
+  S.pickMode=mode==='name'?'name':'nocode';
   $('#picker').dataset.mode=S.tab==='buy'?'wholesale':S.mode;$('#pickSearch').value='';renderPicker();$('#picker').hidden=false;syncLive();
-  if(fine&&!$('#pickSearch').hidden)$('#pickSearch').focus();
+  // Searching by name means typing, so the keyboard opens straight away.
+  if(!$('#pickSearch').hidden&&(fine||S.pickMode==='name'))$('#pickSearch').focus();
 }
 function closePicker(){$('#picker').hidden=true;syncLive();if(fine)(S.tab==='buy'?$('#bScan'):scan).focus();}
-$('#noCodeBtn').addEventListener('click',()=>{unlockAudio();openPicker();});
+$('#noCodeBtn').addEventListener('click',()=>{unlockAudio();openPicker('nocode');});
+$('#byNameBtn').addEventListener('click',()=>{unlockAudio();openPicker('name');});
 $$('[data-pclose]').forEach(b=>b.addEventListener('click',closePicker));
 $('#picker').addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();});
 $('#pickSearch').addEventListener('input',renderPicker);
+$('#pickSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const t=$$('#pickGrid [data-pick]');if(t.length===1)t[0].click();else $('#pickSearch').blur();}});
 $('#pickGrid').addEventListener('click',e=>{
   const b=e.target.closest('[data-pick]');if(!b)return;
   const p=S.products.get(b.dataset.pick);if(!p)return;
@@ -1544,7 +1603,8 @@ function submitBuyScan(){const code=codeKey(bScan.value);if(!code)return;bScan.v
 bScan.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitBuyScan();}});
 $('#bGo').addEventListener('click',submitBuyScan);
 $('#bCam').addEventListener('click',()=>{unlockAudio();openScanner(handleBuyCode,'کاڵا هاتووەکان یەک لە دوای یەک سکان بکە',bScan,true);});
-$('#bNoCode').addEventListener('click',()=>{unlockAudio();openPicker();});
+$('#bNoCode').addEventListener('click',()=>{unlockAudio();openPicker('nocode');});
+$('#bByName').addEventListener('click',()=>{unlockAudio();openPicker('name');});
 function buyTotals(){
   let total=0,qty=0;for(const l of B.lines){total+=l.qty*(l.cost||0);qty+=l.qty;}
   const pr=$('#bPaid').value.trim(),paid=pr===''?total:Math.min(total,Math.max(0,parseNum(pr)));
@@ -1755,7 +1815,7 @@ function renderProducts(){
   $('#lowBtn').setAttribute('aria-pressed',String(S.lowOnly));$('#lowTools').hidden=!S.lowOnly;
   $('#lowHint').textContent=S.lowOnly?'دەستی لێبدە بۆ هەموو کاڵاکان':'دەستی لێبدە بۆ لیستەکە';
   const q=normText($('#pSearch').value);
-  let list=q?all.filter(p=>normText(p.name).includes(q)||normText(p.barcode||'').includes(q)):all;
+  let list=q?all.filter(p=>fold(p.name).includes(fold(q))||normText(p.barcode||'').includes(q)):all;
   if(S.lowOnly)list=list.filter(isLow).sort((a,b)=>(a.stock||0)-(b.stock||0));
   else list=list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));
   const body=$('#pBody');
@@ -2177,6 +2237,18 @@ $('#sExport').addEventListener('click',()=>{
 /* ================= backup ================= */
 const BK_DAYS=7,FULL_LIMIT=10000;
 function daysSince(t){return Math.floor((Date.now()-t)/86400000);}
+/* ---------- management page ---------- */
+function renderMenu(){
+  if(S.tab!=='menu')return;
+  let debt=0;for(const x of S.debts){if(!x.void&&x.type!=='return')debt+=Math.max(0,x.debt||0);}
+  const r=$('#mnReports');r.hidden=!(debt>0);r.textContent='قەرزی کڕیاران: '+fmt(debt)+' د.ع';
+  const st=$('#mnStaff'),t=S.lastBackup,n=Array.from(S.staff.values()).filter(x=>!x.removed).length;
+  const due=t===null?S.products.size>0:(typeof t==='number'&&daysSince(t)>=BK_DAYS);
+  st.hidden=false;st.className='mnote'+(due?' warn':'');
+  st.textContent=fmt(n)+' شاگرد · '+(t?('دوایین یەدەگ: '+(daysSince(t)===0?'ئەمڕۆ':fmt(daysSince(t))+' ڕۆژ لەمەوبەر')):'هێشتا یەدەگ نەگیراوە');
+}
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.go)));
+$$('[data-back]').forEach(b=>b.addEventListener('click',()=>showTab('menu')));
 function updateBackupUI(){
   if(S.role!=='owner'){$('#bkBanner').hidden=true;return;}
   const t=S.lastBackup;
@@ -2185,6 +2257,7 @@ function updateBackupUI(){
   const due=t===null?S.products.size>0:(typeof t==='number'&&daysSince(t)>=BK_DAYS);
   $('#bkBanner').hidden=!due||S.bkLater||S.tab==='staff';
   $('#bkBannerText').textContent=t?(fmt(daysSince(t))+' ڕۆژە یەدەگت نەگرتووە.'):'هێشتا یەدەگی داتاکانت نەگرتووە.';
+  renderMenu();
 }
 $('#bkBannerGo').addEventListener('click',()=>{showTab('staff');$('#backupPanel').scrollIntoView({block:'start'});});
 $('#bkBannerLater').addEventListener('click',()=>{S.bkLater=true;updateBackupUI();});

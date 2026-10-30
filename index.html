@@ -210,6 +210,39 @@ main.wrap{padding-block:16px 120px}
 .mtile[data-go="reports"] .mi{background:var(--ok-soft);color:var(--ok)}
 .mtile[data-go="buy"] .mi{background:var(--wholesale-soft);color:var(--wholesale)}
 .mtile[data-go="staff"] .mi{background:var(--sunk);color:var(--ink)}
+.mtile[data-go="debtors"] .mi{background:var(--danger-soft);color:var(--danger)}
+/* products page: one big «new item» button, the rest small in two columns */
+#pHome{display:flex;flex-direction:column;gap:10px}
+.menu-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mtile.sm{flex-direction:column;align-items:flex-start;gap:8px;padding:12px;box-shadow:none}
+.mtile.sm .mi{width:40px;height:40px;border-radius:11px}
+.mtile.sm .mi svg{width:22px;height:22px}
+.mtile.sm b{font-size:15px}
+.mtile.sm .msub{font-size:12px}
+.mtile.sm .mnote{font-size:11px}
+.mtile.sm .mbig{font-size:18px}
+.mtile.sm .chev{display:none}
+.mtile.sm.span2{grid-column:1/-1}
+.mtile.hero{padding:22px 18px;background:var(--retail);border-color:var(--retail);color:var(--on-accent)}
+.mtile.hero[data-pv] .mi{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.2);color:var(--on-accent)}
+.mtile.hero .mi svg{width:32px;height:32px}
+.mtile.hero b{font-size:22px}
+.mtile.hero .msub{color:inherit;opacity:.85;font-size:14px}
+.mtile.hero .chev{color:inherit}
+.mtile.hero:hover{border-color:var(--retail);filter:brightness(1.05)}
+/* debtors */
+.debtor{border-top:1px solid var(--line)}
+.debtor:first-child{border-top:0}
+.debtor-h{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;width:100%;padding:12px 2px;border:0;background:transparent;text-align:start}
+.debtor-h .dn{font-weight:700;overflow-wrap:anywhere}
+.debtor-h .dv{font-weight:700;color:var(--danger)}
+.debtor-b{display:flex;flex-direction:column;gap:10px;padding:0 2px 14px}
+.drec{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:13px;padding:6px 0;border-top:1px dashed var(--line)}
+.drec:first-child{border-top:0}
+.drec .dd{color:var(--muted)}
+.drec .dr{font-weight:600;color:var(--danger)}
+.dpay{display:flex;gap:8px;flex-wrap:wrap}
+.dpay .inp{flex:1 1 140px}
 .mtile .mtx{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
 .mtile b{font-family:var(--f-display);font-size:18px;font-weight:700;line-height:1.35}
 .mtile .msub{font-size:13px;color:var(--muted)}
@@ -663,7 +696,8 @@ window.FIREBASE_CONFIG = {
         <aside class="pay" aria-label="پارەدان">
           <div class="field">
             <label for="customer">ناوی کڕیار <span class="muted" id="customerHint">(بۆ جوملە و قەرز)</span></label>
-            <input id="customer" class="inp" autocomplete="off">
+            <input id="customer" class="inp" autocomplete="off" list="custList">
+            <datalist id="custList"></datalist>
             <p id="customerErr" class="ferr" hidden></p>
           </div>
           <div class="row"><span>کۆی کاڵاکان</span><span class="rv"><span id="sumSub" class="num">0</span><span class="cur">د.ع</span></span></div>
@@ -686,10 +720,23 @@ window.FIREBASE_CONFIG = {
     <!-- MANAGEMENT MENU (owner) -->
     <section id="tab-menu" class="sec" role="tabpanel" hidden>
       <div class="menu-grid">
-        <button type="button" class="mtile" data-go="reports"><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>ڕاپۆرت</b><span class="msub">فرۆشتن، قازانج، خەرجی و قەرزی کڕیاران</span><span class="mnote danger" id="mnReports" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-go="reports"><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>ڕاپۆرت</b><span class="msub">فرۆشتن، قازانج و خەرجی</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-go="debtors"><span class="mi"><svg><use href="#i-people"/></svg></span><span class="mtx"><b>قەرزارەکان</b><span class="msub">کڕیارانی قەرزدار و وەرگرتنی پارە</span><span class="mnote danger" id="mnReports" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="buy"><span class="mi"><svg><use href="#i-truck"/></svg></span><span class="mtx"><b>کڕین</b><span class="msub">هاتنی کاڵا لە کۆمپانیا و قەرزی کۆمپانیاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="staff"><span class="mi"><svg><use href="#i-gear"/></svg></span><span class="mtx"><b>ڕێکخستن</b><span class="msub">شاگردەکان، یەدەگ و ناوی دوکان</span><span class="mnote" id="mnStaff" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
       </div>
+    </section>
+
+    <!-- DEBTORS (owner) -->
+    <section id="tab-debtors" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>قەرزارەکان</h2></div>
+      <div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div class="kpi debt"><span>کۆی قەرز</span><b><span id="dbTotal" class="num">0</span></b><small>دینار</small></div>
+        <div class="kpi"><span>ژمارەی قەرزار</span><b><span id="dbCount" class="num">0</span></b><small id="dbRecs">—</small></div>
+      </div>
+      <label for="dbSearch" class="sr">گەڕان بە ناوی کڕیار</label>
+      <input id="dbSearch" class="inp" type="search" placeholder="گەڕان بە ناوی کڕیار" autocomplete="off">
+      <div class="panel"><div id="dbList"></div></div>
     </section>
 
     <!-- PURCHASES -->
@@ -749,14 +796,16 @@ window.FIREBASE_CONFIG = {
 
     <!-- PRODUCTS -->
     <section id="tab-products" class="sec" role="tabpanel" hidden>
-      <div id="pHome" class="menu-grid">
-        <button type="button" class="mtile" data-pv="all"><span class="mi"><svg><use href="#i-box"/></svg></span><span class="mtx"><b>هەموو کاڵاکان</b><span class="msub"><span class="mbig" id="pCount">0</span> کاڵا</span><span class="mnote" id="pValueLine" data-owner>بەهای کۆگا: <span class="num" id="pValue">0</span> د.ع (بە نرخی کڕین)</span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="low"><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span><span class="mnote warn">لیستەکە بۆ کۆمپانیا بنێرە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="search"><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">بە نووسین، کامێرا یان سکانەری ئامێر</span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">نرخێک بنووسە، کاڵاکانی ئەو نرخە دەردەکەون</span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="dup"><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="msub">هەمان ناو، هەمان بارکۆد یان هەمان نرخ</span><span class="mnote" id="pDupNote"></span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="new"><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">زیادکردنی کاڵا، بە بارکۆد یان بێ بارکۆد</span></span><svg class="chev"><use href="#i-next"/></svg></button>
-        <button type="button" class="mtile" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتنی لیستی کاڵاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+      <div id="pHome">
+        <button type="button" class="mtile hero" data-pv="new"><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">بارکۆد سکان بکە و کاڵاکان یەک لە دوای یەک زیاد بکە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <div class="menu-grid two" id="pTiles">
+          <button type="button" class="mtile sm" data-pv="all"><span class="mi"><svg><use href="#i-box"/></svg></span><span class="mtx"><b>هەموو کاڵاکان</b><span class="msub"><span class="mbig" id="pCount">0</span> کاڵا</span><span class="mnote" id="pValueLine" data-owner>بەهای کۆگا: <span class="num" id="pValue">0</span> د.ع</span></span></button>
+          <button type="button" class="mtile sm" data-pv="low"><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span></span></button>
+          <button type="button" class="mtile sm" data-pv="search"><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">نووسین، کامێرا یان سکانەر</span></span></button>
+          <button type="button" class="mtile sm" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">کاڵاکان بەپێی نرخ</span></span></button>
+          <button type="button" class="mtile sm" data-pv="dup"><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="mnote" id="pDupNote"></span></span></button>
+          <button type="button" class="mtile sm" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتن</span></span></button>
+        </div>
       </div>
       <div id="pView" class="sec" hidden>
         <div class="backbar"><button type="button" class="btn ghost sm" data-pback><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2 id="pvTitle"></h2><span class="pvc" id="pvCount"></span></div>
@@ -1216,7 +1265,7 @@ function start(){
     S.unsubs.push(onSnapshot(collection(db,'costs'),snap=>{S.costs=new Map();snap.docs.forEach(d=>S.costs.set(d.id,Number(d.data().cost)||0));if(S.tab==='products')renderProducts();if(S.tab==='reports')renderReports();},onErr));
     S.unsubs.push(onSnapshot(collection(db,'users'),snap=>{S.staff=new Map();snap.docs.forEach(d=>{const v=d.data();if(v.role==='staff')S.staff.set(d.id,Object.assign({},v,{id:d.id}));});if(!S.renaming||!$('#rn-'+S.renaming))renderStaff();},onErr));
     S.unsubs.push(onSnapshot(doc(db,'meta','backup'),snap=>{S.lastBackup=snap.exists()?(snap.data().at||null):null;updateBackupUI();},()=>{}));
-    S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();renderMenu();},onErr));
+    S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();renderMenu();renderDebtors();fillCustomers();},onErr));
   }
   setMode('retail');setReturn(false);showTab('sell');
 }
@@ -1233,14 +1282,15 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab==='products')S.pview='home';showTab(b.dataset.tab);}));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff','buy','menu'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   S.tab=t;
   // Reports, purchases and settings open from the management page, so its tab stays lit for them.
-  const navKey=['reports','buy','staff'].includes(t)?'menu':t;
+  const navKey=['reports','buy','staff','debtors'].includes(t)?'menu':t;
   $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===navKey)));
-  ['sell','buy','mine','products','reports','staff','menu'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  ['sell','buy','mine','products','reports','staff','menu','debtors'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
   if(t==='menu')renderMenu();
+  if(t==='debtors')renderDebtors();
   if(t==='sell'&&fine)setTimeout(()=>scan.focus(),0);
   if(t==='products')renderProducts();
   if(t==='reports'){if(!S.rangeUnsub&&S.range!=='debts')subscribeRange();renderReports();}
@@ -1945,7 +1995,11 @@ function renderProducts(){
   let v=S.pview||'home';
   if(v==='excel'&&!owner)v=S.pview='home';
   $('#pHome').hidden=v!=='home';$('#pView').hidden=v==='home';
-  if(v==='home')return;
+  if(v==='home'){
+    const tiles=$$('#pTiles .mtile').filter(t=>!t.hidden);tiles.forEach(t=>t.classList.remove('span2'));
+    if(tiles.length%2)tiles[tiles.length-1].classList.add('span2');
+    return;
+  }
   $('#pvTitle').textContent=PV_TITLES[v]||'';
   $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
   $('#pKindCost').hidden=!seeCost;if(!seeCost&&S.priceKind==='cost')S.priceKind='any';
@@ -2239,6 +2293,7 @@ function saleRow(s,showSeller,actions){
       (d>0?'<div class="row" data-kind="debt"><span class="rl">قەرزی ماوە</span><span class="num rv">'+fmt(d)+'</span></div>':'')+
       (showSeller?'<div class="row"><span class="muted">'+(ret?'وەرگر':'فرۆشیار')+'</span><span>'+esc(s.sellerName||'—')+'</span></div>':'')+
       (actions&&!s.void?'<div class="row"><span class="muted">قازانج</span><span class="num muted">'+fmt(sgn(s)*saleProfit(s))+'</span></div>':'')+
+      (Array.isArray(s.payments)?s.payments.map(x=>{const d=new Date(x.at);return '<div class="row"><span class="muted">پارەدان '+d.getDate()+'/'+(d.getMonth()+1)+'</span><span class="num muted">'+fmt(x.amount)+'</span></div>';}).join(''):'')+
       (s.editedAt?'<div class="row"><span class="muted">دەستکاری کراوە</span><span class="num muted">'+new Date(s.editedAt).getDate()+'/'+(new Date(s.editedAt).getMonth()+1)+' '+hm(s.editedAt)+'</span></div>':'')+
       '</div>'+
       (s.void?'<span class="chip danger" style="align-self:flex-start">ئەم پسوولەیە هەڵوەشێنراوەتەوە</span>':'')+
@@ -2453,6 +2508,82 @@ $('#sExport').addEventListener('click',()=>{
 /* ================= backup ================= */
 const BK_DAYS=7,FULL_LIMIT=10000;
 function daysSince(t){return Math.floor((Date.now()-t)/86400000);}
+/* ---------- debtors: customers who still owe money ---------- */
+const DB={open:new Set()};
+function debtorGroups(){
+  const m=new Map();
+  for(const x of S.debts){
+    if(x.void||x.type==='return'||!(debtOf(x)>0))continue;
+    const name=(x.customer||'').trim()||'بێ ناو',k=fold(name)||'—';
+    if(!m.has(k))m.set(k,{key:k,name:name,total:0,rows:[]});
+    const g=m.get(k);g.total+=debtOf(x);g.rows.push(x);
+  }
+  const out=Array.from(m.values());
+  out.forEach(g=>g.rows.sort((a,b)=>(a.at||0)-(b.at||0)));
+  return out.sort((a,b)=>b.total-a.total);
+}
+function fillCustomers(){
+  if(S.role!=='owner')return;
+  $('#custList').innerHTML=debtorGroups().map(g=>'<option value="'+esc(g.name)+'"></option>').join('');
+}
+function renderDebtors(){
+  if(S.tab!=='debtors')return;
+  const all=debtorGroups(),q=fold($('#dbSearch').value);
+  const total=all.reduce((a,g)=>a+g.total,0),recs=all.reduce((a,g)=>a+g.rows.length,0);
+  $('#dbTotal').textContent=fmt(total);$('#dbCount').textContent=fmt(all.length);$('#dbRecs').textContent=recs?(fmt(recs)+' پسوولە'):'—';
+  const list=q?all.filter(g=>g.key.includes(q)):all;
+  const box=$('#dbList');
+  if(!all.length){box.innerHTML='<div class="empty"><b>هیچ قەرزارێک نییە</b>کاتێک بە قەرز دەفرۆشیت، ناوی کڕیارەکە لێرە دەردەکەوێت.</div>';return;}
+  if(!list.length){box.innerHTML='<div class="empty">هیچ کڕیارێک بەم ناوە نییە.</div>';return;}
+  box.innerHTML=list.map((g,gi)=>{
+    const open=DB.open.has(g.key),k=esc(g.key),first=new Date(g.rows[0].at||Date.now());
+    let body='';
+    if(open){
+      body='<div class="debtor-b">'+
+        '<div>'+g.rows.map(x=>{const d=new Date(x.at||Date.now());return '<div class="drec"><span class="dd">'+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' · کۆی پسوولە <span class="num">'+fmt(x.total)+'</span> · دراوە <span class="num">'+fmt(x.paid||0)+'</span></span><span class="dr num">'+fmt(debtOf(x))+'</span></div>';}).join('')+'</div>'+
+        '<div class="dpay"><label for="dp-'+gi+'" class="sr">بڕی پارەی وەرگیراو</label><input id="dp-'+gi+'" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="بڕی پارەی وەرگیراو"><button type="button" class="btn primary" data-dpay="'+k+'">وەرگرتنی پارە</button></div>'+
+        '<div class="sale-actions"><button type="button" class="btn ghost sm" data-dall="'+k+'">هەموو قەرزەکە درا</button><button type="button" class="btn ghost sm" data-dshare="'+k+'">ناردنی بیرخەرەوە</button></div>'+
+        '</div>';
+    }
+    return '<div class="debtor"><button type="button" class="debtor-h" data-dtoggle="'+k+'" aria-expanded="'+open+'"><span class="dn">'+esc(g.name)+
+      '<span class="muted" style="display:block;font-size:12px;font-weight:400">لە '+first.getDate()+'/'+(first.getMonth()+1)+'/'+first.getFullYear()+'ەوە</span></span>'+
+      '<span class="chip"><span class="num">'+fmt(g.rows.length)+'</span> پسوولە</span><span class="dv num">'+fmt(g.total)+'</span></button>'+body+'</div>';
+  }).join('');
+}
+// A payment settles the oldest receipts first; each receipt keeps a record of what was paid and when.
+async function receiveFromCustomer(g,amount){
+  const pay=Math.min(amount,g.total);if(!(pay>0))return;
+  const b=writeBatch(db),now=Date.now();let left=pay;
+  for(const x of g.rows){
+    if(left<=0)break;
+    const d=debtOf(x),part=Math.min(d,left);left-=part;
+    b.update(doc(db,'sales',x.id),{paid:(x.paid||0)+part,debt:Math.round(d-part),paidAt:now,payments:(Array.isArray(x.payments)?x.payments:[]).concat([{at:now,amount:part,by:S.user.uid}])});
+  }
+  await commitSoft(b.commit());
+  const rest=g.total-pay;
+  toast(fmt(pay)+' د.ع لە '+g.name+' وەرگیرا.'+(rest>0?' ماوە: '+fmt(rest)+' د.ع':' هەموو قەرزەکەی درا.')+(amount>g.total?' (زیادەی '+fmt(amount-g.total)+' بگەڕێنەرەوە)':''));
+}
+$('#dbSearch').addEventListener('input',renderDebtors);
+$('#dbList').addEventListener('click',async e=>{
+  const find=k=>debtorGroups().find(g=>g.key===k);
+  const tg=e.target.closest('[data-dtoggle]');
+  if(tg){const k=tg.dataset.dtoggle;if(DB.open.has(k))DB.open.delete(k);else DB.open.add(k);renderDebtors();
+    if(DB.open.has(k)){const h=Array.from($$('#dbList .debtor-h')).find(x=>x.dataset.dtoggle===k);const i=h&&h.parentElement.querySelector('.dpay input');if(i)i.focus();}return;}
+  const pb=e.target.closest('[data-dpay]');
+  if(pb){const g=find(pb.dataset.dpay);if(!g)return;const i=pb.parentElement.querySelector('input'),amt=parseNum(i?i.value:'');
+    if(!(amt>0)){toast('بڕی پارەی وەرگیراو بنووسە.','error');if(i)i.focus();return;}
+    busy(pb,true,'تۆمار دەکرێت…');try{await receiveFromCustomer(g,amt);}catch(ex){toast(errMsg(ex),'error');}finally{if(pb.isConnected)busy(pb,false);}return;}
+  const ab=e.target.closest('[data-dall]');
+  if(ab){const g=find(ab.dataset.dall);if(g)arm(ab,'دڵنیایت؟ دووبارە دابگرە',async()=>{try{await receiveFromCustomer(g,g.total);}catch(ex){toast(errMsg(ex),'error');}});return;}
+  const sb=e.target.closest('[data-dshare]');
+  if(sb){const g=find(sb.dataset.dshare);if(!g)return;
+    const text='سڵاو '+g.name+'، کۆی قەرزی ماوەت'+(S.shopName?' لای '+S.shopName:'')+' '+fmt(g.total)+' دینارە ('+fmt(g.rows.length)+' پسوولە). سوپاس.';
+    try{if(navigator.share){await navigator.share({text:text});return;}}catch(ex){if(ex&&ex.name==='AbortError')return;}
+    try{await navigator.clipboard.writeText(text);toast('نامەکە کۆپی کرا. لە WhatsApp دایبنێ.');}catch(_){toast(text);}
+  }
+});
+$('#dbList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.dpay input')){e.preventDefault();const b=e.target.parentElement.querySelector('[data-dpay]');if(b)b.click();}});
+
 /* ---------- management page ---------- */
 function renderMenu(){
   if(S.tab!=='menu')return;

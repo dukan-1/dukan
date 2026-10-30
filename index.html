@@ -293,10 +293,7 @@ main.wrap{padding-block:16px 120px}
 .pick .ppr{color:var(--mode);font-weight:600}
 .pick .pq{font-family:var(--f-num);font-variant-numeric:tabular-nums;position:absolute;top:8px;inset-inline-end:8px;min-width:24px;height:24px;border-radius:999px;background:var(--mode);color:var(--on-accent);font-size:13px;font-weight:700;display:grid;place-items:center;padding-inline:6px}
 .pick.flash{animation:flash 1s ease-out}
-#tab-sell[data-ret="1"]{--mode:var(--danger);--mode-soft:var(--danger-soft)}
 .ticket-head .th-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.ret-tog{border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:2px 12px;font-weight:700;font-size:13px;line-height:1.6}
-.ret-tog[aria-pressed="true"]{background:var(--danger);border-color:var(--danger);color:var(--on-accent)}
 .chip.ret{background:var(--danger-soft);color:var(--danger)}
 .sale.ret .st{color:var(--danger)}
 .eitems{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
@@ -530,20 +527,27 @@ button.prow:hover{background:var(--sunk)}
 .staff-list .se{font-size:13px;color:var(--muted);direction:ltr;text-align:right;overflow-wrap:anywhere}
 .staff-list .sa{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-.retbox{display:flex;flex-direction:column;gap:8px;padding:12px;border:1.5px solid var(--danger);border-radius:var(--r);background:var(--danger-soft)}
-.retbox .scan-box{box-shadow:none}
-.retbox .scan-box input{letter-spacing:.06em;text-transform:uppercase}
-.retbox .scan-box input::placeholder{text-transform:none;letter-spacing:0}
-.retbox .hint{margin:0}
 .ri-h{display:flex;align-items:center;gap:4px 8px;flex-wrap:wrap;font-size:14px}
 .ri-h .rit{font-weight:700;color:var(--danger)}
-.ri-h #riClear{margin-inline-start:auto}
-.ri-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
-.ri{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--surface);text-align:start;min-width:0}
-.ri:hover{border-color:var(--danger)}
-.ri:disabled{opacity:.45;cursor:default}
-.ri .rn{font-weight:600;line-height:1.35;overflow-wrap:anywhere}
-.ri .rm{font-size:12px;color:var(--muted)}
+.ri-h #rtChange{margin-inline-start:auto}
+#tab-ret{--mode:var(--danger);--mode-soft:var(--danger-soft)}
+.btn.ghost.ret-open{border-color:var(--danger);color:var(--danger)}
+.btn.ghost.ret-open:hover{background:var(--danger-soft)}
+.rt-list{list-style:none;margin:0;padding:0}
+.rt-list>li{border-top:1px solid var(--line)}
+.rt-list>li:first-child{border-top:0}
+.rt-r{display:flex;flex-direction:column;gap:3px;width:100%;padding:11px 4px;border:0;background:transparent;text-align:start;font:inherit;color:inherit;cursor:pointer}
+.rt-r:hover{background:var(--sunk)}
+.rt-r:disabled{opacity:.5;cursor:default;background:transparent}
+.rt-l1{display:flex;align-items:center;gap:4px 8px;flex-wrap:wrap}
+.rt-l1 .wn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.rt-l1 .st{font-weight:700}
+.rt-l2{font-size:13px;overflow-wrap:anywhere}
+.rt-l2 b{color:var(--danger)}
+.rt-l3{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#rtLines .line.off{opacity:.5}
+#rtLines .line.on{background:var(--mode-soft)}
+.qty button:disabled{opacity:.3}
 .mvlist{list-style:none;margin:0;padding:0}
 .mv{border-top:1px solid var(--line);padding:10px 2px;display:flex;flex-direction:column;gap:4px}
 .mv:first-child{border-top:0}
@@ -590,6 +594,7 @@ window.FIREBASE_CONFIG = {
  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.5 20.5"/></g></symbol>
  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5"/></g></symbol>
   <symbol id="i-moves" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V5"/><path d="M3.5 8.5 7 5l3.5 3.5"/><path d="M17 4v15"/><path d="M13.5 15.5 17 19l3.5-3.5"/></g></symbol>
+  <symbol id="i-return" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></g></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h10"/></g></symbol>
 </svg>
 
@@ -710,24 +715,11 @@ window.FIREBASE_CONFIG = {
             <div class="alt-btns">
               <button type="button" id="byNameBtn" class="btn ghost nocode-btn"><span class="nl"><svg><use href="#i-search"/></svg>فرۆشتن بە ناو</span></button>
               <button type="button" id="noCodeBtn" class="btn ghost nocode-btn" hidden><span class="nl"><svg><use href="#i-box"/></svg>کاڵای بێ بارکۆد</span><span id="noCodeCount" class="chip num"></span></button>
+              <button type="button" id="retOpen" class="btn ghost nocode-btn ret-open" hidden><span class="nl"><svg><use href="#i-return"/></svg>گەڕاوەی کاڵا</span></button>
             </div>
-          </div>
-          <div id="retBox" class="retbox" hidden>
-            <div id="retFind" class="sec" style="gap:8px">
-              <label for="retNo" class="flabel">ژمارەی پسوولەی فرۆشتن</label>
-              <div class="scan-box"><input id="retNo" class="ltr-in" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search" placeholder="ABCD-EFGH"><button type="button" id="retLoad" class="btn primary">هێنان</button></div>
-              <p class="hint">ژمارەکە لەسەر پسوولەی کڕیارە. کاڵاکان بە هەمان نرخی ئەو پسوولەیە دەگەڕێنەوە.</p>
-              <button type="button" id="retNoRefBtn" class="btn ghost sm" hidden>گەڕاوە بەبێ پسوولە (بە نرخی ئێستا)</button>
-            </div>
-            <div id="retInfo" class="sec" style="gap:8px" hidden>
-              <div class="ri-h"><span id="riTitle" class="rit"></span><b id="riNo" class="num"></b><span id="riMeta" class="muted"></span><button type="button" id="riClear" class="btn ghost sm">گۆڕین</button></div>
-              <p id="riDebt" class="ferr" hidden></p>
-              <div id="riItems" class="ri-items"></div>
-            </div>
-            <p id="retErr" class="ferr" hidden></p>
           </div>
           <div class="ticket">
-            <div class="ticket-head"><span class="tk" id="ticketTitle">پسوولەی فرۆشتن</span><span class="th-r"><span id="cartCount"></span><span id="ticketMode" class="chip m-retail">تاک</span><button type="button" id="retBtn" class="ret-tog" aria-pressed="false" hidden>گەڕاوە</button></span></div>
+            <div class="ticket-head"><span class="tk" id="ticketTitle">پسوولەی فرۆشتن</span><span class="th-r"><span id="cartCount"></span><span id="ticketMode" class="chip m-retail">تاک</span></span></div>
             <ul id="cart" class="cart"></ul>
             <div id="cartEmpty" class="empty"><b>پسوولەکە بەتاڵە</b><span id="emptyText">بارکۆد بخە بەردەم کامێرا یان سکانی بکە.</span></div>
           </div>
@@ -753,6 +745,65 @@ window.FIREBASE_CONFIG = {
       <div id="paybar" class="paybar" hidden>
         <div><span class="pbl" id="pbLabel">کۆی گشتی</span><span id="pbTotal" class="num pbv">0</span><span class="cur">د.ع</span></div>
         <button type="button" id="pbCheckout" class="btn primary">تەواوکردنی فرۆشتن</button>
+      </div>
+    </section>
+
+    <!-- RETURNS -->
+    <section id="tab-ret" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" id="rtBack"><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>گەڕاوەی کاڵا</h2></div>
+      <div id="rtFind" class="sec">
+        <div class="scan">
+          <div class="scan-box">
+            <label for="rtQ" class="sr">گەڕان بۆ پسوولە</label>
+            <input id="rtQ" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="پسوولە، بارکۆد یان ناو">
+            <button type="button" id="rtCam" class="cam" aria-label="سکانی بارکۆد بە کامێرا" title="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button>
+          </div>
+          <p class="scan-hint">بارکۆدی کاڵاکە سکان بکە (بە کامێرا یان سکانەر)، یان ژمارەی پسوولە، بارکۆد، ناوی کاڵا یان ناوی کڕیار بنووسە. پاشان پسوولەکە هەڵبژێرە.</p>
+        </div>
+        <div class="ranges" id="rtRanges" role="group" aria-label="ماوە">
+          <button type="button" data-tr="today" aria-pressed="true">ئەمڕۆ</button>
+          <button type="button" data-tr="week" aria-pressed="false">٧ ڕۆژی ڕابردوو</button>
+          <button type="button" data-tr="month30" aria-pressed="false">٣٠ ڕۆژی ڕابردوو</button>
+        </div>
+        <div id="rtHit" class="banner ok" hidden></div>
+        <div class="panel">
+          <div class="sec-h" style="margin-bottom:4px"><h3 style="margin:0">پسوولەکان</h3><span class="muted" id="rtCount" style="font-size:13px"></span></div>
+          <ul class="rt-list" id="rtList"></ul>
+        </div>
+        <button type="button" id="rtNoRef" class="btn ghost" hidden>گەڕاوە بەبێ پسوولە (بە نرخی ئێستا)</button>
+      </div>
+      <div id="rtWork" class="sec" hidden>
+        <div class="panel">
+          <div class="ri-h"><span class="rit" id="rtTitle"></span><b class="num" id="rtNo"></b><button type="button" id="rtChange" class="btn ghost sm">گۆڕینی پسوولە</button></div>
+          <p class="muted" id="rtMeta" style="margin:6px 0 0;font-size:13px"></p>
+          <p id="rtDebt" class="ferr" style="margin-top:6px" hidden></p>
+        </div>
+        <div class="pkinds" id="rtMode" role="group" aria-label="جۆری نرخ" hidden>
+          <button type="button" data-rm="retail" aria-pressed="true">نرخی تاک</button>
+          <button type="button" data-rm="wholesale" aria-pressed="false">نرخی جوملە</button>
+        </div>
+        <div class="scan">
+          <div class="scan-box">
+            <label for="rtScan" class="sr">بارکۆدی کاڵا</label>
+            <input id="rtScan" class="num-in" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="enter" placeholder="بارکۆدی کاڵای گەڕاوە">
+            <button type="button" id="rtScanCam" class="cam" aria-label="سکان بە کامێرا" title="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button>
+            <button type="button" id="rtScanGo" class="btn primary">زیادکردن</button>
+          </div>
+          <p class="scan-hint" id="rtScanHint"></p>
+          <div class="alt-btns" id="rtByNameRow" hidden><button type="button" id="rtByName" class="btn ghost nocode-btn"><span class="nl"><svg><use href="#i-search"/></svg>گەڕان بە ناو</span></button></div>
+        </div>
+        <div class="ticket">
+          <div class="ticket-head"><span class="tk">کاڵا گەڕاوەکان</span><span id="rtSel"></span></div>
+          <ul id="rtLines" class="cart"></ul>
+          <p id="rtAllBack" class="empty" hidden>هەموو کاڵاکانی ئەم پسوولەیە پێشتر گەڕاونەتەوە.</p>
+        </div>
+        <div class="panel sec" style="gap:10px">
+          <div class="field" id="rtCustWrap" hidden><label for="rtCust">ناوی کڕیار <span class="muted">(ئارەزوومەندانە)</span></label><input id="rtCust" class="inp" autocomplete="off"></div>
+          <div class="row"><span>بەهای کاڵا گەڕاوەکان</span><span class="rv"><span id="rtSub" class="num">0</span><span class="cur">د.ع</span></span></div>
+          <div id="rtCutRow" class="row" data-kind="ok" hidden><span>لە قەرزی کڕیار کەم دەکرێتەوە</span><span class="rv"><span id="rtCut" class="num">0</span><span class="cur">د.ع</span></span></div>
+          <div class="total"><span class="tl">پارە بدەرەوە بە کڕیار</span><span><span id="rtCash" class="num tv">0</span><span class="cur">د.ع</span></span></div>
+          <button type="button" id="rtFinish" class="btn primary big" disabled>تەواوکردنی گەڕاوە</button>
+        </div>
       </div>
     </section>
 
@@ -1194,7 +1245,7 @@ function busy(btn,on,label){if(on){btn.dataset.label=btn.textContent;btn.textCon
 $$('[data-eye]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.eye);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'شاردنەوە':'پیشاندان';}));
 
 /* ================= state ================= */
-const S={user:null,role:null,costUnsub:null,costHist:new Map(),retRef:null,retNoRef:false,moves:[],movesUnsub:null,mvLoaded:false,mvRange:'today',mvKind:'all',mvPid:null,rFound:null,rFoundUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,pview:'home',priceKind:'any',priceSort:'asc',dupBy:'name',dupPrice:'retail',lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
+const S={user:null,role:null,costUnsub:null,costHist:new Map(),moves:[],movesUnsub:null,mvLoaded:false,mvRange:'today',mvKind:'all',mvPid:null,rFound:null,rFoundUnsub:null,perm:{add:false,ret:false,cost:false},ret:false,renaming:null,expenses:[],expUnsub:null,pview:'home',priceKind:'any',priceSort:'asc',dupBy:'name',dupPrice:'retail',lastBackup:undefined,bkLater:false,restore:null,myName:'',shopName:'',mode:'retail',cart:[],products:new Map(),byCode:new Map(),costs:new Map(),staff:new Map(),
   sales:[],debts:[],mine:[],range:'today',tab:'sell',saving:false,editing:null,addAfterSave:false,open:new Set(),
   prodLoaded:false,salesLoaded:false,mineLoaded:false,registering:false,unsubs:[],rangeUnsub:null,mineUnsub:null,mineDay:'',flash:null,saleIndex:new Map(),importRows:null};
 
@@ -1302,7 +1353,8 @@ function stopAll(){
   S.products=new Map();S.byCode=new Map();setCosts(null);S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
   S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false};
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
-  if(S.ret)setReturn(false);
+  if(RT.unsub){RT.unsub();RT.unsub=null;}
+  RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
   syncLive();
 }
 function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
@@ -1319,8 +1371,8 @@ function applyPerms(){
     }else if(!S.perm.cost&&S.costUnsub){S.costUnsub();S.costUnsub=null;setCosts(null);}
     if(!S.perm.cost&&!$('#sheet').hidden){$('#fCostWrap').hidden=true;$('#fMargins').hidden=true;}
   }
-  $('#retBtn').hidden=!(owner||S.perm.ret);
-  if(S.ret&&!S.perm.ret)setReturn(false);
+  $('#retOpen').hidden=!(owner||S.perm.ret);
+  if(S.tab==='ret'&&!(owner||S.perm.ret))showTab('sell');
   if(S.tab==='products'&&!owner&&!S.perm.add)showTab('sell');
   if(S.tab==='products')renderProducts();
 }
@@ -1354,7 +1406,7 @@ function start(){
     S.unsubs.push(onSnapshot(doc(db,'meta','backup'),snap=>{S.lastBackup=snap.exists()?(snap.data().at||null):null;updateBackupUI();},()=>{}));
     S.unsubs.push(onSnapshot(query(collection(db,'sales'),where('debt','>',0)),snap=>{S.debts=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));if(S.tab==='reports')renderReports();renderMenu();renderDebtors();fillCustomers();},onErr));
   }
-  setMode('retail');setReturn(false);showTab('sell');
+  setMode('retail');showTab('sell');
 }
 function setStatus(kind,text){$('#status').dataset.s=kind;$('#statusText').textContent=text;}
 function markSync(meta){
@@ -1371,11 +1423,15 @@ $$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab===
 function showTab(t){
   if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
+  if(t==='ret'&&!(S.role==='owner'||S.perm.ret))t='sell';
   S.tab=t;
   // Reports, purchases and settings open from the management page, so its tab stays lit for them.
-  const navKey=['reports','buy','staff','debtors','moves'].includes(t)?'menu':t;
+  const navKey=['reports','buy','staff','debtors','moves'].includes(t)?'menu':(t==='ret'?'sell':t);
   $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===navKey)));
-  ['sell','buy','mine','products','reports','staff','menu','debtors','moves'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  ['sell','buy','mine','products','reports','staff','menu','debtors','moves','ret'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  // Receipts for returns are only read while the returns page is open.
+  if(t==='ret'){subscribeRet();renderRet();if(fine&&!RT.ref&&!RT.noRef)setTimeout(()=>$('#rtQ').focus(),0);}
+  else if(RT.unsub){RT.unsub();RT.unsub=null;RT.key='';RT.loaded=false;}
   // The stock log is only read while its page is open.
   if(t==='moves')subscribeMoves();else if(S.movesUnsub){S.movesUnsub();S.movesUnsub=null;S.mvLoaded=false;}
   if(t==='menu')renderMenu();
@@ -1401,112 +1457,7 @@ function setMode(m){
   renderCart();
 }
 
-/* ================= return mode ================= */
-function checkoutLabel(){return S.ret?'تەواوکردنی گەڕاوە':'تەواوکردنی فرۆشتن';}
-function setReturn(on){
-  if(on&&!(S.role==='owner'||S.perm.ret))on=false;
-  S.ret=!!on;S.retRef=null;S.retNoRef=false;$('#retNo').value='';$('#retErr').hidden=true;
-  // Lines priced from an old receipt never carry over into a sale.
-  S.cart=S.cart.filter(l=>l.fixPrice==null);
-  $('#tab-sell').dataset.ret=S.ret?'1':'0';
-  $('#retBtn').setAttribute('aria-pressed',String(S.ret));
-  $('#ticketTitle').textContent=S.ret?'پسوولەی گەڕاوە':'پسوولەی فرۆشتن';
-  $('#emptyText').textContent=S.ret?'ئەو کاڵایانەی کڕیار دەیانگەڕێنێتەوە سکان بکە.':'بارکۆد بخە بەردەم کامێرا یان سکانی بکە.';
-  $('#customerHint').textContent=S.ret?'(ئارەزوومەندانە)':'(بۆ جوملە و قەرز)';
-  $('#payFields').hidden=S.ret;
-  $('#totalLabel').textContent=S.ret?'پارەی گەڕاوە بۆ کڕیار':'کۆی گشتی';
-  $('#pbLabel').textContent=S.ret?'پارەی گەڕاوە':'کۆی گشتی';
-  $('#checkout').textContent=checkoutLabel();$('#pbCheckout').textContent=checkoutLabel();
-  if(S.ret){$('#discount').value='';$('#paid').value='';$('#customerErr').hidden=true;$('#customer').classList.remove('bad');}
-  renderRetBox();renderCart();
-}
-$('#retBtn').addEventListener('click',()=>{
-  if(S.cart.length){toast(S.ret?'سەرەتا گەڕاوەکە تەواو بکە یان پسوولەکە پاک بکەرەوە.':'سەرەتا فرۆشتنەکە تەواو بکە یان پسوولەکە پاک بکەرەوە.','error');return;}
-  setReturn(!S.ret);
-  if(S.ret)setTimeout(()=>$('#retNo').focus(),0);
-});
-/* ---------- returns are taken against the original receipt ---------- */
-function retErr(t){const e=$('#retErr');e.textContent=t||'';e.hidden=!t;}
-// What can still come back from a receipt, and at what price: the price paid, with its discount spread over the items.
-function buildRef(s){
-  const sub=Number(s.sub)||0,total=Number(s.total)||0,f=sub>0?total/sub:1,back=s.returned||{},m=new Map();
-  for(const it of s.items||[]){const v=m.get(it.pid)||{pid:it.pid,name:it.name,barcode:it.barcode||'',sold:0,val:0};v.sold+=Number(it.qty)||0;v.val+=(Number(it.qty)||0)*(Number(it.price)||0);m.set(it.pid,v);}
-  for(const v of m.values()){v.sold=rq(v.sold);v.returned=rq(Number(back[v.pid])||0);v.max=rq(Math.max(0,v.sold-v.returned));v.price=v.sold?Math.round(v.val/v.sold*f*100)/100:0;}
-  return {id:s.id,at:s.at,mode:s.mode==='wholesale'?'wholesale':'retail',customer:s.customer||'',debt:debtOf(s),lines:m};
-}
-function renderRetBox(){
-  $('#retBox').hidden=!S.ret;if(!S.ret)return;
-  const R=S.retRef,linked=!!R||S.retNoRef;
-  $('#retFind').hidden=linked;$('#retInfo').hidden=!linked;
-  $('#retNoRefBtn').hidden=S.role!=='owner';
-  $('#emptyText').textContent=R?'ئەو کاڵایانەی سەرەوە هەڵبژێرە یان سکانیان بکە کە کڕیار دەیانگەڕێنێتەوە.':(S.retNoRef?'ئەو کاڵایانەی کڕیار دەیانگەڕێنێتەوە سکان بکە.':'سەرەتا ژمارەی پسوولەکە بنووسە و «هێنان» دابگرە.');
-  if(!linked)return;
-  if(S.retNoRef){$('#riTitle').textContent='گەڕاوە بەبێ پسوولە';$('#riNo').textContent='';$('#riMeta').textContent='بە نرخی ئێستای کاڵاکان';$('#riDebt').hidden=true;$('#riItems').innerHTML='';return;}
-  const d=new Date(R.at);
-  $('#riTitle').textContent='پسوولە';$('#riNo').textContent=fmtNo(R.id);
-  $('#riMeta').textContent=d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+(R.mode==='wholesale'?'جوملە':'تاک')+(R.customer?' · '+R.customer:'');
-  const dd=$('#riDebt');dd.hidden=!(R.debt>0);
-  if(R.debt>0)dd.textContent='ئەم پسوولەیە '+fmt(R.debt)+' د.ع قەرزی ماوە. نرخی کاڵا گەڕاوەکان سەرەتا لە قەرزەکە کەم دەکرێتەوە، تەنها پاشماوەکەی دەدرێتەوە بە کڕیار.';
-  paintRi();
-}
-function paintRi(){
-  const R=S.retRef;if(!R)return;
-  const inCart=new Map(S.cart.map(l=>[l.pid,l.qty])),lines=Array.from(R.lines.values());
-  if(!lines.some(v=>v.max>0)){$('#riItems').innerHTML='<p class="muted" style="margin:0;grid-column:1/-1">هەموو کاڵاکانی ئەم پسوولەیە پێشتر گەڕاونەتەوە.</p>';return;}
-  $('#riItems').innerHTML=lines.map(v=>{const left=rq(v.max-(inCart.get(v.pid)||0));
-    return '<button type="button" class="ri" data-ri="'+esc(v.pid)+'"'+(left<=0?' disabled':'')+'><span class="rn">'+esc(v.name)+'</span>'+
-      '<span class="rm">ماوە <span class="num">'+fmtQty(left)+'</span> لە <span class="num">'+fmtQty(v.sold)+'</span></span>'+
-      '<span class="rm">نرخی دانە <span class="num">'+fmt(v.price)+'</span></span></button>';}).join('');
-}
-async function loadReceipt(){
-  const id=normNo($('#retNo').value);
-  if(!isNo(id)){retErr('ژمارەی پسوولە ٨ پیت و ژمارەیە، بۆ نموونە ABCD-EFGH.');$('#retNo').focus();return;}
-  retErr('');const btn=$('#retLoad');busy(btn,true,'…');
-  try{
-    const snap=await getDoc(doc(db,'sales',id));
-    if(!snap.exists()){retErr('هیچ پسوولەیەک بەم ژمارەیە نییە.');return;}
-    const s=Object.assign({},snap.data(),{id:id});
-    if(isRet(s)){retErr('ئەمە پسوولەی گەڕاوەیە. ژمارەی پسوولەی فرۆشتنەکە بنووسە.');return;}
-    if(s.void){retErr('ئەم پسوولەیە هەڵوەشێنراوەتەوە.');return;}
-    if(!S.ret)return;
-    S.retRef=buildRef(s);S.cart=[];
-    if(!$('#customer').value.trim()&&S.retRef.customer)$('#customer').value=S.retRef.customer;
-    setMode(S.retRef.mode);renderRetBox();
-    if(fine)scan.focus();
-  }catch(e){retErr(e&&e.code==='permission-denied'?'ڕێگەت نییە ئەم پسوولەیە ببینیت.':errMsg(e));}
-  finally{busy(btn,false);}
-}
-function needReceipt(){
-  feedback(false,'سەرەتا ژمارەی پسوولەکە بنووسە');
-  toast('بۆ گەڕاوە، سەرەتا ژمارەی پسوولەی فرۆشتنەکە بنووسە.','error');
-  if(!$('#picker').hidden)closePicker();
-  $('#retNo').focus();
-}
-// Adds an item from the loaded receipt, never more than was sold minus what already came back.
-function addReturnItem(pid,qty){
-  const R=S.retRef,v=R&&R.lines.get(pid);
-  if(!v){feedback(false,'ئەم کاڵایە لەم پسوولەیە نییە');toast('ئەم کاڵایە لە پسوولەی '+fmtNo(R?R.id:'')+' نییە.','error');return false;}
-  const l=S.cart.find(x=>x.pid===pid),have=l?l.qty:0,room=rq(v.max-have);
-  if(room<=0){feedback(false,'هەمووی گەڕاوە: '+v.name);toast('لەم پسوولەیە هیچ «'+v.name+'» ـی تر نەماوە بگەڕێتەوە.','error');return false;}
-  const add=Math.min(qty||1,room);
-  if(l){S.cart.splice(S.cart.indexOf(l),1);l.qty=rq(have+add);S.cart.unshift(l);}
-  else S.cart.unshift({pid:pid,name:v.name,barcode:v.barcode,qty:rq(add),fixPrice:v.price,max:v.max});
-  S.flash=pid;renderCart();return true;
-}
-// Every way of adding an item on the sell screen goes through here.
-function sellAdd(p,qty){
-  if(S.ret){
-    if(S.retRef)return addReturnItem(p.id,qty);
-    if(!S.retNoRef){needReceipt();return false;}
-  }
-  addToCart(p,qty);return true;
-}
-$('#retLoad').addEventListener('click',loadReceipt);
-$('#retNo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loadReceipt();}});
-$('#retNo').addEventListener('input',()=>retErr(''));
-$('#retNoRefBtn').addEventListener('click',()=>{if(S.role!=='owner')return;S.retNoRef=true;S.retRef=null;S.cart=[];retErr('');renderRetBox();renderCart();if(fine)scan.focus();});
-$('#riClear').addEventListener('click',()=>{S.retRef=null;S.retNoRef=false;S.cart=[];$('#retNo').value='';renderRetBox();renderCart();$('#retNo').focus();});
-$('#riItems').addEventListener('click',e=>{const b=e.target.closest('[data-ri]');if(!b||b.disabled)return;if(addReturnItem(b.dataset.ri,1))beep(true);});
+function checkoutLabel(){return 'تەواوکردنی فرۆشتن';}
 
 /* ================= barcode input (typed or hardware scanner) ================= */
 const scan=$('#scanInput');
@@ -1523,9 +1474,8 @@ function handleCode(code){
     if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
     feedback(false,'تۆمار نەکراوە: '+code);unknownCode(code);return;
   }
-  if(!sellAdd(p,1))return;
-  const l=S.cart.find(x=>x.pid===p.id);
-  feedback(true,'✓ '+p.name+' · '+fmt(l?lineInfo(l).price:unitPrice(p,S.mode)));
+  addToCart(p,1);
+  feedback(true,'✓ '+p.name+' · '+fmt(unitPrice(p,S.mode)));
 }
 function submitScan(){
   const code=codeKey(scan.value);if(!code)return;
@@ -1538,8 +1488,9 @@ $('#scanGo').addEventListener('click',submitScan);
 // and pull it back out of another field (e.g. customer name) if it landed there by mistake.
 const wedge={buf:'',t:0};
 document.addEventListener('keydown',e=>{
-  if(!['sell','buy','products'].includes(S.tab)||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
-  const T={sell:[scan,submitScan,handleCode],buy:[$('#bScan'),submitBuyScan,handleBuyCode],products:[$('#pSearch'),()=>findByBarcode($('#pSearch').value),findByBarcode]}[S.tab];
+  if(!['sell','buy','products','ret'].includes(S.tab)||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
+  const T={sell:[scan,submitScan,handleCode],buy:[$('#bScan'),submitBuyScan,handleBuyCode],products:[$('#pSearch'),()=>findByBarcode($('#pSearch').value),findByBarcode],
+    ret:(RT.ref||RT.noRef)?[$('#rtScan'),submitRtScan,rtCode]:[$('#rtQ'),rtSubmit,rtCode]}[S.tab];
   const box=T[0],go=T[1],hit=T[2];
   const a=document.activeElement,inField=!!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA');
   const now=performance.now();
@@ -1555,7 +1506,7 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key&&e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
     // On the products list the box still shows the last search: a fresh scan replaces it.
-    if(!inField&&S.tab==='products'&&now-wedge.t>1500)box.value='';
+    if(!inField&&(S.tab==='products'||(S.tab==='ret'&&box.id==='rtQ'))&&now-wedge.t>1500)box.value='';
     if(now-wedge.t>60)wedge.buf='';
     wedge.buf+=normDigits(e.key);wedge.t=now;
     if(!inField){e.preventDefault();box.value+=normDigits(e.key);}
@@ -1728,17 +1679,17 @@ function updateNoCode(){const n=noCodeItems().length;$('#noCodeBtn').hidden=n===
 const PICK_MAX=60;
 function renderPicker(){
   const byName=S.pickMode==='name',all=byName?Array.from(S.products.values()):noCodeItems(),q=fold($('#pickSearch').value);
-  $('#pickTitle').textContent=byName?(S.tab==='buy'?'گەڕان بە ناو':'فرۆشتن بە ناو'):'کاڵای بێ بارکۆد';
+  $('#pickTitle').textContent=byName?(S.tab==='sell'?'فرۆشتن بە ناو':'گەڕان بە ناو'):'کاڵای بێ بارکۆد';
   $('#pickSearch').placeholder=byName?'ناوی کاڵا بنووسە':'گەڕان بە ناو';
   $('#pickSearch').hidden=!byName&&all.length<=8;
   let list=q?all.filter(p=>fold(p.name).includes(q)||(byName&&codeKey(p.barcode||'').includes(q))):all;
   // names that start with what was typed come first
   list=list.sort((a,b)=>(q?(fold(a.name).startsWith(q)?0:1)-(fold(b.name).startsWith(q)?0:1):0)||String(a.name).localeCompare(String(b.name),'ar'));
   const more=Math.max(0,list.length-PICK_MAX);list=list.slice(0,PICK_MAX);
-  const buy=S.tab==='buy',inCart=new Map((buy?B.lines:S.cart).map(l=>[l.pid,l.qty]));
+  const buy=S.tab==='buy',inCart=new Map((buy?B.lines:(S.tab==='ret'?RT.lines:S.cart)).filter(l=>l.qty>0).map(l=>[l.pid,l.qty]));
   $('#pickGrid').innerHTML=list.length?list.map(p=>{const n=inCart.get(p.id),st=fmtQty(typeof p.stock==='number'?p.stock:0);
     return '<button type="button" class="pick'+(n?' in':'')+'" data-pick="'+esc(p.id)+'">'+(n?'<span class="pq">'+fmtQty(n)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span>'+
-      (buy?'<span class="ppr num">کۆگا: '+st+'</span>':'<span class="ppr num">'+fmt(unitPrice(p,S.mode))+'</span><span class="pst">کۆگا: <span class="num">'+st+'</span></span>')+'</button>';}).join('')+
+      (buy?'<span class="ppr num">کۆگا: '+st+'</span>':'<span class="ppr num">'+fmt(unitPrice(p,S.tab==='ret'?RT.mode:S.mode))+'</span><span class="pst">کۆگا: <span class="num">'+st+'</span></span>')+'</button>';}).join('')+
       (more?'<p class="pick-more">'+fmt(more)+' کاڵای تر هەیە. پیتی زیاتر بنووسە بۆ دۆزینەوە.</p>':'')
     :'<p class="muted" style="margin:0;grid-column:1/-1">'+(q?'هیچ کاڵایەک بەم ناوە نییە.':(byName?'هێشتا هیچ کاڵایەک تۆمار نەکراوە.':'هیچ کاڵایەکی بێ بارکۆد نییە.'))+'</p>';
 }
@@ -1748,7 +1699,7 @@ function openPicker(mode){
   // Searching by name means typing, so the keyboard opens straight away.
   if(!$('#pickSearch').hidden&&(fine||S.pickMode==='name'))$('#pickSearch').focus();
 }
-function closePicker(){$('#picker').hidden=true;syncLive();if(fine)(S.tab==='buy'?$('#bScan'):scan).focus();}
+function closePicker(){$('#picker').hidden=true;syncLive();if(fine)({buy:$('#bScan'),ret:$('#rtScan')}[S.tab]||scan).focus();if(S.tab==='ret')renderRtLines();}
 $('#noCodeBtn').addEventListener('click',()=>{unlockAudio();openPicker('nocode');});
 $('#byNameBtn').addEventListener('click',()=>{unlockAudio();openPicker('name');});
 $$('[data-pclose]').forEach(b=>b.addEventListener('click',closePicker));
@@ -1758,7 +1709,7 @@ $('#pickSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDef
 $('#pickGrid').addEventListener('click',e=>{
   const b=e.target.closest('[data-pick]');if(!b)return;
   const p=S.products.get(b.dataset.pick);if(!p)return;
-  if(S.tab==='buy')addToBuy(p,1);else if(!sellAdd(p,1)){if(!$('#picker').hidden)renderPicker();return;}
+  if(S.tab==='buy')addToBuy(p,1);else if(S.tab==='ret'){if(!rtAdd(p)){renderPicker();return;}}else addToCart(p,1);
   beep(true);renderPicker();
   const nb=$('#pickGrid').querySelector('[data-pick="'+CSS.escape(p.id)+'"]');if(nb)nb.classList.add('flash');
 });
@@ -1771,13 +1722,12 @@ function addToCart(p,qty){
   else S.cart.unshift({pid:p.id,name:p.name,barcode:p.barcode||'',qty:rq(qty),retail:p.retail||0,wholesale:p.wholesale||0,stock:p.stock});
   S.flash=p.id;renderCart();
 }
-function lineInfo(l){const p=S.products.get(l.pid)||l;if(l.fixPrice!=null)return {p,price:l.fixPrice,noWh:false};return {p,price:unitPrice(p,S.mode),noWh:S.mode==='wholesale'&&!(p.wholesale>0)};}
-function capLine(l){if(l.max!=null&&l.qty>l.max){l.qty=l.max;toast('لەم پسوولەیە تەنها '+fmtQty(l.max)+' دانەی «'+l.name+'» دەتوانرێت بگەڕێتەوە.','error');}}
+function lineInfo(l){const p=S.products.get(l.pid)||l;return {p,price:unitPrice(p,S.mode),noWh:S.mode==='wholesale'&&!(p.wholesale>0)};}
 function renderCart(){
   let sumQty=0;
   $('#cart').innerHTML=S.cart.map((l,i)=>{
     const {p,price,noWh}=lineInfo(l);sumQty+=l.qty;
-    const short=!S.ret&&(typeof p.stock==='number')&&(p.stock-l.qty<0);
+    const short=(typeof p.stock==='number')&&(p.stock-l.qty<0);
     return '<li class="line'+(S.flash===l.pid?' flash':'')+'" data-i="'+i+'">'+
       '<div class="lmain"><div class="ln">'+esc(p.name)+'</div><div class="lm">'+
         (p.barcode?'<span class="num">'+esc(p.barcode)+'</span>':'<span>بێ بارکۆد</span>')+
@@ -1792,13 +1742,12 @@ function renderCart(){
   S.flash=null;
   $('#cartEmpty').hidden=S.cart.length>0;
   $('#cartCount').innerHTML=S.cart.length?('<span class="num">'+fmtQty(rq(sumQty))+'</span> دانە'):'';
-  if(S.ret&&S.retRef)paintRi();
   updateTotals();
 }
 $('#cart').addEventListener('click',e=>{
   const b=e.target.closest('button[data-act]');if(!b)return;
   const i=+b.closest('.line').dataset.i,l=S.cart[i];if(!l)return;
-  if(b.dataset.act==='inc'){l.qty=rq(l.qty+1);capLine(l);}
+  if(b.dataset.act==='inc')l.qty=rq(l.qty+1);
   else if(b.dataset.act==='dec')l.qty=Math.max(1,rq(l.qty-1));
   else S.cart.splice(i,1);
   renderCart();
@@ -1807,21 +1756,18 @@ $('#cart').addEventListener('change',e=>{
   if(!e.target.matches('.qty input'))return;
   const i=+e.target.closest('.line').dataset.i,q=parseNum(e.target.value);
   if(!S.cart[i])return;
-  if(q>0){S.cart[i].qty=rq(q);capLine(S.cart[i]);}else S.cart.splice(i,1);
+  if(q>0)S.cart[i].qty=rq(q);else S.cart.splice(i,1);
   renderCart();
 });
 $('#cart').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.qty input')){e.preventDefault();e.target.blur();}});
 function totals(){
   let sub=0;for(const l of S.cart){const {price}=lineInfo(l);sub+=price*l.qty;}
-  if(S.ret)return {sub,discount:0,total:sub,paid:sub,paidEntered:false};
   const discount=Math.min(Math.max(0,parseNum($('#discount').value)),sub);
   const total=Math.max(0,sub-discount);
   const pr=$('#paid').value.trim();
   const paid=pr===''?total:Math.max(0,parseNum(pr));
   return {sub,discount,total,paid,paidEntered:pr!==''};
 }
-// When the original receipt still has debt, returned goods pay that debt off first; only the rest is cash back.
-function retCut(t){const R=S.ret?S.retRef:null;return R&&R.debt>0&&S.cart.length?Math.min(R.debt,Math.round(t.sub)):0;}
 function updateTotals(){
   const t=totals();
   $('#sumSub').textContent=fmt(t.sub);$('#sumTotal').textContent=fmt(t.total);$('#pbTotal').textContent=fmt(t.total);
@@ -1830,16 +1776,13 @@ function updateTotals(){
   else{row.hidden=false;const d=t.paid-t.total;
     if(d>=0){row.dataset.kind='ok';$('#changeLabel').textContent='باقی بۆ کڕیار';$('#change').textContent=fmt(d);}
     else{row.dataset.kind='debt';$('#changeLabel').textContent='دەمێنێتە قەرز';$('#change').textContent=fmt(-d);}}
-  const cut=retCut(t);
-  if(cut>0){$('#sumTotal').textContent=fmt(t.total-cut);$('#pbTotal').textContent=fmt(t.total-cut);
-    row.hidden=false;row.dataset.kind='ok';$('#changeLabel').textContent='لە قەرزی کڕیار کەم دەکرێتەوە';$('#change').textContent=fmt(cut);}
   const can=S.cart.length>0&&!!S.role&&!S.saving;
   $('#checkout').disabled=!can;$('#pbCheckout').disabled=!can;
   $('#paybar').hidden=!S.cart.length||S.tab!=='sell';
 }
 ['#discount','#paid'].forEach(s=>$(s).addEventListener('input',updateTotals));
 $('#customer').addEventListener('input',()=>{$('#customerErr').hidden=true;$('#customer').classList.remove('bad');});
-$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';if(S.ret)setReturn(false);else renderCart();});
+$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';renderCart();});
 $('#checkout').addEventListener('click',checkout);
 $('#pbCheckout').addEventListener('click',checkout);
 
@@ -1850,7 +1793,6 @@ async function commitSoft(promise){
 }
 async function checkout(){
   if(S.saving||!S.cart.length||!S.role)return;
-  if(S.ret)return checkoutReturn();
   const t=totals(),customer=$('#customer').value.trim(),debt=Math.max(0,t.total-t.paid);
   if(debt>0&&!customer){
     const ce=$('#customerErr');ce.textContent='بۆ فرۆشتنی بە قەرز، ناوی کڕیار بنووسە.';ce.hidden=false;$('#customer').classList.add('bad');$('#customer').focus();
@@ -1873,36 +1815,6 @@ async function checkout(){
   }catch(e){toast(errMsg(e),'error');}
   finally{S.saving=false;$('#checkout').textContent=checkoutLabel();updateTotals();if(fine)scan.focus();}
 }
-async function checkoutReturn(){
-  if(!(S.role==='owner'||S.perm.ret)){toast('ڕێگەت نییە گەڕاوە وەربگریت.','error');return;}
-  const R=S.retRef;
-  if(!R&&!(S.retNoRef&&S.role==='owner')){needReceipt();return;}
-  if(R)for(const l of S.cart){const v=R.lines.get(l.pid);if(!v||l.qty>v.max+1e-9){toast('بڕی «'+l.name+'» لەوە زیاترە کە لەم پسوولەیە ماوە.','error');return;}}
-  const t=totals(),customer=$('#customer').value.trim(),now=Date.now(),id=genNo();
-  const items=S.cart.map(l=>{const {p,price}=lineInfo(l);return {pid:l.pid,name:p.name,barcode:p.barcode||'',qty:l.qty,price:price};});
-  const rec={type:'return',at:now,day:dayKey(now),mode:R?R.mode:S.mode,customer:customer||(R?R.customer:''),items:items,sub:t.sub,discount:0,total:t.sub,paid:t.sub,debt:0,
-    seller:S.user.uid,sellerName:S.myName,void:false,ts:serverTimestamp()};
-  // A return remembers its receipt and when that sale happened, so profit is undone at that day's cost.
-  if(R){rec.ref=R.id;rec.refAt=R.at;}
-  const cut=retCut(t);if(cut>0)rec.debtCut=cut;
-  S.saving=true;updateTotals();$('#checkout').textContent='پاشەکەوت دەکرێت…';
-  try{
-    const b=writeBatch(db);
-    b.set(doc(db,'sales',id),rec);
-    const deltas=new Map();for(const it of items)deltas.set(it.pid,(deltas.get(it.pid)||0)+it.qty);
-    addStock(b,deltas,'return',id);
-    if(R){const up=returnedUpdate(deltas);
-      if(cut>0){up.debt=increment(-cut);up.paid=increment(cut);up.lastReturn=id;}
-      if(Object.keys(up).length)b.update(doc(db,'sales',R.id),up);}
-    const r=await commitSoft(b.commit());
-    S.cart=[];$('#customer').value='';setReturn(false);
-    const done=Object.assign({},rec,{id:id,ts:null});
-    const cash=rec.total-cut;
-    toast((r==='ok'?'گەڕاوە تۆمارکرا':'گەڕاوە لەسەر مۆبایلەکە پاشەکەوت کرا')+(cut>0?' · '+fmt(cut)+' د.ع لە قەرزی کڕیار کەمکرایەوە':'')+(cash>=0.5?' · '+fmt(cash)+' د.ع بدەرەوە بە کڕیار.':' · هیچ پارەیەک مەدەرەوە.'),'info',{label:'ناردنی پسوولە',fn:()=>shareReceipt(done)});
-  }catch(e){toast(errMsg(e),'error');}
-  finally{S.saving=false;$('#checkout').textContent=checkoutLabel();$('#pbCheckout').textContent=checkoutLabel();updateTotals();if(fine)scan.focus();}
-}
-
 /* ================= purchases (goods coming in) ================= */
 const B={lines:[],hist:[],debts:[],unsubs:[],key:'',loaded:false,open:new Set(),saving:false,flash:null};
 const bScan=$('#bScan');
@@ -2067,6 +1979,232 @@ function onBuyClick(e){
 $('#bHist').addEventListener('click',onBuyClick);
 $('#supDebts').addEventListener('click',onBuyClick);
 
+/* ================= returns ================= */
+// Returns are taken against the receipt the goods came from: found by number, item barcode, item or customer name.
+const RT={ref:null,noRef:false,lines:[],range:'today',list:[],loaded:false,denied:false,unsub:null,key:'',saving:false,mode:'retail',flash:null};
+// What can still come back from a receipt, and at what price: the price paid, with its discount spread over the items.
+function buildRef(s){
+  const sub=Number(s.sub)||0,total=Number(s.total)||0,f=sub>0?total/sub:1,back=s.returned||{},m=new Map();
+  for(const it of s.items||[]){const v=m.get(it.pid)||{pid:it.pid,name:it.name,barcode:it.barcode||'',sold:0,val:0};v.sold+=Number(it.qty)||0;v.val+=(Number(it.qty)||0)*(Number(it.price)||0);m.set(it.pid,v);}
+  for(const v of m.values()){v.sold=rq(v.sold);v.returned=rq(Number(back[v.pid])||0);v.max=rq(Math.max(0,v.sold-v.returned));v.price=v.sold?Math.round(v.val/v.sold*f*100)/100:0;}
+  return {id:s.id,at:s.at,mode:s.mode==='wholesale'?'wholesale':'retail',customer:s.customer||'',seller:s.sellerName||'',debt:debtOf(s),lines:m};
+}
+function rtLeft(s){let n=0;for(const v of buildRef(s).lines.values())n+=v.max;return rq(n);}
+function rtReset(){RT.ref=null;RT.noRef=false;RT.lines=[];RT.mode='retail';$('#rtQ').value='';$('#rtScan').value='';$('#rtCust').value='';}
+function openReturn(s){
+  if(!(S.role==='owner'||S.perm.ret))return;
+  if(s){rtReset();showTab('ret');selectReceipt(s);return;}
+  // Coming back to an unfinished return keeps it; otherwise start with a fresh search.
+  if(!RT.lines.some(l=>l.qty>0))rtReset();
+  showTab('ret');
+}
+function rtBounds(){
+  const now=new Date(),t=dayKey(now);
+  if(RT.range==='week')return rangeBounds('week');
+  if(RT.range==='month30')return [dayKey(new Date(now.getFullYear(),now.getMonth(),now.getDate()-29)),t];
+  return [t,t];
+}
+function subscribeRet(){
+  const [a,b]=rtBounds(),key=a+'|'+b;
+  if(RT.unsub&&RT.key===key)return;
+  if(RT.unsub){RT.unsub();RT.unsub=null;}
+  RT.key=key;RT.loaded=false;RT.denied=false;RT.list=[];
+  RT.unsub=onSnapshot(query(collection(db,'sales'),where('day','>=',a),where('day','<=',b)),snap=>{
+    RT.list=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));RT.loaded=true;RT.denied=false;renderRet();
+  },err=>{RT.loaded=true;RT.list=[];if(err&&err.code==='permission-denied')RT.denied=true;else onErr(err);renderRet();});
+}
+// Receipts in the chosen period that match what was typed or scanned.
+function rtMatches(){
+  const raw=$('#rtQ').value.trim(),q=fold(raw),qn=normNo(raw),code=codeKey(raw);
+  const prod=/^\d{4,}$/.test(code)?productByCode(code):null;
+  let list=RT.list.filter(s=>!isRet(s)&&!s.void);
+  if(raw)list=list.filter(s=>{const its=s.items||[];
+    if(qn.length>=3&&String(s.id).toUpperCase().includes(qn))return true;
+    if(prod&&its.some(it=>it.pid===prod.id))return true;
+    if(/^\d{4,}$/.test(code)&&its.some(it=>codeKey(it.barcode||'').includes(code)))return true;
+    if(q&&!/^\d+$/.test(code)&&(fold(s.customer||'').includes(q)||its.some(it=>fold(it.name||'').includes(q))))return true;
+    return false;});
+  return {list:list.sort((x,y)=>(y.at||0)-(x.at||0)),prod,code,raw,qn};
+}
+function rtRow(s,prod){
+  const done=rtLeft(s)<=0,no=fmtNo(s.id),its=s.items||[],d=debtOf(s);
+  const names=its.slice(0,4).map(it=>{const n=esc(it.name)+' <span class="num">×'+fmtQty(it.qty)+'</span>';return prod&&it.pid===prod.id?'<b>'+n+'</b>':n;}).join('، ')+(its.length>4?' …':'');
+  return '<li><button type="button" class="rt-r" data-rt="'+esc(s.id)+'"'+(done?' disabled':'')+'>'+
+    '<span class="rt-l1"><span class="num muted">'+dm(s.at)+'</span>'+(no?'<b class="num">'+no+'</b>':'')+'<span class="wn">'+esc(s.customer||'')+'</span><span class="st num">'+fmt(s.total)+'</span></span>'+
+    '<span class="rt-l2">'+names+'</span>'+
+    '<span class="rt-l3"><span>'+esc(s.sellerName||'—')+' · '+(s.mode==='wholesale'?'جوملە':'تاک')+'</span>'+
+      (d>0?'<span class="chip danger">قەرز <span class="num">'+fmt(d)+'</span></span>':'')+(done?'<span class="chip">هەمووی گەڕاوەتەوە</span>':'')+'</span></button></li>';
+}
+function renderRet(){
+  if(S.tab!=='ret')return;
+  const work=!!RT.ref||RT.noRef;
+  $('#rtFind').hidden=work;$('#rtWork').hidden=!work;
+  if(work){renderRtWork();return;}
+  setPressed('#rtRanges','data-tr',RT.range);
+  $('#rtNoRef').hidden=S.role!=='owner';
+  const ul=$('#rtList'),hit=$('#rtHit');
+  if(!RT.loaded){ul.innerHTML='<li class="empty">بار دەکرێت…</li>';$('#rtCount').textContent='';hit.hidden=true;return;}
+  const {list,prod,code,raw,qn}=rtMatches(),longer=RT.range!=='month30'?' ماوەی درێژتر هەڵبژێرە.':'';
+  if(prod){hit.className='banner ok';hit.textContent='کاڵا: «'+prod.name+'» · ئەو پسوولانەی ئەم کاڵایەیان تێدایە';hit.hidden=false;}
+  else if(/^\d{6,}$/.test(code)){hit.className='banner';hit.textContent='بارکۆدی '+code+' تۆمار نەکراوە.';hit.hidden=false;}
+  else hit.hidden=true;
+  $('#rtCount').innerHTML=list.length?('<span class="num">'+fmt(list.length)+'</span> پسوولە'):'';
+  if(RT.denied){ul.innerHTML='<li class="empty">لیستی پسوولەکان ناکرێتەوە. ژمارەی پسوولەکە بنووسە و «Enter» دابگرە.</li>';return;}
+  if(!list.length){ul.innerHTML='<li class="empty">'+(raw?(isNo(qn)?'«Enter» دابگرە بۆ هێنانی پسوولەی '+fmtNo(qn)+'.':'هیچ پسوولەیەک نەدۆزرایەوە.'+longer):'لەم ماوەیەدا هیچ پسوولەیەک نییە.'+longer)+'</li>';return;}
+  ul.innerHTML=list.slice(0,60).map(s=>rtRow(s,prod)).join('')+(list.length>60?'<li class="more">'+fmt(list.length-60)+' پسوولەی تر هەیە. گەڕانەکە وردتر بکە.</li>':'');
+}
+// Enter, a finished hardware scan or a camera read: open the receipt straight away when there is only one.
+async function rtSubmit(){
+  const raw=$('#rtQ').value.trim();renderRet();if(!raw)return;
+  const {list,prod,code,qn}=rtMatches();
+  if(isNo(qn)){const hit=RT.list.find(s=>s.id===qn);if(hit){selectReceipt(hit);return;}await fetchReceipt(qn);return;}
+  const open=list.filter(s=>rtLeft(s)>0);
+  if(/^\d{4,}$/.test(code))rtBeep(open.length>0);
+  if(open.length===1){selectReceipt(open[0],prod?prod.id:null);return;}
+  if(open.length>1&&prod)toast(fmt(open.length)+' پسوولە «'+prod.name+'» یان تێدایە. پسوولەکە هەڵبژێرە.');
+  $('#rtQ').blur();
+}
+async function fetchReceipt(id){
+  try{
+    const snap=await getDoc(doc(db,'sales',id));
+    if(!snap.exists()){rtBeep(false);toast('هیچ پسوولەیەک بەم ژمارەیە نییە.','error');return;}
+    selectReceipt(Object.assign({},snap.data(),{id:id}));
+  }catch(e){toast(e&&e.code==='permission-denied'?'ڕێگەت نییە ئەم پسوولەیە ببینیت.':errMsg(e),'error');}
+}
+function selectReceipt(s,prePid){
+  if(isRet(s)){toast('ئەمە پسوولەی گەڕاوەیە. پسوولەی فرۆشتنەکە هەڵبژێرە.','error');return;}
+  if(s.void){toast('ئەم پسوولەیە هەڵوەشێنراوەتەوە.','error');return;}
+  const R=buildRef(s);
+  RT.ref=R;RT.noRef=false;
+  RT.lines=Array.from(R.lines.values()).map(v=>({pid:v.pid,name:v.name,barcode:v.barcode,price:v.price,qty:0,max:v.max,sold:v.sold,returned:v.returned}));
+  // The item that was scanned to find the receipt is already marked as coming back.
+  const pre=prePid&&RT.lines.find(l=>l.pid===prePid);if(pre&&pre.max>0){pre.qty=Math.min(1,pre.max);RT.flash=pre.pid;}
+  renderRet();window.scrollTo(0,0);
+}
+function renderRtWork(){
+  const R=RT.ref;
+  $('#rtTitle').textContent=R?'پسوولە':'گەڕاوە بەبێ پسوولە';
+  $('#rtNo').textContent=R?fmtNo(R.id):'';
+  if(R){const d=new Date(R.at);
+    $('#rtMeta').innerHTML='<span class="num">'+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' '+hm(R.at)+'</span> · '+(R.mode==='wholesale'?'جوملە':'تاک')+(R.customer?' · کڕیار: '+esc(R.customer):'')+(R.seller?' · فرۆشیار: '+esc(R.seller):'');}
+  else $('#rtMeta').textContent='نرخی ئێستای کاڵاکان حساب دەکرێت.';
+  const dd=$('#rtDebt');dd.hidden=!(R&&R.debt>0);
+  if(R&&R.debt>0)dd.textContent='ئەم پسوولەیە '+fmt(R.debt)+' د.ع قەرزی ماوە. نرخی کاڵا گەڕاوەکان سەرەتا لە قەرزەکە کەم دەکرێتەوە، تەنها پاشماوەکەی دەدرێتەوە بە کڕیار.';
+  $('#rtMode').hidden=!RT.noRef;setPressed('#rtMode','data-rm',RT.mode);
+  $('#rtByNameRow').hidden=!RT.noRef;$('#rtCustWrap').hidden=!RT.noRef;
+  $('#rtScanHint').textContent=RT.noRef?'کاڵا گەڕاوەکان سکان بکە، بارکۆدەکە بنووسە یان بە ناو بیاندۆزەوە.':'بۆ هەر کاڵایەک دوگمەی + دابگرە، یان بارکۆدەکەی سکان بکە.';
+  $('#rtAllBack').hidden=!(R&&RT.lines.length&&RT.lines.every(l=>l.max<=0));
+  renderRtLines();
+}
+function renderRtLines(){
+  const ul=$('#rtLines');
+  if(!RT.lines.length)ul.innerHTML=RT.noRef?'<li class="empty">هێشتا هیچ کاڵایەک زیاد نەکراوە.</li>':'';
+  else ul.innerHTML=RT.lines.map((l,i)=>{
+    const off=!RT.noRef&&l.max<=0,full=!RT.noRef&&l.qty>=l.max;
+    return '<li class="line'+(l.qty>0?' on':'')+(off?' off':'')+(RT.flash===l.pid?' flash':'')+'" data-i="'+i+'">'+
+      '<div class="lmain"><div class="ln">'+esc(l.name)+'</div><div class="lm"><span>نرخی دانە: <b class="num">'+fmt(l.price)+'</b></span>'+
+        (RT.noRef?'':(off?'<span class="chip">هەمووی گەڕاوەتەوە</span>':'<span>فرۆشراو <b class="num">'+fmtQty(l.sold)+'</b>'+(l.returned?' · پێشتر گەڕاوە <b class="num">'+fmtQty(l.returned)+'</b>':'')+'</span>'))+'</div></div>'+
+      '<div class="qty"><button type="button" data-act="dec" aria-label="کەمکردنەوە"'+(l.qty<=(RT.noRef?1:0)?' disabled':'')+'>−</button><input id="rq-'+esc(l.pid)+'" value="'+esc(fmtQty(l.qty))+'" inputmode="decimal" aria-label="بڕی گەڕاوە"'+(off?' disabled':'')+'><button type="button" data-act="inc" aria-label="زیادکردن"'+(off||full?' disabled':'')+'>+</button></div>'+
+      '<div class="lt num">'+fmt(l.price*l.qty)+'</div>'+
+      (RT.noRef?'<button type="button" class="x" data-act="rm" aria-label="لابردن">×</button>':'')+'</li>';}).join('');
+  RT.flash=null;rtTotals();
+}
+// When the original receipt still has debt, returned goods pay that debt off first; only the rest is cash back.
+function rtTotals(){
+  let sub=0,n=0;for(const l of RT.lines){sub+=l.price*l.qty;n+=l.qty;}
+  const R=RT.ref,cut=R&&R.debt>0&&sub>0?Math.min(R.debt,Math.round(sub)):0;
+  $('#rtSub').textContent=fmt(sub);$('#rtCutRow').hidden=!(cut>0);$('#rtCut').textContent=fmt(cut);$('#rtCash').textContent=fmt(sub-cut);
+  $('#rtSel').innerHTML=n>0?('<span class="num">'+fmtQty(rq(n))+'</span> دانە'):'';
+  $('#rtFinish').disabled=!(n>0)||RT.saving;
+  return {sub,cut};
+}
+function rtBeep(ok){beep(ok);try{if(navigator.vibrate)navigator.vibrate(ok?50:[80,60,80]);}catch(_){}}
+function rtLimit(l){toast(l.max>0?'لەم پسوولەیە تەنها '+fmtQty(l.max)+' دانەی «'+l.name+'» دەگەڕێتەوە.':'«'+l.name+'» هەمووی پێشتر گەڕاوەتەوە.','error');}
+// An item read on the returns page: marks one more as coming back (from the receipt, or at today's price without one).
+function rtAdd(p){
+  if(RT.noRef){
+    const l=RT.lines.find(x=>x.pid===p.id);
+    if(l){l.qty=rq(l.qty+1);RT.lines.splice(RT.lines.indexOf(l),1);RT.lines.unshift(l);}
+    else RT.lines.unshift({pid:p.id,name:p.name,barcode:p.barcode||'',price:unitPrice(p,RT.mode),qty:1,max:null});
+    RT.flash=p.id;rtBeep(true);renderRtLines();return true;
+  }
+  const l=RT.lines.find(x=>x.pid===p.id);
+  if(!l){rtBeep(false);toast('«'+p.name+'» لەم پسوولەیە نییە.','error');return false;}
+  if(l.qty>=l.max){rtBeep(false);rtLimit(l);return false;}
+  l.qty=rq(Math.min(l.max,l.qty+1));RT.flash=p.id;rtBeep(true);renderRtLines();return true;
+}
+function rtCode(code){
+  code=codeKey(code);if(!code)return '';
+  if(!RT.ref&&!RT.noRef){$('#rtQ').value=code;rtSubmit();return '';}
+  const p=productByCode(code);
+  if(!p){rtBeep(false);toast('بارکۆدی '+code+' تۆمار نەکراوە.','error');return 'تۆمار نەکراوە: '+code;}
+  return rtAdd(p)?('✓ '+p.name):'';
+}
+function submitRtScan(){const c=codeKey($('#rtScan').value);if(!c)return;$('#rtScan').value='';rtCode(c);}
+async function rtFinish(){
+  if(RT.saving)return;
+  if(!(S.role==='owner'||S.perm.ret)){toast('ڕێگەت نییە گەڕاوە وەربگریت.','error');return;}
+  const R=RT.ref;if(!R&&!(RT.noRef&&S.role==='owner'))return;
+  const lines=RT.lines.filter(l=>l.qty>0);if(!lines.length)return;
+  if(R)for(const l of lines)if(l.qty>l.max+1e-9){rtLimit(l);return;}
+  const {sub,cut}=rtTotals(),now=Date.now(),id=genNo();
+  const items=lines.map(l=>({pid:l.pid,name:l.name,barcode:l.barcode||'',qty:l.qty,price:l.price}));
+  const rec={type:'return',at:now,day:dayKey(now),mode:R?R.mode:RT.mode,customer:R?R.customer:$('#rtCust').value.trim(),items:items,sub:sub,discount:0,total:sub,paid:sub,debt:0,
+    seller:S.user.uid,sellerName:S.myName,void:false,ts:serverTimestamp()};
+  // A return remembers its receipt and when that sale happened, so profit is undone at that day's cost.
+  if(R){rec.ref=R.id;rec.refAt=R.at;}
+  if(cut>0)rec.debtCut=cut;
+  const btn=$('#rtFinish');RT.saving=true;busy(btn,true,'پاشەکەوت دەکرێت…');
+  try{
+    const b=writeBatch(db);
+    b.set(doc(db,'sales',id),rec);
+    const deltas=new Map();for(const it of items)deltas.set(it.pid,(deltas.get(it.pid)||0)+it.qty);
+    addStock(b,deltas,'return',id);
+    if(R){const up=returnedUpdate(deltas);
+      if(cut>0){up.debt=increment(-cut);up.paid=increment(cut);up.lastReturn=id;}
+      if(Object.keys(up).length)b.update(doc(db,'sales',R.id),up);}
+    const r=await commitSoft(b.commit());
+    const done=Object.assign({},rec,{id:id,ts:null}),cash=sub-cut;
+    rtReset();showTab('sell');
+    toast((r==='ok'?'گەڕاوە تۆمارکرا':'گەڕاوە لەسەر مۆبایلەکە پاشەکەوت کرا')+(cut>0?' · '+fmt(cut)+' د.ع لە قەرزی کڕیار کەمکرایەوە':'')+(cash>=0.5?' · '+fmt(cash)+' د.ع بدەرەوە بە کڕیار.':' · هیچ پارەیەک مەدەرەوە.'),'info',{label:'ناردنی پسوولە',fn:()=>shareReceipt(done)});
+  }catch(e){toast(errMsg(e),'error');}
+  finally{RT.saving=false;busy(btn,false);if(S.tab==='ret')rtTotals();}
+}
+$('#retOpen').addEventListener('click',()=>{unlockAudio();openReturn(null);});
+$('#rtBack').addEventListener('click',()=>showTab('sell'));
+$('#rtChange').addEventListener('click',()=>{rtReset();renderRet();if(fine)$('#rtQ').focus();});
+$('#rtNoRef').addEventListener('click',()=>{if(S.role!=='owner')return;RT.ref=null;RT.noRef=true;RT.lines=[];RT.mode='retail';renderRet();});
+$('#rtQ').addEventListener('input',renderRet);
+$('#rtQ').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rtSubmit();}});
+$('#rtRanges').addEventListener('click',e=>{const b=e.target.closest('[data-tr]');if(!b)return;RT.range=b.dataset.tr;subscribeRet();renderRet();});
+$('#rtList').addEventListener('click',e=>{const b=e.target.closest('[data-rt]');if(!b||b.disabled)return;const s=RT.list.find(x=>x.id===b.dataset.rt);if(!s)return;
+  const {prod}=rtMatches();selectReceipt(s,prod?prod.id:null);});
+$('#rtCam').addEventListener('click',()=>{unlockAudio();openScanner(c=>{$('#rtQ').value=codeKey(c);setTimeout(rtSubmit,0);return '';},'بارکۆدی کاڵا گەڕاوەکە سکان بکە',$('#rtQ'));});
+$('#rtScanCam').addEventListener('click',()=>{unlockAudio();openScanner(rtCode,'کاڵا گەڕاوەکان یەک لە دوای یەک سکان بکە',$('#rtScan'),true);});
+$('#rtScan').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitRtScan();}});
+$('#rtScanGo').addEventListener('click',submitRtScan);
+$('#rtByName').addEventListener('click',()=>{unlockAudio();openPicker('name');});
+$('#rtMode').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;RT.mode=b.dataset.rm;
+  for(const l of RT.lines){const p=S.products.get(l.pid);if(p)l.price=unitPrice(p,RT.mode);}renderRtWork();});
+$('#rtLines').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-act]');if(!b)return;
+  const i=+b.closest('.line').dataset.i,l=RT.lines[i];if(!l)return;
+  if(b.dataset.act==='inc'){if(l.max!=null&&l.qty>=l.max){rtLimit(l);return;}l.qty=rq(l.qty+1);}
+  else if(b.dataset.act==='dec')l.qty=Math.max(RT.noRef?1:0,rq(l.qty-1));
+  else RT.lines.splice(i,1);
+  renderRtLines();
+});
+$('#rtLines').addEventListener('change',e=>{
+  if(!e.target.matches('.qty input'))return;
+  const i=+e.target.closest('.line').dataset.i,l=RT.lines[i];if(!l)return;
+  let q=Math.max(0,rq(parseNum(e.target.value)));
+  if(l.max!=null&&q>l.max){q=l.max;rtLimit(l);}
+  if(RT.noRef&&!(q>0))RT.lines.splice(i,1);else l.qty=q;
+  renderRtLines();
+});
+$('#rtLines').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.qty input')){e.preventDefault();e.target.blur();}});
+$('#rtFinish').addEventListener('click',rtFinish);
+
 /* ================= my sales (staff) ================= */
 function subscribeMine(){
   const today=dayKey(Date.now());
@@ -2087,6 +2225,7 @@ function renderMine(){
   ul.innerHTML=S.mine.map(s=>saleRow(s,true,false)).join('');
 }
 $('#mList').addEventListener('click',e=>{const sh=e.target.closest('[data-share]');if(sh){const s=S.mine.find(x=>x.id===sh.dataset.share);if(s)shareReceipt(s);return;}
+  const rf=e.target.closest('[data-retfrom]');if(rf){const s=S.mine.find(x=>x.id===rf.dataset.retfrom);if(s)openReturn(s);return;}
   const tg=e.target.closest('[data-toggle]');if(tg){const id=tg.dataset.toggle;if(S.open.has(id))S.open.delete(id);else S.open.add(id);renderMine();}});
 
 /* ================= products (owner) ================= */
@@ -2539,6 +2678,7 @@ function saleRow(s,showSeller,actions){
       '</div>'+
       (s.void?'<span class="chip danger" style="align-self:flex-start">ئەم پسوولەیە هەڵوەشێنراوەتەوە</span>':'')+
       '<div class="sale-actions">'+(!s.void?'<button type="button" class="btn ghost sm" data-share="'+esc(s.id)+'">ناردنی پسوولە</button>':'')+
+      (!s.void&&!ret&&(S.role==='owner'||S.perm.ret)?'<button type="button" class="btn ghost sm ret-open" data-retfrom="'+esc(s.id)+'">گەڕاوە</button>':'')+
       (actions?
         (d>0&&!s.void?'<button type="button" class="btn ghost sm" data-pay="'+esc(s.id)+'">قەرزەکە وەرگیرا</button>':'')+
         (!s.void?'<button type="button" class="btn ghost sm" data-edit="'+esc(s.id)+'">دەستکاریکردن</button>':'')+
@@ -2691,6 +2831,7 @@ $('#salesList').addEventListener('click',e=>{
   const tg=e.target.closest('[data-toggle]');
   if(tg){const id=tg.dataset.toggle;if(S.open.has(id))S.open.delete(id);else S.open.add(id);renderReports();return;}
   const sh=e.target.closest('[data-share]');if(sh){const s=S.saleIndex.get(sh.dataset.share);if(s)shareReceipt(s);return;}
+  const rf=e.target.closest('[data-retfrom]');if(rf){const s=S.saleIndex.get(rf.dataset.retfrom);if(s)openReturn(s);return;}
   const db_=e.target.closest('[data-del]');if(db_){const s=S.saleIndex.get(db_.dataset.del);if(s)arm(db_,'دڵنیایت؟ دووبارە دابگرە',()=>deleteSale(s));return;}
   const eb=e.target.closest('[data-edit]');if(eb){const s=S.saleIndex.get(eb.dataset.edit);if(s)openSaleEdit(s);return;}
   const pb=e.target.closest('[data-pay]');if(pb){const s=S.saleIndex.get(pb.dataset.pay);if(s)arm(pb,'دڵنیایت؟ دووبارە دابگرە',()=>payDebt(s));}

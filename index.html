@@ -179,14 +179,16 @@ main.wrap{padding-block:16px 120px}
 .livecam{position:relative;height:clamp(170px,30vh,260px);border-radius:var(--r);overflow:hidden;background:#0B0F0E;border:2px solid var(--line);transition:border-color .2s}
 .livecam.ok{border-color:var(--ok)}
 .livecam.bad{border-color:var(--danger)}
-#liveReader{position:absolute!important;left:0;right:0;top:50%;transform:translateY(-50%)}
-#liveReader video{display:block}
+#liveReader{position:absolute;inset:0}
+#liveReader video,#reader video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cam-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.92);border-radius:12px;box-shadow:0 0 0 100vmax rgba(0,0,0,.34);pointer-events:none;z-index:1}
+.cam-box::after{content:"";position:absolute;left:5%;right:5%;top:50%;height:2px;margin-top:-1px;background:rgba(255,70,70,.9);box-shadow:0 0 8px rgba(255,70,70,.9)}
 .lc-top{position:absolute;top:8px;inset-inline:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:3;pointer-events:none}
-.lc-chip{background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.lc-chip{background:rgba(0,0,0,.6);padding:7px;border-radius:999px;display:inline-flex;align-items:center;flex:none}
 .lc-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:#3CC4A1;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
-.lc-btns{display:flex;gap:6px;pointer-events:auto}
-.lc-btns button{background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.lc-btns{display:flex;gap:6px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
+.lc-btns button{background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 10px;font-size:13px;font-weight:600}
 .lc-btns button[aria-pressed="true"]{background:#fff;color:#000}
 .lc-last{position:absolute;bottom:8px;inset-inline:8px;z-index:3;background:rgba(0,0,0,.7);color:#fff;font-size:14px;font-weight:600;padding:6px 12px;border-radius:10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lc-last.bad{background:rgba(179,38,30,.92)}
@@ -448,8 +450,7 @@ button.prow:hover{background:var(--sunk)}
 .scanner-top b{font-family:var(--f-display);font-size:16px}
 .scanner-top button{background:#fff;color:#000;border:0;border-radius:999px;padding:8px 18px;font-weight:700}
 .scanner-mid{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
-#reader{position:relative;width:100%;max-width:560px;margin-inline:auto}
-#reader video{display:block}
+#reader{position:relative;flex:1;min-height:0;width:100%;overflow:hidden;background:#000}
 .scanner-tip{color:rgba(255,255,255,.78);font-size:13px;text-align:center;margin:10px 16px 0}
 .scanner-foot{padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff;text-align:center;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .scan-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
@@ -559,6 +560,7 @@ button.prow:hover{background:var(--sunk)}
 .mv-it .pos{color:var(--ok);font-weight:700}
 .mv-it .neg{color:var(--danger);font-weight:700}
 </style>
+<link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
 </head>
 <body>
 
@@ -699,8 +701,8 @@ window.FIREBASE_CONFIG = {
           <div id="livecam" class="livecam" data-state="off" aria-label="کامێرای سکان">
             <div id="liveReader"></div>
             <div class="lc-top">
-              <span class="lc-chip">سکان دەکات</span>
-              <span class="lc-btns"><button type="button" id="lcTorch" aria-pressed="false" hidden>چرا</button><button type="button" id="lcPause">وەستاندن</button></span>
+              <span class="lc-chip" role="img" aria-label="سکان دەکات"></span>
+              <span class="lc-btns"><button type="button" id="lcTorch" aria-pressed="false" hidden>چرا</button><button type="button" id="lcZoom" class="num" dir="ltr" aria-label="زووم" hidden>2×</button><button type="button" id="lcFlip" hidden>کامێرا</button><button type="button" id="lcPause">وەستاندن</button></span>
             </div>
             <div id="lcLast" class="lc-last" hidden></div>
             <div class="lc-cover"><p id="lcText">کامێرا دەکرێتەوە…</p><button type="button" id="lcStart" class="btn primary" hidden>کردنەوەی کامێرا</button></div>
@@ -1153,12 +1155,14 @@ window.FIREBASE_CONFIG = {
   <div class="scanner-top"><b id="scanTitle">بارکۆد بخە ناو چوارچێوەکە</b><button type="button" id="scanClose">تەواو</button></div>
   <div class="scanner-mid">
     <div id="reader"></div>
-    <p class="scanner-tip">مۆبایلەکە ٢٠ تا ٣٠ سانتیمەتر دوور بگرە، بارکۆدەکە بە درێژی بخە ناو چوارچێوەکە، ڕووناکی باش بێت.</p>
+    <p class="scanner-tip">بارکۆدەکە بە درێژی بخە ناو چوارچێوەکە. ئەگەر ڕوون نەبوو، مۆبایلەکە کەمێک دوور بخەرەوە یان دوگمەی زووم و «گۆڕینی کامێرا» تاقی بکەرەوە.</p>
   </div>
   <div class="scanner-foot">
     <span id="scanLast" class="last" hidden></span>
     <div class="scan-actions">
       <button type="button" id="scanTorch" aria-pressed="false" hidden>چرا</button>
+      <button type="button" id="scanZoom" class="num" dir="ltr" aria-label="زووم" hidden>2×</button>
+      <button type="button" id="scanFlip" hidden>گۆڕینی کامێرا</button>
       <button type="button" id="scanType">نووسینی ژمارەکە بە دەست</button>
     </div>
   </div>
@@ -1382,6 +1386,7 @@ function onErr(err){
 }
 function start(){
   screen('app');
+  getDetector().catch(()=>{});
   const owner=S.role==='owner';
   $$('[data-owner]').forEach(el=>{el.hidden=!owner;});
   $$('[data-staff]').forEach(el=>{el.hidden=owner;});
@@ -1537,41 +1542,185 @@ function feedback(ok,text){
   clearTimeout(fbTimer);fbTimer=setTimeout(()=>{lc.classList.remove('ok','bad');},700);
 }
 
-/* ================= camera library ================= */
-let qrLib=null;
-function loadQrLib(){
-  if(qrLib)return qrLib;
-  qrLib=new Promise((res,rej)=>{
-    const urls=['https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js','https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js'];
-    const tryOne=i=>{if(i>=urls.length){qrLib=null;rej(new Error('load'));return;}const s=document.createElement('script');s.src=urls[i];s.onload=()=>res();s.onerror=()=>{s.remove();tryOne(i+1);};document.head.appendChild(s);};
-    tryOne(0);
-  });
-  return qrLib;
+/* ================= camera engine ================= */
+// Barcodes are read by the phone's own detector when it has a working one (most Android phones),
+// otherwise by ZXing built for WebAssembly (iPhone), and on very old phones by ZXing in plain JavaScript.
+// Only the part of the picture inside the frame is read, from a sharp HD picture, many times a second.
+const CAM_FORMATS=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','qr_code'];
+const ZXW='barcode-detector@3.1.3/dist/es/ponyfill.min.js',ZXJ='@zxing/library@0.21.3/umd/index.min.js';
+const detP={};
+function blankCanvas(){const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,16,16);return c;}
+function loadScript(urls){return new Promise((res,rej)=>{const go=i=>{if(i>=urls.length){rej(new Error('load'));return;}const el=document.createElement('script');el.src=urls[i];el.onload=()=>res();el.onerror=()=>{el.remove();go(i+1);};document.head.appendChild(el);};go(0);});}
+async function nativeDetector(){
+  const N=window.BarcodeDetector;if(typeof N!=='function')throw new Error('none');
+  const sup=await N.getSupportedFormats(),f=CAM_FORMATS.filter(x=>sup.includes(x));
+  if(!f.includes('ean_13'))throw new Error('formats');
+  const d=new N({formats:f});await d.detect(blankCanvas());
+  return {d,kind:'native',width:1600,gap:70};
 }
-function qrApi(){const L=window.__Html5QrcodeLibrary__||{};return {H:window.Html5Qrcode||L.Html5Qrcode,F:window.Html5QrcodeSupportedFormats||L.Html5QrcodeSupportedFormats};}
-function qrFormats(F){return F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.ITF,F.QR_CODE].filter(x=>x!=null):undefined;}
+async function wasmDetector(){
+  let err=null;
+  for(const host of ['https://fastly.jsdelivr.net/npm/','https://cdn.jsdelivr.net/npm/','https://unpkg.com/']){
+    try{
+      const m=await import(host+ZXW);
+      const d=new m.BarcodeDetector({formats:CAM_FORMATS});
+      await d.detect(blankCanvas());   // loads the WebAssembly part now, so the first real scan is instant
+      return {d,kind:'wasm',width:1280,gap:30};
+    }catch(e){err=e;}
+  }
+  throw err||new Error('load');
+}
+async function jsDetector(){
+  await loadScript(['https://unpkg.com/'+ZXJ,'https://cdn.jsdelivr.net/npm/'+ZXJ]);
+  const Z=window.ZXing;if(!Z||!Z.MultiFormatReader)throw new Error('load');
+  const F=Z.BarcodeFormat,hints=new Map();
+  hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.ITF]);
+  const r=new Z.MultiFormatReader();r.setHints(hints);
+  return {kind:'js',width:800,gap:100,d:{detect:async c=>{try{return [{rawValue:r.decodeWithState(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(c)))).getText()}];}catch(_){return [];}}}};
+}
+// The best reader this phone can run, loaded once; skip lists readers that already failed here.
+function getDetector(skip){
+  skip=skip||[];const key=skip.join(',');
+  if(detP[key])return detP[key];
+  const p=(async()=>{
+    let err=null;
+    for(const [k,fn] of [['native',nativeDetector],['wasm',wasmDetector],['js',jsDetector]]){
+      if(skip.includes(k))continue;
+      try{return await fn();}catch(e){err=e;}
+    }
+    throw Object.assign(new Error('load'),{cause:err});
+  })();
+  detP[key]=p;p.catch(()=>{delete detP[key];});
+  return p;
+}
+const CAM_PREF='dukan.cam';
+function camPref(){try{return JSON.parse(localStorage.getItem(CAM_PREF)||'{}')||{};}catch(_){return {};}}
+function setCamPref(k,v){const p=camPref();p[k]=v;try{localStorage.setItem(CAM_PREF,JSON.stringify(p));}catch(_){}}
+// Back camera, HD picture; falls back step by step for phones that refuse a setting.
+async function getStream(deviceId){
+  const md=navigator.mediaDevices;
+  if(!md||!md.getUserMedia)throw Object.assign(new Error('NotSupported'),{name:'NotSupportedError'});
+  const hd={width:{ideal:1920},height:{ideal:1080}};
+  const tries=deviceId?[Object.assign({deviceId:{exact:deviceId}},hd)]:[];
+  tries.push(Object.assign({facingMode:{ideal:'environment'}},hd),{facingMode:{ideal:'environment'}},true);
+  let err=null;
+  for(const v of tries){
+    try{return await md.getUserMedia({audio:false,video:v});}
+    catch(e){err=e;if(e&&/NotAllowed|Security/.test(e.name||''))break;}
+  }
+  throw err;
+}
+// The part of the picture inside the frame (the video fills its box like object-fit: cover), with a margin.
+function boxRect(v,el,band){
+  const vw=v.videoWidth,vh=v.videoHeight,ew=el.clientWidth||vw,eh=el.clientHeight||vh;
+  const k=Math.max(ew/vw,eh/vh),w=Math.min(vw,ew/k),h=Math.min(vh,eh/k);
+  const bw=Math.min(w,w*band[0]*1.08),bh=Math.min(h,h*band[1]*1.3);
+  return {x:(vw-bw)/2,y:(vh-bh)/2,w:bw,h:bh};
+}
+async function camOpen(host,onCode,band){
+  const [dr,sr]=await Promise.allSettled([getDetector(),getStream(camPref().deviceId)]);
+  if(sr.status==='rejected')throw sr.reason;
+  if(dr.status==='rejected'){sr.value.getTracks().forEach(t=>t.stop());throw dr.reason;}
+  const stream=sr.value;
+  host.querySelectorAll('video,.cam-box').forEach(n=>n.remove());
+  const video=document.createElement('video');
+  video.muted=true;video.playsInline=true;video.autoplay=true;video.setAttribute('playsinline','');video.setAttribute('muted','');
+  const box=document.createElement('div');box.className='cam-box';box.style.width=(band[0]*100)+'%';box.style.height=(band[1]*100)+'%';
+  host.prepend(video,box);
+  video.srcObject=stream;
+  const cam={host,video,box,stream,track:stream.getVideoTracks()[0],det:dr.value,band,stopped:false,zooms:[],zoom:1,canTorch:false,torch:false,canSwitch:false,fails:0,timer:0,skip:[]};
+  try{await video.play();}catch(_){}
+  await camTune(cam);
+  camLoop(cam,onCode);
+  return cam;
+}
+// Continuous focus, the zoom this phone last used (2× by default, so it can stay far enough away to focus), light.
+async function camTune(cam){
+  const t=cam.track;let caps={};
+  try{caps=(t.getCapabilities&&t.getCapabilities())||{};}catch(_){}
+  cam.torch=false;cam.canTorch=!!caps.torch;
+  try{if(Array.isArray(caps.focusMode)&&caps.focusMode.includes('continuous'))await t.applyConstraints({advanced:[{focusMode:'continuous'}]});}catch(_){}
+  cam.zooms=[];cam.zoom=1;
+  const z=caps.zoom;
+  if(z&&typeof z.max==='number'&&z.max>1){
+    const lo=typeof z.min==='number'?z.min:1,lv=[1,1.5,2,3].filter(v=>v>=lo-0.01&&v<=z.max+0.01);
+    if(lv.length>1){cam.zooms=lv;const p=camPref().zoom;await camZoom(cam,lv.includes(p)?p:(lv.includes(2)?2:lv[lv.length-1]),false);}
+  }
+  try{cam.canSwitch=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput').length>1;}catch(_){cam.canSwitch=false;}
+}
+async function camZoom(cam,z,save){try{await cam.track.applyConstraints({advanced:[{zoom:z}]});cam.zoom=z;if(save)setCamPref('zoom',z);return true;}catch(_){return false;}}
+async function camTorch(cam,on){try{await cam.track.applyConstraints({advanced:[{torch:on}]});cam.torch=on;return true;}catch(_){return false;}}
+// Moves to the phone's next camera (some phones open a wide-angle lens that cannot focus up close); remembered.
+async function camFlip(cam){
+  const list=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+  if(list.length<2)return '';
+  const cur=(cam.track.getSettings&&cam.track.getSettings().deviceId)||'',i=list.findIndex(d=>d.deviceId===cur),n=(i+1)%list.length,next=list[n];
+  const s2=await getStream(next.deviceId);
+  if(cam.stopped){s2.getTracks().forEach(t=>t.stop());return '';}
+  cam.stream.getTracks().forEach(t=>t.stop());
+  cam.stream=s2;cam.track=s2.getVideoTracks()[0];cam.video.srcObject=s2;
+  try{await cam.video.play();}catch(_){}
+  setCamPref('deviceId',(cam.track.getSettings&&cam.track.getSettings().deviceId)||next.deviceId);
+  await camTune(cam);
+  return next.label||('کامێرای '+fmt(n+1));
+}
+function camLoop(cam,onCode){
+  const cv=document.createElement('canvas'),ctx=cv.getContext('2d',{willReadFrequently:true});
+  const tick=async()=>{
+    if(cam.stopped)return;
+    const v=cam.video;
+    if(v.readyState>=2&&v.videoWidth){
+      const r=boxRect(v,cam.host,cam.band),k=Math.min(1,cam.det.width/r.w);
+      const w=Math.max(1,Math.round(r.w*k)),h=Math.max(1,Math.round(r.h*k));
+      if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
+      try{
+        ctx.drawImage(v,r.x,r.y,r.w,r.h,0,0,w,h);
+        const res=await cam.det.d.detect(cam.det.kind==='wasm'?ctx.getImageData(0,0,w,h):cv);cam.fails=0;
+        if(!cam.stopped&&res&&res.length&&res[0].rawValue)onCode(String(res[0].rawValue));
+      }catch(e){
+        // A reader that keeps failing on this phone is swapped for the next one.
+        if(++cam.fails>=5){cam.fails=0;cam.skip=cam.skip.concat(cam.det.kind);try{cam.det=await getDetector(cam.skip);}catch(_){}}
+      }
+    }
+    if(!cam.stopped)cam.timer=setTimeout(tick,cam.det.gap);
+  };
+  tick();
+}
+function camStop(cam){
+  if(!cam||cam.stopped)return;
+  cam.stopped=true;clearTimeout(cam.timer);
+  try{cam.stream.getTracks().forEach(t=>t.stop());}catch(_){}
+  try{cam.video.srcObject=null;}catch(_){}
+  cam.video.remove();cam.box.remove();
+}
+function camButtons(cam,p){
+  const t=$('#'+p+'Torch'),z=$('#'+p+'Zoom'),f=$('#'+p+'Flip');
+  if(!cam){t.hidden=z.hidden=f.hidden=true;return;}
+  t.hidden=!cam.canTorch;t.setAttribute('aria-pressed',String(cam.torch));
+  z.hidden=cam.zooms.length<2;z.textContent=(Math.round(cam.zoom*10)/10)+'×';
+  f.hidden=!cam.canSwitch;
+}
+function wireCamButtons(p,get){
+  $('#'+p+'Torch').addEventListener('click',async()=>{const c=get();if(c&&await camTorch(c,!c.torch))camButtons(c,p);});
+  $('#'+p+'Zoom').addEventListener('click',async()=>{const c=get();if(!c||c.zooms.length<2)return;const i=c.zooms.indexOf(c.zoom),n=c.zooms[(i+1)%c.zooms.length];if(await camZoom(c,n,true))camButtons(c,p);});
+  $('#'+p+'Flip').addEventListener('click',async()=>{const c=get();if(!c)return;const b=$('#'+p+'Flip');b.disabled=true;
+    try{const name=await camFlip(c);if(name)toast(name);if(get()===c)camButtons(c,p);}catch(e){toast(camErrText(e),'error');}finally{b.disabled=false;}});
+}
 function camErrText(e){
-  const n=(e&&(e.name||e.message||String(e)))||'';
-  if(/NotAllowed|Permission/i.test(n))return 'ڕێگە بە کامێرا نەدراوە. لە ڕێکخستنەکانی مۆبایل ڕێگە بدە بە کامێرا بۆ Safari یان Chrome، پاشان دووبارە هەوڵ بدەرەوە.';
+  const n=e?((e.name||'')+' '+(e.message||'')):'';
+  if(/NotAllowed|Permission|Security/i.test(n))return 'ڕێگە بە کامێرا نەدراوە. لە ڕێکخستنەکانی مۆبایل ڕێگە بدە بە کامێرا بۆ Safari یان Chrome، پاشان دووبارە هەوڵ بدەرەوە.';
   if(/NotFound|Overconstrained|DevicesNotFound/i.test(n))return 'کامێرا نەدۆزرایەوە. سکانەری ئامێر بەکاربهێنە یان ژمارەکە بنووسە.';
   if(/NotReadable|TrackStart|Abort/i.test(n))return 'کامێرا لە لایەن ئەپێکی ترەوە بەکاردێت. ئەو ئەپە دابخە و دووبارە هەوڵ بدەرەوە.';
+  if(/NotSupported/i.test(n))return 'ئەم وێبگەڕە ڕێگە بە کامێرا نادات. ئەپەکە لە Safari یان Chrome بکەرەوە.';
+  if(/load/i.test(n))return 'بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
   return 'کامێرا کار ناکات. سکانەری ئامێر بەکاربهێنە یان ژمارەکە بنووسە.';
-}
-// A little zoom lets the phone stay far enough away to focus (iPhone cameras blur up close).
-function tuneCamera(inst,torchBtn){
-  let caps=null;try{caps=inst.getRunningTrackCameraCapabilities();}catch(_){return;}
-  try{const z=caps.zoomFeature();if(z.isSupported()){const v=Math.min(z.max(),2);if(v>z.min())Promise.resolve(z.apply(v)).catch(()=>{});}}catch(_){}
-  try{if(caps.torchFeature().isSupported())torchBtn.hidden=false;}catch(_){}
-}
-async function setTorch(inst,btn,on){
-  try{await inst.getRunningTrackCameraCapabilities().torchFeature().apply(on);btn.setAttribute('aria-pressed',String(on));return true;}catch(_){return false;}
 }
 
 /* ================= live camera on the sell screen ================= */
 // Runs whenever the sell screen is showing; stops for the product form, the full-screen scanner,
 // another tab, a hidden app, or after a quiet spell (battery). Calls are queued so starts and stops never overlap.
 const IDLE_MS=5*60*1000;
-const L={inst:null,err:null,paused:false,idle:false,last:'',seen:0,timer:null,torch:false,chain:Promise.resolve()};
+const L={inst:null,err:null,paused:false,idle:false,last:'',seen:0,timer:null,chain:Promise.resolve()};
 function liveWanted(){return !!S.role&&!$('#s-app').hidden&&S.tab==='sell'&&!document.hidden&&$('#sheet').hidden&&$('#picker').hidden&&$('#scanner').hidden&&!L.paused&&!L.err;}
 function syncLive(){L.chain=L.chain.then(applyLive,applyLive);return L.chain;}
 async function applyLive(){
@@ -1591,24 +1740,16 @@ function paintLive(state,text){
 }
 async function startLive(){
   paintLive('starting');$('#lcLast').hidden=true;
-  try{await loadQrLib();}catch(_){L.err='بارکردنی کامێرا سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.';paintLive();return;}
-  const {H,F}=qrApi();
-  if(!H){L.err='بارکردنی کامێرا سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.';paintLive();return;}
-  const inst=new H('liveReader',{verbose:false,formatsToSupport:qrFormats(F),experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
-  const panelH=()=>$('#livecam').clientHeight||200;
-  try{
-    await inst.start({facingMode:'environment'},{fps:15,disableFlip:true,
-      qrbox:(w,h)=>({width:Math.max(60,Math.floor(w*0.86)),height:Math.max(60,Math.floor(Math.min(h*0.6,panelH()*0.62)))})},liveOnScan,()=>{});
-  }catch(e){try{inst.clear();}catch(_){}L.err=camErrText(e);paintLive();return;}
-  L.inst=inst;L.torch=false;
-  const tb=$('#lcTorch');tb.hidden=true;tb.setAttribute('aria-pressed','false');
-  tuneCamera(inst,tb);
+  let cam;
+  try{cam=await camOpen($('#liveReader'),liveOnScan,[0.9,0.74]);}
+  catch(e){L.err=camErrText(e);paintLive();return;}
+  if(!liveWanted()){camStop(cam);paintLive();return;}
+  L.inst=cam;camButtons(cam,'lc');
   paintLive('on');armIdle();
 }
 async function stopLive(){
-  const inst=L.inst;L.inst=null;clearTimeout(L.timer);
-  if(inst){try{if(inst.isScanning)await inst.stop();}catch(_){}try{inst.clear();}catch(_){}}
-  $('#lcTorch').hidden=true;
+  const cam=L.inst;L.inst=null;clearTimeout(L.timer);
+  camStop(cam);camButtons(null,'lc');
   paintLive();
 }
 function armIdle(){clearTimeout(L.timer);L.timer=setTimeout(()=>{L.paused=true;L.idle=true;syncLive();},IDLE_MS);}
@@ -1622,33 +1763,23 @@ function liveOnScan(text){
 }
 $('#lcPause').addEventListener('click',()=>{L.paused=true;L.idle=false;syncLive();});
 $('#lcStart').addEventListener('click',()=>{unlockAudio();L.paused=false;L.idle=false;L.err=null;syncLive();});
-$('#lcTorch').addEventListener('click',async()=>{if(!L.inst)return;const want=!L.torch;if(await setTorch(L.inst,$('#lcTorch'),want))L.torch=want;});
-document.addEventListener('visibilitychange',()=>{syncLive();});
+wireCamButtons('lc',()=>L.inst);
 
-/* ================= full-screen scanner (product form) ================= */
-let qr=null,scanCb=null,lastCode='',lastAt=0,scanTarget=null,torchOn=false,scanCont=false;
+/* ================= full-screen scanner (product form, purchases, returns) ================= */
+let qr=null,scanCb=null,lastCode='',lastAt=0,scanTarget=null,scanCont=false,scanSeq=0,scanTitleText='';
 async function openScanner(cb,title,target,continuous){
-  scanCb=cb;scanTarget=target||null;lastCode='';lastAt=0;torchOn=false;scanCont=!!continuous;
+  scanCb=cb;scanTarget=target||null;lastCode='';lastAt=0;scanCont=!!continuous;scanTitleText=title||'';
   $('#scanTitle').textContent=title||'بارکۆد بخە ناو چوارچێوەکە';$('#scanLast').hidden=true;
-  const tb=$('#scanTorch');tb.hidden=true;tb.setAttribute('aria-pressed','false');
+  camButtons(null,'scan');
   $('#scanner').hidden=false;
+  const my=++scanSeq;
   await syncLive();   // the live camera must let go of the camera first
-  try{await loadQrLib();}catch(e){closeScanner();toast('بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.','error');return;}
-  if($('#scanner').hidden)return;
-  const {H,F}=qrApi();
-  if(!H){closeScanner();toast('بارکردنی سکانەر سەرکەوتوو نەبوو. ئینتەرنێتەکەت بپشکنە.','error');return;}
-  let inst=null;
-  try{
-    inst=new H('reader',{verbose:false,formatsToSupport:qrFormats(F),experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
-    qr=inst;
-    await inst.start({facingMode:'environment'},{fps:15,disableFlip:true,
-      qrbox:(w,h)=>({width:Math.max(60,Math.floor(Math.min(w*0.92,420))),height:Math.max(60,Math.floor(Math.min(h*0.45,220)))})},onScan,()=>{});
-    if(qr!==inst||$('#scanner').hidden){try{await inst.stop();}catch(_){}try{inst.clear();}catch(_){}return;}
-    tuneCamera(inst,tb);
-  }catch(e){
-    if(qr!==inst)return;
-    closeScanner();toast(camErrText(e),'error');
-  }
+  if($('#scanner').hidden||my!==scanSeq)return;
+  let cam;
+  try{cam=await camOpen($('#reader'),onScan,[0.88,0.3]);}
+  catch(e){if(my===scanSeq&&!$('#scanner').hidden){closeScanner();toast(camErrText(e),'error');}return;}
+  if($('#scanner').hidden||my!==scanSeq){camStop(cam);return;}
+  qr=cam;camButtons(cam,'scan');
 }
 function onScan(text){
   const code=codeKey(String(text||''));if(!code)return;
@@ -1661,15 +1792,19 @@ function onScan(text){
   if(scanCont&&!$('#scanner').hidden){if(label){const el=$('#scanLast');el.textContent=label;el.hidden=false;}}
   else{beep(true);closeScanner();}
 }
-async function closeScanner(){
-  $('#scanner').hidden=true;
-  const inst=qr;qr=null;
-  if(inst){try{if(inst.isScanning)await inst.stop();}catch(_){}try{inst.clear();}catch(_){}}
+function closeScanner(){
+  $('#scanner').hidden=true;scanSeq++;
+  const cam=qr;qr=null;camStop(cam);camButtons(null,'scan');
   syncLive();
 }
 $('#scanClose').addEventListener('click',closeScanner);
 $('#scanType').addEventListener('click',()=>{const t=scanTarget;closeScanner();if(t){t.focus();try{t.select();}catch(_){}}});
-$('#scanTorch').addEventListener('click',async()=>{if(!qr)return;const want=!torchOn;if(await setTorch(qr,$('#scanTorch'),want))torchOn=want;});
+wireCamButtons('scan',()=>qr);
+document.addEventListener('visibilitychange',()=>{
+  syncLive();
+  // Coming back to the app: a phone that cut the camera off while away gets it back.
+  if(!document.hidden&&qr&&qr.track&&qr.track.readyState==='ended'){const c=qr;qr=null;camStop(c);openScanner(scanCb,scanTitleText,scanTarget,scanCont);}
+});
 $('#fCam').addEventListener('click',()=>formScan());
 
 /* ================= items without a barcode ================= */

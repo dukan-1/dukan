@@ -2,7 +2,7 @@
 <html lang="ckb" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <title>دوکان</title>
 <meta name="description" content="کاڵاکانی دوکان بە نرخ و بوونیانەوە. لیستی خۆت دروست بکە و بە WhatsApp بۆ دوکانی بنێرە. نرخەکان ڕاستەوخۆ لە دوکانەوە نوێ دەبنەوە.">
 <meta name="theme-color" content="#F7F2F3" media="(prefers-color-scheme: light)">
@@ -19,7 +19,7 @@
   --bg:#F7F2F3; --paper:#FFFFFF; --ink:#2A1830; --muted:#7A6672; --line:#E7DADF;
   --rose:#A8325A; --rose-ink:#FFFFFF; --rose-soft:#F6E3EA; --blush:#F1DDE3;
   --shelf-a:#E6D2D9; --shelf-b:#D4BBC4; --shelf-shadow:rgba(42,24,48,.20);
-  --leaf:#4F7A62; --wa:#1FA855; --wa-ink:#FFFFFF;
+  --leaf:#4F7A62; --wa:#167F3F; --wa-ink:#FFFFFF;
   --scrim:rgba(42,24,48,.42); --bar:rgba(247,242,243,.92);
   --cap1:#C98AA0; --cap2:#9C7AA6; --cap3:#B9976F; --cap4:#7FA08C;
   --f-disp:"Noto Naskh Arabic","Noto Sans Arabic",serif;
@@ -40,20 +40,22 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+/* live updates keep the shelves in place themselves (render), the same way in every browser */
+html{-webkit-text-size-adjust:100%;overflow-anchor:none}
+html.lock,html.lock body{overflow:hidden}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;-webkit-tap-highlight-color:transparent}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2.5px solid var(--rose);outline-offset:2px;border-radius:8px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .n{font-family:var(--f-num);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
-.wrap{max-width:1100px;margin-inline:auto;padding-inline:16px}
+.wrap{max-width:1100px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* ---------- header ---------- */
 .hd{padding:34px 0 14px}
 .shop{margin:0;font-family:var(--f-disp);font-weight:700;font-size:clamp(34px,9.5vw,56px);line-height:1.25;letter-spacing:0;overflow-wrap:anywhere}
 .note{margin:6px 0 0;color:var(--muted);font-size:15px;max-width:60ch}
-.contact{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:8px 14px;border:1.5px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;background:var(--paper)}
+.contact{display:inline-flex;align-items:center;gap:8px;margin-top:14px;min-height:44px;padding:8px 14px;border:1.5px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;background:var(--paper)}
 .contact svg{width:18px;height:18px;color:var(--leaf)}
 .contact:hover{border-color:var(--rose)}
 
@@ -65,14 +67,16 @@ button{cursor:pointer}
 .search svg{width:20px;height:20px;color:var(--muted);flex:none}
 .search input{flex:1;min-width:0;border:0;background:transparent;font-size:16px;padding:10px 0;outline:none}
 .search input::-webkit-search-cancel-button{display:none}
-.clr{border:0;background:transparent;color:var(--muted);width:30px;height:30px;border-radius:50%;font-size:20px;line-height:1;display:grid;place-items:center}
+.clr{border:0;background:transparent;color:var(--muted);width:44px;height:44px;margin-inline-end:-10px;border-radius:50%;font-size:20px;line-height:1;display:grid;place-items:center}
 .opts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tog{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 12px 5px 14px;font-size:14px;font-weight:600;color:var(--muted)}
+.tog{display:inline-flex;align-items:center;gap:6px;min-height:44px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 12px 5px 14px;font-size:14px;font-weight:600;color:var(--muted)}
 .tog .dot{width:9px;height:9px;border-radius:50%;border:2px solid currentColor}
 .tog[aria-pressed="true"]{border-color:var(--leaf);color:var(--leaf)}
 .tog[aria-pressed="true"] .dot{background:currentColor}
-.sortw{position:relative;display:inline-flex}
-.sortw select{appearance:none;-webkit-appearance:none;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 14px 5px 32px;font-size:14px;font-weight:600;color:var(--ink)}
+.sortw{position:relative;display:inline-flex;align-items:center;min-height:44px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:0 14px 0 32px;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap}
+.sortw:focus-within{border-color:var(--rose)}
+.sortw:has(select:focus-visible){outline:2.5px solid var(--rose);outline-offset:2px}
+.sortw select{position:absolute;top:-1.5px;left:-1.5px;width:calc(100% + 3px);height:calc(100% + 3px);margin:0;opacity:0;font-size:16px;appearance:none;-webkit-appearance:none;border:0;cursor:pointer}
 .sortw svg{position:absolute;left:11px;top:50%;width:14px;height:14px;margin-top:-7px;pointer-events:none;color:var(--muted)}
 .count{margin-inline-start:auto;color:var(--muted);font-size:13px;white-space:nowrap}
 
@@ -89,20 +93,24 @@ body.has-list main{padding-bottom:120px}
 /* the ledge: full cell width, so neighbouring cells join into one shelf */
 .ph::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(var(--shelf-a),var(--shelf-b));box-shadow:0 9px 12px -7px var(--shelf-shadow)}
 .pic{position:absolute;left:14px;right:14px;top:12px;bottom:8px;display:flex;align-items:flex-end;justify-content:center}
-.pic img{display:block;max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+/* multiply melts a white photo background into the shelf; a coloured one (most Open Beauty Facts photos) gets soft corners */
+.pic img{display:block;max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;border-radius:10px}
 /* a jar stands in for a missing photo */
 .jar{position:relative;width:54%;height:68%;display:flex;align-items:center;justify-content:center;background:var(--blush);border-radius:16px 16px 10px 10px;margin-bottom:0}
 .jar::before{content:"";position:absolute;top:-13%;left:22%;right:22%;height:15%;background:var(--cap,var(--cap1));border-radius:7px 7px 3px 3px}
-.jar .lbl{position:relative;width:84%;padding:5px 4px;background:var(--paper);border-radius:4px;font-family:var(--f-disp);font-weight:600;font-size:clamp(11px,3vw,13px);line-height:1.45;text-align:center;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;box-shadow:0 0 0 1px var(--line)}
+.jar .lbl{position:relative;width:84%;padding:0 4px;border-block:5px solid var(--paper);background:var(--paper);border-radius:4px;font-family:var(--f-disp);font-weight:600;font-size:clamp(11px,3vw,13px);line-height:1.45;text-align:center;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;box-shadow:0 0 0 1px var(--line)}
 .it.out .pic>*,.big.out .pic>*{opacity:.42;filter:grayscale(1)}
 .oos{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:var(--paper);color:var(--muted);border:1px solid var(--line);font-size:12px;font-weight:700;padding:1px 10px;border-radius:999px;white-space:nowrap}
 .meta{padding:12px 14px 0;display:flex;flex-direction:column;gap:6px;flex:1}
 .nm{margin:0;font-family:var(--f-disp);font-weight:600;font-size:16px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;overflow-wrap:anywhere}
 .pr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
 .price{font-weight:600;font-size:15px;color:var(--rose);white-space:nowrap}
+.after .code{display:block;margin-top:4px;font-family:var(--f-ui);letter-spacing:.04em}
+.after .code:empty{display:none}
 .price .cur{font-family:var(--f-ui);font-size:12px;font-weight:500;color:var(--muted);margin-inline-start:3px}
+.ask{font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
 .it.out .price{color:var(--muted)}
-.add{flex:none;min-width:38px;height:38px;border-radius:999px;border:1.5px solid var(--rose);background:transparent;color:var(--rose);display:grid;place-items:center;padding:0 10px;font-size:22px;line-height:1;font-weight:500}
+.add{flex:none;min-width:44px;height:44px;border-radius:999px;border:1.5px solid var(--rose);background:transparent;color:var(--rose);display:grid;place-items:center;padding:0 10px;font-size:22px;line-height:1;font-weight:500}
 .add.in{background:var(--rose);color:var(--rose-ink);font-family:var(--f-num);font-size:15px;font-weight:600}
 .add:active{transform:scale(.94)}
 
@@ -112,11 +120,14 @@ body.has-list main{padding-bottom:120px}
 .sk .bone{height:12px;border-radius:6px;background:var(--line)}
 .state{text-align:center;padding:48px 16px;color:var(--muted)}
 .state b{display:block;color:var(--ink);font-family:var(--f-disp);font-size:22px;margin-bottom:6px}
+.state p{margin:16px 0 0}
 
 /* ---------- footer ---------- */
 .ft{border-top:1px solid var(--line);padding:26px 0 34px;color:var(--muted);font-size:14px}
 .ft b{display:block;font-family:var(--f-disp);font-size:20px;color:var(--ink);margin-bottom:2px}
 .ft p{margin:4px 0 0}
+.ft .credit{font-size:12px}
+.ft .credit a{color:inherit}
 
 /* ---------- list bar ---------- */
 .listbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--bar);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
@@ -132,12 +143,12 @@ body.has-list main{padding-bottom:120px}
 /* ---------- sheets ---------- */
 .sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .scrim{position:absolute;inset:0;background:var(--scrim)}
-.card{position:relative;width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--paper);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
+.card{position:relative;width:100%;max-width:560px;max-height:92vh;max-height:92dvh;overflow:auto;overscroll-behavior:contain;background:var(--paper);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
-@media (min-width:640px){.sheet{align-items:center}.card{border-radius:22px;max-height:88vh}}
+@media (min-width:640px){.sheet{align-items:center}.card{border-radius:22px;max-height:88vh;max-height:88dvh}}
 .sh{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sh h2{margin:0;font-family:var(--f-disp);font-size:22px;font-weight:700;line-height:1.4}
-.x{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:22px;line-height:1;display:grid;place-items:center}
+.x{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:22px;line-height:1;display:grid;place-items:center}
 /* product sheet */
 .big{position:relative;aspect-ratio:4/3;background:var(--bg);border-radius:16px;overflow:hidden}
 .big::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:linear-gradient(var(--shelf-a),var(--shelf-b))}
@@ -148,11 +159,12 @@ body.has-list main{padding-bottom:120px}
 .prow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .pprice{font-size:24px;font-weight:600;color:var(--rose)}
 .pprice .cur{font-family:var(--f-ui);font-size:14px;color:var(--muted);margin-inline-start:4px;font-weight:500}
+.pprice .ask{font-size:18px}
 .avail{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:15px;color:var(--leaf)}
 .avail::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
 .avail.no{color:var(--muted)}
 .step{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper)}
-.step button{width:42px;height:42px;border:0;background:transparent;font-size:20px;line-height:1}
+.step button{width:44px;height:44px;border:0;background:transparent;font-size:20px;line-height:1}
 .step button:disabled{opacity:.3;cursor:default}
 .step output,.step span{min-width:2.4em;text-align:center;font-family:var(--f-num);font-weight:600;font-size:16px}
 .act{display:flex;gap:10px;align-items:center}
@@ -162,7 +174,7 @@ body.has-list main{padding-bottom:120px}
 .btn.wa{width:100%;background:var(--wa);color:var(--wa-ink);font-size:18px;padding:14px 18px}
 .btn.wa svg{width:24px;height:24px}
 .btn.wa:disabled{opacity:.45;cursor:default}
-.btn.plain{background:transparent;border-color:var(--line);color:var(--ink);font-size:14px;padding:9px 14px;font-weight:600}
+.btn.plain{background:transparent;border-color:var(--line);color:var(--ink);font-size:14px;padding:9px 14px;font-weight:600;min-height:44px}
 /* list sheet */
 .lines{list-style:none;margin:0;padding:0}
 .ln{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name rm" "sub step";gap:4px 10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
@@ -171,8 +183,8 @@ body.has-list main{padding-bottom:120px}
 .ln .lsub{grid-area:sub;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
 .ln .lsub .amt{color:var(--ink);font-weight:600;font-size:15px}
 .ln .step{grid-area:step}
-.ln .step button{width:36px;height:36px}
-.ln .rm{grid-area:rm;justify-self:end;width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:20px;line-height:1}
+.ln .step button{width:44px;height:44px}
+.ln .rm{grid-area:rm;justify-self:end;width:44px;height:44px;margin-inline-end:-8px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:20px;line-height:1}
 .ln.gone .lnm{color:var(--muted)}
 .tag{display:inline-block;font-size:12px;font-weight:700;padding:0 9px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .tot{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-top:12px;border-top:1.5px dashed var(--line)}
@@ -193,7 +205,10 @@ body.has-list main{padding-bottom:120px}
 /* ---------- toast ---------- */
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
 
-@media (prefers-color-scheme: dark){.pic img{mix-blend-mode:normal;border-radius:10px}}
+@media (prefers-color-scheme: dark){.pic img{mix-blend-mode:normal}}
+/* phones: while the search keyboard is up, the fixed list bar would float over the results (iOS) or eat the space above the keyboard (Android) */
+@media (pointer:coarse){body.typing .listbar{display:none}}
+@media (max-width:359px){.meta{padding-inline:8px}.pr{gap:4px}}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
@@ -223,6 +238,7 @@ body.has-list main{padding-bottom:120px}
       <button type="button" class="tog" id="onlyOk" aria-pressed="false"><span class="dot" aria-hidden="true"></span>تەنها ئەوانەی هەن</button>
       <span class="sortw">
         <label for="sort" class="sr">ڕیزکردن</label>
+        <span id="sortV" aria-hidden="true">ناو</span>
         <select id="sort">
           <option value="name">ناو</option>
           <option value="asc">نرخ کەم بۆ زۆر</option>
@@ -245,6 +261,7 @@ body.has-list main{padding-bottom:120px}
     <b id="ftName">دوکان</b>
     <p id="ftNote" hidden></p>
     <p>نرخ و بوونی کاڵاکان ڕاستەوخۆ لە دوکانەوە نوێ دەبنەوە.</p>
+    <p id="ftCredit" class="credit" hidden>هەندێک لە وێنەکان لە <a href="https://world.openbeautyfacts.org" rel="noopener" target="_blank">Open Beauty Facts</a> و <a href="https://world.openfoodfacts.org" rel="noopener" target="_blank">Open Food Facts</a> وەرگیراون، بە مۆڵەتی <a href="https://creativecommons.org/licenses/by-sa/3.0/" rel="license noopener" target="_blank">CC BY-SA</a>.</p>
   </div>
 </footer>
 
@@ -292,7 +309,7 @@ body.has-list main{padding-bottom:120px}
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06a6.73 6.73 0 0 1-3.37-2.95c-.25-.44.25-.41.72-1.36.08-.16.04-.3-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.76 2.68 4.25 3.76 1.58.68 2.2.74 2.99.62.48-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/></svg>
       ناردن بە WhatsApp
     </button>
-    <p class="after" id="after" hidden><span>لیستەکەت نێردرا بۆ WhatsApp. ئەگەر تەواو بوو، دەتوانیت پاکی بکەیتەوە.</span><button type="button" class="btn plain" id="clear2">پاککردنەوەی لیست</button></p>
+    <p class="after" id="after" hidden><span id="afterText">لیستەکەت نێردرا بۆ WhatsApp. ئەگەر تەواو بوو، دەتوانیت پاکی بکەیتەوە.</span><b id="afterCode" class="code"></b><button type="button" class="btn plain" id="clear2">پاککردنەوەی لیست</button></p>
     <button type="button" class="btn plain" id="clear">پاککردنەوەی لیست</button>
   </div>
 </div>
@@ -309,11 +326,21 @@ window.FIREBASE_CONFIG = {
   appId: "1:1017456927812:web:6c41ec4c27a34924850811"
 };
 </script>
-<script type="module">
+<script>
+window.__shopFail=function(){
+  if(window.__shopReady||window.__shopFailed)return;window.__shopFailed=true;
+  var st=document.getElementById('state'),g=document.getElementById('grid');if(!st)return;
+  if(g)g.innerHTML='';st.hidden=false;
+  st.innerHTML='<b>ماڵپەڕەکە بار نەبوو.</b>ئینتەرنێتەکەت بپشکنە و دووبارە هەوڵ بدەوە. <button type="button" class="btn plain" onclick="location.reload()">دووبارە</button>';
+};
+setTimeout(window.__shopFail,15000);
+</script>
+<script type="module" onerror="__shopFail()">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, onSnapshot, getDoc, getDocFromCache, getDocFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, onSnapshot, getDoc, getDocFromCache, getDocFromServer, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const $=s=>document.querySelector(s);
+window.__shopReady=true;
 const app=initializeApp(window.FIREBASE_CONFIG);
 let db;
 // Photos and the price list stay on the phone between visits, so a return visit costs almost nothing.
@@ -324,9 +351,17 @@ catch(_){db=initializeFirestore(app,{});}
 function normDigits(s){return String(s==null?'':s).replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-0x660)).replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-0x6F0));}
 // Letter folding: ە/ة, أ/إ/آ, ي/ى, ك and diacritics do not matter, and neither do the Kurdish letters
 // a customer on an Arabic keyboard cannot type (ێ ۆ ڵ ڕ ڤ), so «كريم» finds «کرێم».
-function fold(s){return normDigits(s).toLowerCase().replace(/[يىێ]/g,'ی').replace(/ك/g,'ک').replace(/[ەة]/g,'ه').replace(/[أإآ]/g,'ا').replace(/[ؤۆ]/g,'و').replace(/ڵ/g,'ل').replace(/ڕ/g,'ر').replace(/ڤ/g,'ف').replace(/ـ/g,'').replace(/[ً-ْ]/g,'').replace(/\s+/g,' ').trim();}
+function fold(s){return normDigits(s).toLowerCase().replace(/[يىێ]/g,'ی').replace(/ك/g,'ک').replace(/[ەة]/g,'ه').replace(/[أإآ]/g,'ا').replace(/[ؤۆ]/g,'و').replace(/ڵ/g,'ل').replace(/ڕ/g,'ر').replace(/ڤ/g,'ف').replace(/پ/g,'ب').replace(/چ/g,'ج').replace(/ژ/g,'ز').replace(/گ/g,'ک').replace(/ـ/g,'').replace(/[ً-ْ]/g,'').replace(/\s+/g,' ').trim();}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function money(n){return Math.round(Number(n)||0).toLocaleString('en-US');}
+// Order codes: 8 letters and digits that are easy to read aloud (no 0/O, 1/I), like the shop's receipt numbers.
+const NO_CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genCode(){const a=new Uint8Array(8);crypto.getRandomValues(a);let s='';for(const x of a)s+=NO_CH[x&31];return s;}
+function fmtCode(c){return c.slice(0,4)+'-'+c.slice(4);}
+function showCode(c){const el=$('#afterCode');el.textContent='';if(!c)return;el.append('کۆدی داواکارییەکەت: ');const b=document.createElement('bdi');b.dir='ltr';b.textContent=fmtCode(c);el.append(b);}
+const MAXQ=50,MAXLINES=40,SENT_KEY='shop.sent.v1';
+function listSig(){return Array.from(S.list).map(([k,q])=>k+'*'+q).sort().join(';');}
+function sentCode(){const x=store.get(SENT_KEY);return x&&x.sig===listSig()&&/^[A-HJ-NP-Z2-9]{8}$/.test(x.code||'')?x.code:'';}
 function labelText(s){return String(s||'').trim().split(/\s+/).slice(0,3).join(' ');}
 function hash(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h);}
 const store={get(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}}};
@@ -336,7 +371,7 @@ function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTim
 /* ---------- state ---------- */
 const S={info:{name:'',wa:'',note:''},cat:null,err:false,q:'',onlyOk:false,sort:'name',list:new Map(),open:null};
 const LIST_KEY='shop.list.v1',WHO_KEY='shop.who.v1';
-(function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,99));}})();
+(function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push({id,n:e.n,r:Number(e.r)||0,ok:e.ok===true,iv:Number(e.iv)||0});}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?{id,n:e.n,r:Number(e.r)||0,ok:e.ok===true,iv:Number(e.iv)||0}:null;}
@@ -350,9 +385,10 @@ async function loadImg(pid,iv){
   const p=(async()=>{
     const ref=doc(db,'pimg',pid);let cached=null;
     try{const s=await getDocFromCache(ref);if(s.exists())cached=s.data();}catch(_){}
-    if(cached&&cached.v===iv){imgs.set(pid,{v:iv,d:cached.d});return cached.d;}
-    try{const s=cached?await getDocFromServer(ref):await getDoc(ref);if(s.exists()){const d=s.data();imgs.set(pid,{v:d.v===iv?iv:d.v,d:d.d});return d.d;}}catch(_){}
-    return cached?cached.d:null;
+    const src=x=>x?(x.d||x.u||null):null;
+    if(cached&&cached.v===iv){imgs.set(pid,{v:iv,d:src(cached)});return src(cached);}
+    try{const s=cached?await getDocFromServer(ref):await getDoc(ref);if(s.exists()){const d=s.data();imgs.set(pid,{v:d.v===iv?iv:d.v,d:src(d)});return src(d);}imgs.set(pid,{v:iv,d:null});return null;}catch(_){}
+    return src(cached);
   })();
   pending.set(key,p);p.finally(()=>pending.delete(key));
   return p;
@@ -369,7 +405,8 @@ const CAPS=['--cap1','--cap2','--cap3','--cap4'];
 // No photo yet: a jar with a paper label carrying the first words of the name.
 function jarHtml(e){return '<span class="jar" style="--cap:var('+CAPS[hash(e.id)%4]+')" aria-hidden="true"><span class="lbl">'+esc(labelText(e.n))+'</span></span>';}
 function setPic(pic,e,d){
-  if(d){let img=pic.querySelector('img');if(!img){pic.innerHTML='';img=document.createElement('img');img.decoding='async';pic.appendChild(img);}img.alt=e.n;if(img.getAttribute('src')!==d)img.src=d;}
+  if(d){let img=pic.querySelector('img');if(!img){pic.innerHTML='';img=document.createElement('img');img.decoding='async';pic.appendChild(img);}img.alt=e.n;
+    img.onerror=()=>{imgs.set(e.id,{v:e.iv,d:null});if(img.isConnected)pic.innerHTML=jarHtml(e);};if(img.getAttribute('src')!==d)img.src=d;}
   else pic.innerHTML=jarHtml(e);
 }
 
@@ -385,7 +422,7 @@ function paintItem(li,e){
   li.classList.toggle('out',!e.ok);
   const nm=li.querySelector('.nm');if(nm.textContent!==e.n)nm.textContent=e.n;
   li.querySelector('.ph').setAttribute('aria-label',e.n+(e.ok?'':'، نەماوە'));
-  li.querySelector('.price .n').textContent=money(e.r);
+  li.querySelector('.price .n').textContent=e.r>0?money(e.r):'بپرسە';li.querySelector('.price .cur').hidden=!(e.r>0);
   li.querySelector('.oos').hidden=e.ok;
   const add=li.querySelector('.add'),q=S.list.get(e.id)||0;
   add.hidden=!e.ok;add.classList.toggle('in',q>0);add.textContent=q>0?String(q):'+';
@@ -394,7 +431,7 @@ function paintItem(li,e){
   const pic=li.querySelector('.pic'),shown=Number(li.dataset.iv||-1);
   if(shown!==e.iv){
     const have=imgs.get(e.id);
-    if(e.iv&&have&&have.v===e.iv){setPic(pic,e,have.d);li.dataset.iv=String(e.iv);}
+    if(e.iv&&have&&have.v===e.iv){setPic(pic,e,have.d);li.dataset.iv=String(e.iv);}   // have.d null = no photo after all
     else{setPic(pic,e,null);li.dataset.iv=e.iv?'-1':'0';if(e.iv)watch(li);}
   }else{const j=pic.querySelector('.jar .lbl');if(j)j.textContent=labelText(e.n);const im=pic.querySelector('img');if(im)im.alt=e.n;}
 }
@@ -428,13 +465,19 @@ function render(){
     st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە.</b>ناوێکی تر تاقی بکەرەوە'+(S.onlyOk?'، یان «تەنها ئەوانەی هەن» لاببە.':'.')):'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>«تەنها ئەوانەی هەن» لاببە بۆ بینینی هەموو کاڵاکان.';
     return;}
   st.hidden=true;
+  const kids=grid.children,same=kids.length===list.length&&list.every((e,i)=>kids[i].dataset&&kids[i].dataset.id===e.id);
+  if(same){for(const e of list)paintItem(els.get(e.id),e);return;}
+  let anchor=null,top=0;for(const li of kids){const r=li.getBoundingClientRect();if(r.bottom>0){anchor=li;top=r.top;break;}}
+  const fo=document.activeElement&&grid.contains(document.activeElement)?document.activeElement:null;
   const frag=[];
   for(const e of list){let li=els.get(e.id);if(!li)li=makeItem(e.id);paintItem(li,e);frag.push(li);}
   grid.replaceChildren(...frag);
+  if(anchor&&anchor.isConnected&&anchor.classList.contains('it')&&!anchor.classList.contains('sk')){const d=anchor.getBoundingClientRect().top-top;if(Math.abs(d)>1)window.scrollBy(0,d);}
+  if(fo&&fo.isConnected)fo.focus({preventScroll:true});
 }
 
 /* ---------- list ---------- */
-function setQty(id,q){q=Math.max(0,Math.min(99,Math.floor(q)));if(q)S.list.set(id,q);else S.list.delete(id);saveList();$('#after').hidden=true;refreshList();}
+function setQty(id,q){q=Math.max(0,Math.min(MAXQ,Math.floor(q)));if(q)S.list.set(id,q);else S.list.delete(id);saveList();$('#after').hidden=true;refreshList();}
 function listView(){
   const rows=[];let total=0,count=0,gone=0;
   for(const [id,q] of S.list){const e=entry(id);if(e&&e.ok){total+=e.r*q;count+=q;}else gone++;rows.push({id,q,e});}
@@ -450,14 +493,15 @@ function refreshList(){
   if(S.open&&!$('#psheet').hidden)paintSheet();
 }
 function renderList(){
-  const v=listView(),ul=$('#lines');
+  const v=listView(),ul=$('#lines'),a=document.activeElement,ar=a&&ul.contains(a)?a.closest('.ln'):null;
+  const fk=ar?{id:ar.dataset.id,b:a.hasAttribute('data-inc')?'data-inc':a.hasAttribute('data-dec')?'data-dec':'data-rm',next:ar.nextElementSibling&&ar.nextElementSibling.dataset.id}:null;
   if(!v.rows.length){ul.innerHTML='<li><p class="empty-list">لیستەکەت بەتاڵە. کاڵا بە دوگمەی + زیاد بکە.</p></li>';}
   else ul.innerHTML=v.rows.map(({id,q,e})=>{
     const ok=e&&e.ok,name=e?e.n:'کاڵایەک کە ئێستا لە ماڵپەڕ نییە';
     return '<li class="ln'+(ok?'':' gone')+'" data-id="'+esc(id)+'"><span class="lnm">'+esc(name)+'</span>'+
       '<button type="button" class="rm" data-rm aria-label="لابردنی «'+esc(name)+'»">×</button>'+
-      '<span class="lsub">'+(ok?('<span class="n">'+money(e.r)+' × '+q+'</span><span class="amt"><span class="n">'+money(e.r*q)+'</span> د.ع</span>'):('<span class="tag">'+(e?'نەماوە':'نەماوە لە ماڵپەڕ')+'</span>'))+'</span>'+
-      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button><span class="n">'+q+'</span><button type="button" data-inc aria-label="زیادکردن"'+(q>=99?' disabled':'')+'>+</button></span>':'<span></span>')+'</li>';
+      '<span class="lsub">'+(ok&&!(e.r>0)?('<span class="n">× '+q+'</span><span class="amt">نرخ لە دوکان</span>'):ok?('<span class="n">'+money(e.r)+' × '+q+'</span><span class="amt"><span class="n">'+money(e.r*q)+'</span> د.ع</span>'):('<span class="tag">'+(e?'نەماوە':'نەماوە لە ماڵپەڕ')+'</span>'))+'</span>'+
+      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button><span class="n">'+q+'</span><button type="button" data-inc aria-label="زیادکردن"'+(q>=MAXQ?' disabled':'')+'>+</button></span>':'<span></span>')+'</li>';
   }).join('');
   $('#lTotal').textContent=money(v.total);
   const w=$('#lWarn');w.hidden=!v.gone;
@@ -466,20 +510,53 @@ function renderList(){
   $('#noWa').hidden=wa;
   $('#send').disabled=!has||!wa;
   $('#clear').hidden=!v.rows.length;$('#lTot').hidden=!v.rows.length;$('#lFields').hidden=!v.rows.length;
+  const sc=v.rows.length?sentCode():'';if(sc){showCode(sc);$('#after').hidden=false;}
+  if(!$('#after').hidden)$('#clear').hidden=true;
+  if(fk){
+    const row=ul.querySelector('.ln[data-id="'+CSS.escape(fk.id)+'"]')||(fk.next&&ul.querySelector('.ln[data-id="'+CSS.escape(fk.next)+'"]'));
+    let t=row&&row.querySelector('['+fk.b+']');
+    if(t&&t.disabled)t=row.querySelector(fk.b==='data-dec'?'[data-inc]':'[data-dec]');
+    if(t&&!t.disabled)t.focus({preventScroll:true});else keepFocus($('#lsheet .card'),null);
+  }
 }
-function message(){
-  const v=listView(),L=['سڵاو، دەمەوێت ئەمانە بکڕم:'];
-  for(const {q,e} of v.rows)if(e&&e.ok)L.push('• '+e.n+' × '+q+' = '+money(e.r*q)+' د.ع');
-  L.push('کۆی گشتی: '+money(v.total)+' د.ع');
-  const f=[['ناو',$('#fName').value],['مۆبایل',$('#fPhone').value],['ناونیشان',$('#fAddr').value],['تێبینی',$('#fNote').value]];
-  for(const [k,val] of f){const t=String(val||'').trim();if(t)L.push(k+': '+t);}
-  return L.join('\n');
+function phoneDigits(v){return normDigits(v).replace(/[\s\-().]/g,'');}
+// The WhatsApp text. A very long list is cut to fit in a link (phones refuse very long ones); the full text is copied,
+// and with an order code the shop sees every item anyway.
+const RLM='\u200F',URL_MAX=7000;
+function message(code,cut){
+  const v=listView(),head=['سڵاو، دەمەوێت ئەمانە بکڕم:'],items=[],tail=[];
+  if(code)head.push('کۆدی داواکاری: '+fmtCode(code));
+  for(const {q,e} of v.rows)if(e&&e.ok)items.push(RLM+'• '+e.n+' × '+q+(e.r>0?' = '+money(e.r*q)+' د.ع':''));
+  tail.push('کۆی گشتی: '+money(v.total)+' د.ع');
+  const f=[['ناو',$('#fName').value],['مۆبایل',phoneDigits($('#fPhone').value)],['ناونیشان',$('#fAddr').value],['تێبینی',$('#fNote').value]];
+  for(const [k,val] of f){const t=String(val||'').trim();if(t)tail.push(k+': '+t);}
+  const shown=cut==null?items:items.slice(0,cut);
+  if(shown.length<items.length)shown.push(RLM+'… و '+money(items.length-shown.length)+' کاڵای تر'+(code?' (هەموویان بە کۆدەکە لە دوکان دیارن)':''));
+  return head.concat(shown,tail).join('\n');
+}
+function waUrl(code){
+  const base='https://wa.me/'+encodeURIComponent(S.info.wa)+'?text=';
+  let t=message(code);if((base+encodeURIComponent(t)).length<=URL_MAX)return {url:base+encodeURIComponent(t),cut:false,full:t};
+  const full=t;let n=listView().rows.length;
+  while(n>1&&(base+encodeURIComponent(t=message(code,n))).length>URL_MAX)n--;
+  return {url:base+encodeURIComponent(t),cut:true,full};
 }
 
 /* ---------- sheets ---------- */
 let lastFocus=null;
-function openSheet(el){lastFocus=document.activeElement;$('#toast').hidden=true;el.hidden=false;document.body.style.overflow='hidden';const x=el.querySelector('.x');if(x)x.focus();}
-function closeSheet(el){el.hidden=true;if($('#psheet').hidden&&$('#lsheet').hidden)document.body.style.overflow='';if(el.id==='psheet')S.open=null;if(lastFocus&&lastFocus.isConnected)lastFocus.focus();}
+function setInert(on){for(const c of document.body.children)if(!c.classList.contains('sheet')&&c.id!=='toast'&&c.tagName!=='SCRIPT')c.inert=on;}
+function openSheet(el){lastFocus=document.activeElement;$('#toast').hidden=true;el.hidden=false;document.body.style.overflow='hidden';setInert(true);const x=el.querySelector('.x');if(x)x.focus();}
+function closeSheet(el){el.hidden=true;if($('#psheet').hidden&&$('#lsheet').hidden){document.body.style.overflow='';setInert(false);}if(el.id==='psheet')S.open=null;if(lastFocus&&lastFocus.isConnected)lastFocus.focus();}
+function topSheet(){return !$('#psheet').hidden?$('#psheet'):!$('#lsheet').hidden?$('#lsheet'):null;}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;const sh=topSheet();if(!sh)return;
+  const f=Array.from(sh.querySelectorAll('.card button,.card input,.card textarea,.card select,.card a[href]')).filter(x=>!x.disabled&&!x.closest('[hidden]')&&x.offsetParent!==null);
+  if(!f.length)return;const i=f.indexOf(document.activeElement);
+  if(e.shiftKey&&(i<=0)){e.preventDefault();f[f.length-1].focus();}
+  else if(!e.shiftKey&&(i===-1||i===f.length-1)){e.preventDefault();f[0].focus();}
+});
+// A button that just turned off (− at 1) must not drop the focus out of the dialog.
+function keepFocus(card,pref){const a=document.activeElement;if(a&&card.contains(a)&&!a.disabled)return;if(a&&a!==document.body&&!card.contains(a))return;const t=(pref&&!pref.disabled&&pref.isConnected)?pref:card.querySelector('.x');if(t)t.focus({preventScroll:true});}
 document.querySelectorAll('.sheet').forEach(sh=>{sh.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeSheet(sh);});});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;for(const id of ['#psheet','#lsheet'])if(!$(id).hidden){closeSheet($(id));break;}});
 let pq=1;
@@ -491,19 +568,21 @@ async function openProduct(id){
 function paintSheet(){
   const e=entry(S.open);if(!e){closeSheet($('#psheet'));return;}
   $('#pName').textContent=e.n;
-  $('#pPrice').innerHTML='<span class="n">'+money(e.r)+'</span><span class="cur">د.ع</span>';
+  $('#pPrice').innerHTML=e.r>0?'<span class="n">'+money(e.r)+'</span><span class="cur">د.ع</span>':'<span class="ask">نرخ لە دوکان بپرسە</span>';
   const a=$('#pAvail');a.textContent=e.ok?'هەیە':'نەماوە';a.classList.toggle('no',!e.ok);
   $('#pBig').classList.toggle('out',!e.ok);
   const have=imgs.get(e.id),pic=$('#pPic');
   if(e.iv&&have&&have.v===e.iv)setPic(pic,e,have.d);else if(!pic.querySelector('img')||!e.iv)setPic(pic,e,null);
   const inList=S.list.get(e.id)||0;
-  $('#pQty').textContent=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=pq>=99||!e.ok;
+  const wasMinus=document.activeElement===$('#pMinus'),wasPlus=document.activeElement===$('#pPlus');
+  $('#pQty').textContent=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=pq>=MAXQ||!e.ok;
+  if(wasMinus||wasPlus)keepFocus($('#psheet .card'),wasMinus?$('#pPlus'):$('#pMinus'));
   const b=$('#pAdd');b.disabled=!e.ok;
   b.textContent=!e.ok?'ئێستا نەماوە':(inList?(inList===pq?'لە لیستەکەتە':'گۆڕینی بڕ لە لیست'):'زیادکردن بۆ لیست');
   if(e.ok&&inList&&inList===pq)b.disabled=true;
 }
 $('#pMinus').addEventListener('click',()=>{pq=Math.max(1,pq-1);paintSheet();});
-$('#pPlus').addEventListener('click',()=>{pq=Math.min(99,pq+1);paintSheet();});
+$('#pPlus').addEventListener('click',()=>{pq=Math.min(MAXQ,pq+1);paintSheet();});
 $('#pAdd').addEventListener('click',()=>{const e=entry(S.open);if(!e||!e.ok)return;const had=S.list.has(e.id);setQty(e.id,pq);bump();closeSheet($('#psheet'));toast(had?'بڕەکە گۆڕدرا.':'زیاد کرا بۆ لیستەکەت.');});
 function bump(){const b=$('#openList');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
 
@@ -525,16 +604,34 @@ $('#clear').addEventListener('click',clearList);$('#clear2').addEventListener('c
 // The customer's name, phone and address are remembered on this phone for next time.
 (function(){const w=store.get(WHO_KEY)||{};$('#fName').value=w.name||'';$('#fPhone').value=w.phone||'';$('#fAddr').value=w.addr||'';})();
 ['#fName','#fPhone','#fAddr'].forEach(s=>$(s).addEventListener('input',()=>store.set(WHO_KEY,{name:$('#fName').value,phone:$('#fPhone').value,addr:$('#fAddr').value})));
-$('#send').addEventListener('click',()=>{
-  const v=listView();if(!v.count||!S.info.wa)return;
-  const url='https://wa.me/'+encodeURIComponent(S.info.wa)+'?text='+encodeURIComponent(message());
-  const w=window.open(url,'_blank');if(!w)location.href=url;
-  $('#after').hidden=false;
+$('#send').addEventListener('click',async()=>{
+  const v=listView();if(!v.count||!S.info.wa||S.sending)return;
+  const btn=$('#send');S.sending=true;btn.disabled=true;
+  // Sending the same list again opens WhatsApp again without a second order.
+  let code=sentCode();
+  if(!code){
+    const cand=genCode(),val=x=>String(x||'').trim();
+    const order={status:'new',items:v.rows.filter(r=>r.e&&r.e.ok).slice(0,MAXLINES).map(r=>({pid:r.id,q:Math.min(MAXQ,r.q),n:r.e.n.slice(0,120)})),
+      name:val($('#fName').value).slice(0,80),phone:phoneDigits(val($('#fPhone').value)).slice(0,30),addr:val($('#fAddr').value).slice(0,200),note:val($('#fNote').value).slice(0,300),
+      total:v.total,at:Date.now(),ts:serverTimestamp()};
+    // Saved, or still on its way on a slow line (it is kept on the phone and sent when it can): the code goes in the message.
+    // Refused (the shop has not switched orders on): the message goes without a code, as before.
+    let r;try{r=await Promise.race([setDoc(doc(db,'orders',cand),order).then(()=>'ok'),new Promise(ok=>setTimeout(()=>ok('slow'),5000))]);}catch(_){r='no';}
+    if(r!=='no'){code=cand;store.set(SENT_KEY,{code:cand,sig:listSig()});}
+  }
+  const w=waUrl(code),url=w.url;
+  if(w.cut)try{navigator.clipboard.writeText(w.full).catch(()=>{});}catch(_){}
+  S.sending=false;btn.disabled=false;
+  showCode(code);
+  $('#after').hidden=false;$('#clear').hidden=true;
+  location.href=url;   // a navigation, not a pop-up, so phones allow it after the wait
 });
 
 /* ---------- toolbar ---------- */
 let qT;
 $('#q').addEventListener('input',()=>{$('#qClear').hidden=!$('#q').value;clearTimeout(qT);qT=setTimeout(()=>{S.q=$('#q').value;render();},120);});
+$('#q').addEventListener('focus',()=>document.body.classList.add('typing'));
+$('#q').addEventListener('blur',()=>document.body.classList.remove('typing'));
 $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#q').blur();}});
 $('#qClear').addEventListener('click',()=>{$('#q').value='';$('#qClear').hidden=true;S.q='';render();$('#q').focus();});
 $('#onlyOk').addEventListener('click',()=>{S.onlyOk=!S.onlyOk;$('#onlyOk').setAttribute('aria-pressed',String(S.onlyOk));render();});
@@ -546,12 +643,15 @@ function paintInfo(){
   $('#shopName').textContent=name;$('#ftName').textContent=name;document.title=name;
   const note=(i.note||'').trim();
   $('#shopNote').textContent=note;$('#shopNote').hidden=!note;$('#ftNote').textContent=note;$('#ftNote').hidden=!note;
+  $('#ftCredit').hidden=!i.credit;
   const c=$('#contact');c.hidden=!i.wa;if(i.wa)c.href='https://wa.me/'+encodeURIComponent(i.wa);
   if(!$('#lsheet').hidden)renderList();
 }
 skeleton();refreshList();
-onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:String(d.wa||'').replace(/\D/g,''),note:String(d.note||'')};paintInfo();},()=>{});
-onSnapshot(doc(db,'pub','cat'),s=>{S.err=false;S.cat=s.exists()?(s.data()||{p:{}}):{p:{}};if(!S.cat.p)S.cat.p={};render();refreshList();},()=>{S.err=true;render();});
+onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
+onSnapshot(doc(db,'pub','cat'),s=>{
+  if(!s.exists()&&s.metadata&&s.metadata.fromCache){if(!S.cat){const st=$('#state');grid.innerHTML='';st.hidden=false;st.innerHTML='<b>چاوەڕێی ئینتەرنێت…</b>کە پەیوەندی هات، کاڵاکان دەردەکەون.';}return;}
+  S.err=false;S.cat=s.exists()?(s.data()||{p:{}}):{p:{}};if(!S.cat.p)S.cat.p={};render();refreshList();},()=>{S.err=true;render();});
 </script>
 </body>
 </html>

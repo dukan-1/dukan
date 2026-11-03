@@ -567,6 +567,27 @@ button.prow:hover{background:var(--sunk)}
 .fimg-acts label.btn{cursor:pointer}
 .chip.web-off{margin-inline-start:6px;vertical-align:middle}
 .weburl{display:block;direction:ltr;text-align:left;unicode-bidi:isolate;overflow-wrap:anywhere;font-family:var(--f-num);font-size:13px;color:var(--retail);background:var(--sunk);border-radius:var(--r-sm);padding:8px 10px;text-decoration:none}
+.offbox{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.offbox .offh b{font-family:var(--f-display);font-size:15px}
+.offbar{height:8px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.offbar i{display:block;height:100%;width:0;background:var(--retail);transition:width .3s}
+.offlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-height:60vh;overflow:auto;padding:2px}
+.offi{position:relative;display:flex;flex-direction:column;gap:4px;padding:8px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg);cursor:pointer}
+.offi:has(input:checked){border-color:var(--retail);background:var(--retail-soft)}
+.offi input{position:absolute;top:8px;inset-inline-start:8px;width:20px;height:20px;accent-color:var(--retail)}
+.offi img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:6px}
+.offi .offn{font-size:13px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.offi .offs{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.wo{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.wo-h{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+.wo-h .wo-no{font-weight:700}
+.wo-h .wo-t{color:var(--muted);font-size:13px}
+.wo-h .wo-sum{margin-inline-start:auto;font-weight:700}
+.wo-who{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.wo-who a{color:inherit}
+.wo-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.wo-acts .inp{width:9em;flex:none}
+.wolist{display:flex;flex-direction:column;gap:10px}
 </style>
 <link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
 </head>
@@ -776,7 +797,8 @@ window.FIREBASE_CONFIG = {
           <button type="button" data-tr="month30" aria-pressed="false">٣٠ ڕۆژی ڕابردوو</button>
         </div>
         <div id="rtHit" class="banner ok" hidden></div>
-        <div class="panel">
+        <div id="rtOrder" hidden></div>
+        <div class="panel" id="rtListBox">
           <div class="sec-h" style="margin-bottom:4px"><h3 style="margin:0">پسوولەکان</h3><span class="muted" id="rtCount" style="font-size:13px"></span></div>
           <ul class="rt-list" id="rtList"></ul>
         </div>
@@ -823,6 +845,7 @@ window.FIREBASE_CONFIG = {
         <button type="button" class="mtile" data-go="reports"><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>ڕاپۆرت</b><span class="msub">فرۆشتن، قازانج و خەرجی</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="debtors"><span class="mi"><svg><use href="#i-people"/></svg></span><span class="mtx"><b>قەرزارەکان</b><span class="msub">کڕیارانی قەرزدار و وەرگرتنی پارە</span><span class="mnote danger" id="mnReports" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="buy"><span class="mi"><svg><use href="#i-truck"/></svg></span><span class="mtx"><b>کڕین</b><span class="msub">هاتنی کاڵا لە کۆمپانیا و قەرزی کۆمپانیاکان</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile" data-go="orders"><span class="mi"><svg><use href="#i-receipt"/></svg></span><span class="mtx"><b>داواکارییەکانی ماڵپەڕ</b><span class="msub">داواکاری کڕیاران لە ماڵپەڕەوە</span><span class="mnote warn" id="mnOrders" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="moves"><span class="mi"><svg><use href="#i-moves"/></svg></span><span class="mtx"><b>جووڵەی کۆگا</b><span class="msub">کێ، کەی و بۆچی بڕی کاڵا گۆڕا</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <button type="button" class="mtile" data-go="staff"><span class="mi"><svg><use href="#i-gear"/></svg></span><span class="mtx"><b>ڕێکخستن</b><span class="msub">شاگردەکان، یەدەگ و ناوی دوکان</span><span class="mnote" id="mnStaff" hidden></span></span><svg class="chev"><use href="#i-next"/></svg></button>
       </div>
@@ -838,6 +861,13 @@ window.FIREBASE_CONFIG = {
       <label for="dbSearch" class="sr">گەڕان بە ناوی کڕیار</label>
       <input id="dbSearch" class="inp" type="search" placeholder="گەڕان بە ناوی کڕیار" autocomplete="off">
       <div class="panel"><div id="dbList"></div></div>
+    </section>
+
+    <!-- WEBSITE ORDERS (owner) -->
+    <section id="tab-orders" class="sec" role="tabpanel" hidden>
+      <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>داواکارییەکانی ماڵپەڕ</h2></div>
+      <p class="hint" style="margin:0">کاتێک کڕیار لە ماڵپەڕ لیستەکەی بۆ WhatsApp دەنێرێت، کاڵاکان لێرە دەردەکەون و لە کۆگا کەم دەکرێنەوە. کە گەیەندرا «فرۆشرا» دابگرە تا ببێتە پسوولە؛ ئەگەر نەکڕا «گەڕاندنەوە بۆ کۆگا» دابگرە.</p>
+      <div class="wolist" id="woList"></div>
     </section>
 
     <!-- STOCK MOVES (owner) -->
@@ -975,6 +1005,16 @@ window.FIREBASE_CONFIG = {
           <p class="hint" id="dHint" style="margin:0"></p>
         </div>
         <p id="photoHint" class="hint" style="margin:0" hidden>دەستی لە کاڵایەک بدە و وێنەی بگرە. ئەوانەی وێنەیان هەیە لێرە لادەچن.</p>
+        <div id="offBox" class="offbox" hidden>
+          <div class="offh"><b>دۆزینەوەی وێنە بە بارکۆد</b><p class="hint" style="margin:4px 0 0">بارکۆدی کاڵا بێ وێنەکان لە بنکەی زانیاری جیهانیی کاڵاکان دەگەڕێت (Open Beauty Facts و Open Food Facts). پێش پاشەکەوتکردن هەموو وێنەکان دەبینیت و خۆت هەڵیاندەبژێریت. کاڵای ناوخۆیی و براندی بچووک زۆرجار لەوێ نین.</p></div>
+          <button type="button" id="offGo" class="btn primary">دەستپێکردنی گەڕان</button>
+          <div id="offProg" class="sec" style="gap:6px" hidden><div class="offbar"><i id="offBar"></i></div><p id="offText" class="hint" style="margin:0"></p><button type="button" id="offStop" class="btn ghost sm" style="align-self:flex-start">وەستاندن</button></div>
+          <div id="offRes" class="sec" style="gap:8px" hidden>
+            <p id="offSum" style="margin:0;font-size:14px"></p>
+            <div id="offList" class="offlist"></div>
+            <div class="tools"><button type="button" id="offSave" class="btn primary">پاشەکەوتکردن</button><button type="button" id="offCancel" class="btn ghost">هەڵوەشاندنەوە</button></div>
+          </div>
+        </div>
         <div id="lowTools" class="banner" hidden><span>ئەم لیستە بۆ کۆمپانیا بنێرە بۆ ئەوەی بزانن چیت پێویستە.</span><button type="button" id="lowShare" class="btn primary sm">ناردنی لیست</button></div>
         <div id="pvExcel" class="sec" hidden>
           <div class="xbtns">
@@ -1389,12 +1429,14 @@ function stopAll(){
   S.rFound=null;S.moves=[];S.mvLoaded=false;S.mvPid=null;
   S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);
   S.expenses=[];S.lastBackup=undefined;S.pview='home';
+  offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
   S.products=new Map();S.byCode=new Map();setCosts(null);S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
   S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false};
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(RT.unsub){RT.unsub();RT.unsub=null;}
   RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
+  if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.seen=new Set();
   syncLive();
 }
 function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
@@ -1434,13 +1476,14 @@ function start(){
     S.perm=staffPerm(d);applyPerms();
   },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
+  subscribeOrders();
   S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopLoaded=true;schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
     snap.docs.forEach(d=>{const p=Object.assign({},d.data(),{id:d.id});S.products.set(d.id,p);if(p.barcode)S.byCode.set(codeKey(p.barcode),d.id);});
     S.prodLoaded=true;markSync(snap.metadata);
     renderCart();if(S.tab==='products')renderProducts();if(S.tab==='buy')renderBuy();updateNoCode();if(!$('#picker').hidden)renderPicker();updateBackupUI();
-    schedulePubSync();renderWeb();
+    schedulePubSync();renderWeb();holdPending();
   },onErr));
   if(owner){
     // The public copy of the catalogue that the website reads.
@@ -1466,14 +1509,15 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab==='products')S.pview='home';showTab(b.dataset.tab);}));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves','orders'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   if(t==='ret'&&!(S.role==='owner'||S.perm.ret))t='sell';
   S.tab=t;
   // Reports, purchases and settings open from the management page, so its tab stays lit for them.
-  const navKey=['reports','buy','staff','debtors','moves'].includes(t)?'menu':(t==='ret'?'sell':t);
+  const navKey=['reports','buy','staff','debtors','moves','orders'].includes(t)?'menu':(t==='ret'?'sell':t);
   $$('.nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===navKey)));
-  ['sell','buy','mine','products','reports','staff','menu','debtors','moves','ret'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  ['sell','buy','mine','products','reports','staff','menu','debtors','moves','ret','orders'].forEach(k=>{$('#tab-'+k).hidden=(k!==t);});
+  if(t==='orders')renderOrders();
   // Receipts for returns are only read while the returns page is open.
   if(t==='ret'){subscribeRet();renderRet();if(fine&&!RT.ref&&!RT.noRef)setTimeout(()=>$('#rtQ').focus(),0);}
   else if(RT.unsub){RT.unsub();RT.unsub=null;RT.key='';RT.loaded=false;}
@@ -2165,7 +2209,7 @@ function buildRef(s){
   return {id:s.id,at:s.at,mode:s.mode==='wholesale'?'wholesale':'retail',customer:s.customer||'',seller:s.sellerName||'',debt:debtOf(s),lines:m};
 }
 function rtLeft(s){let n=0;for(const v of buildRef(s).lines.values())n+=v.max;return rq(n);}
-function rtReset(){RT.ref=null;RT.noRef=false;RT.lines=[];RT.mode='retail';$('#rtQ').value='';$('#rtScan').value='';$('#rtCust').value='';}
+function rtReset(){RT.ref=null;RT.noRef=false;RT.lines=[];RT.mode='retail';RT.order=null;$('#rtOrder').hidden=true;$('#rtQ').value='';$('#rtScan').value='';$('#rtCust').value='';}
 function openReturn(s){
   if(!(S.role==='owner'||S.perm.ret))return;
   if(s){rtReset();showTab('ret');selectReceipt(s);return;}
@@ -2216,7 +2260,7 @@ function renderRet(){
   $('#rtFind').hidden=work;$('#rtWork').hidden=!work;
   if(work){renderRtWork();return;}
   setPressed('#rtRanges','data-tr',RT.range);
-  $('#rtNoRef').hidden=S.role!=='owner';
+  $('#rtNoRef').hidden=S.role!=='owner'||!!RT.order;$('#rtListBox').hidden=!!RT.order;
   const ul=$('#rtList'),hit=$('#rtHit');
   if(!RT.loaded){ul.innerHTML='<li class="empty">بار دەکرێت…</li>';$('#rtCount').textContent='';hit.hidden=true;return;}
   const {list,prod,code,raw,qn}=rtMatches(),longer=RT.range!=='month30'?' ماوەی درێژتر هەڵبژێرە.':'';
@@ -2242,7 +2286,11 @@ async function rtSubmit(){
 async function fetchReceipt(id){
   try{
     const snap=await getDoc(doc(db,'sales',id));
-    if(!snap.exists()){rtBeep(false);toast('هیچ پسوولەیەک بەم ژمارەیە نییە.','error');return;}
+    if(!snap.exists()){
+      // Not a receipt: maybe the code of an order from the website.
+      const os=await getDoc(doc(db,'orders',id)).catch(()=>null);
+      if(os&&os.exists()){showRtOrder(Object.assign({},os.data(),{id:id}));return;}
+      rtBeep(false);toast('هیچ پسوولە یان داواکارییەک بەم ژمارەیە نییە.','error');return;}
     selectReceipt(Object.assign({},snap.data(),{id:id}));
   }catch(e){toast(e&&e.code==='permission-denied'?'ڕێگەت نییە ئەم پسوولەیە ببینیت.':errMsg(e),'error');}
 }
@@ -2349,7 +2397,7 @@ $('#retOpen').addEventListener('click',()=>{unlockAudio();openReturn(null);});
 $('#rtBack').addEventListener('click',()=>showTab('sell'));
 $('#rtChange').addEventListener('click',()=>{rtReset();renderRet();if(fine)$('#rtQ').focus();});
 $('#rtNoRef').addEventListener('click',()=>{if(S.role!=='owner')return;RT.ref=null;RT.noRef=true;RT.lines=[];RT.mode='retail';renderRet();});
-$('#rtQ').addEventListener('input',renderRet);
+$('#rtQ').addEventListener('input',()=>{if(RT.order){RT.order=null;$('#rtOrder').hidden=true;}renderRet();});
 $('#rtQ').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rtSubmit();}});
 $('#rtRanges').addEventListener('click',e=>{const b=e.target.closest('[data-tr]');if(!b)return;RT.range=b.dataset.tr;subscribeRet();renderRet();});
 $('#rtList').addEventListener('click',e=>{const b=e.target.closest('[data-rt]');if(!b||b.disabled)return;const s=RT.list.find(x=>x.id===b.dataset.rt);if(!s)return;
@@ -2379,6 +2427,136 @@ $('#rtLines').addEventListener('change',e=>{
 });
 $('#rtLines').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.qty input')){e.preventDefault();e.target.blur();}});
 $('#rtFinish').addEventListener('click',rtFinish);
+
+/* ================= orders from the website ================= */
+// The website writes orders/{code} with status 'new'. The first shop phone that sees it takes the items out of
+// stock (status 'held'); the rules allow that step only once, so stock is never taken twice. A held order then
+// becomes a receipt when it is delivered ('sold', stock already out) or goes back into stock ('returned').
+const WO={list:[],unsub:null,first:true,seen:new Set(),busy:new Set(),chain:Promise.resolve()};
+const WO_MAX_LINES=40,WO_MAX_QTY=50;
+function subscribeOrders(){
+  if(WO.unsub)return;
+  WO.unsub=onSnapshot(query(collection(db,'orders'),where('status','in',['new','held'])),snap=>{
+    WO.list=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id})).sort((a,b)=>(b.at||0)-(a.at||0));
+    // A new order on any phone is announced on the owner's phone (but not the ones already there at start).
+    for(const o of WO.list){if(WO.first)WO.seen.add(o.id);else if(o.status==='held'&&!WO.seen.has(o.id)){WO.seen.add(o.id);if(S.role==='owner')announceOrder(o);}}
+    WO.first=false;
+    holdPending();renderMenu();renderOrders();
+  },()=>{});
+}
+function announceOrder(o){
+  beep(true);
+  toast('داواکاری نوێ لە ماڵپەڕ: '+fmtNo(o.id)+' · '+fmt((o.lines||[]).length)+' کاڵا · '+fmt(o.sum||0)+' د.ع','info',{label:'بینین',fn:()=>showTab('orders')});
+}
+// One order at a time, so two orders that arrive together do not both take the same last items.
+function holdPending(){
+  if(!S.prodLoaded||!navigator.onLine)return;
+  for(const o of WO.list)if(o.status==='new'&&!WO.busy.has(o.id)){WO.busy.add(o.id);WO.chain=WO.chain.then(()=>holdOrder(o.id)).catch(()=>{});}
+}
+// What the customer asked for, checked against today's products, prices and stock (the website's own figures are not
+// trusted): no more is taken than the shop has; what was missing is kept to show the owner.
+function orderLines(o){
+  const m=new Map();
+  for(const it of (Array.isArray(o.items)?o.items:[]).slice(0,WO_MAX_LINES)){
+    const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it.q)||0)));
+    if(!p||!n||p.web===false)continue;
+    const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:Number(p.retail)||0};
+    l.want=Math.min(WO_MAX_QTY,l.want+n);m.set(p.id,l);
+  }
+  const lines=[],miss=[];
+  for(const l of m.values()){
+    const p=S.products.get(l.pid),have=Math.max(0,Math.floor(typeof p.stock==='number'?p.stock:0));
+    l.qty=Math.min(l.want,have);
+    if(!l.qty){miss.push({pid:l.pid,name:l.name,want:l.want});continue;}
+    if(l.want===l.qty)delete l.want;
+    lines.push(l);
+  }
+  lines.miss=miss;return lines;
+}
+async function holdOrder(id){
+  try{
+    const o=WO.list.find(x=>x.id===id);if(!o||o.status!=='new'||!S.user)return;   // meanwhile taken by another phone
+    const lines=orderLines(o),miss=lines.miss,b=writeBatch(db),ref=doc(db,'orders',id),sum=lines.reduce((a,l)=>a+l.qty*l.price,0);
+    if(!lines.length)b.update(ref,{status:'returned',retAt:Date.now(),retBy:S.user.uid,why:'empty',miss:miss});
+    else{
+      addStock(b,new Map(lines.map(l=>[l.pid,-l.qty])),'web',id);
+      b.update(ref,{status:'held',heldAt:Date.now(),heldBy:S.user.uid,lines:lines.slice(),miss:miss,sum:sum});
+    }
+    WO.seen.add(id);   // this phone tells the owner itself, below, not when the change comes back
+    // Another phone may have been first: then the rules refuse this one and nothing changes.
+    // A very slow line does not hold up the next order.
+    await Promise.race([b.commit(),sleep(8000)]);
+    if(lines.length&&S.role==='owner')announceOrder(Object.assign({},o,{lines,sum}));
+  }catch(_){WO.seen.delete(id);}
+  finally{WO.busy.delete(id);}
+}
+// One tap: everything in the order goes back into stock.
+async function returnOrder(o,btn){
+  if(btn)busy(btn,true,'دەگەڕێندرێتەوە…');
+  try{
+    const b=writeBatch(db);
+    if(o.status==='held'&&Array.isArray(o.lines)&&o.lines.length)addStock(b,new Map(o.lines.map(l=>[l.pid,Number(l.qty)||0])),'webReturn',o.id);
+    b.update(doc(db,'orders',o.id),{status:'returned',retAt:Date.now(),retBy:S.user.uid});
+    await commitSoft(b.commit());
+    const n=(o.lines||[]).reduce((a,l)=>a+(Number(l.qty)||0),0);
+    toast(o.status==='held'?(fmt(n)+' دانەی داواکاری '+fmtNo(o.id)+' گەڕانەوە ناو کۆگا.'):('داواکاری '+fmtNo(o.id)+' هەڵوەشێنرایەوە.'));
+    return true;
+  }catch(e){toast(errMsg(e),'error');return false;}
+  finally{if(btn&&btn.isConnected)busy(btn,false);}
+}
+// Delivered and paid: the order becomes an ordinary receipt with the same number; stock is already out.
+async function sellOrder(o,paidRaw,btn){
+  const lines=Array.isArray(o.lines)?o.lines:[];if(o.status!=='held'||!lines.length)return;
+  const sub=lines.reduce((a,l)=>a+l.qty*l.price,0),paid=paidRaw===''?sub:Math.min(sub,Math.max(0,parseNum(paidRaw))),debt=Math.round(Math.max(0,sub-paid));
+  const customer=String(o.name||'').trim()||(o.phone?String(o.phone):'');
+  if(debt>0&&!customer){toast('بۆ فرۆشتنی بە قەرز ناوی کڕیار پێویستە.','error');return;}
+  busy(btn,true,'تۆمار دەکرێت…');
+  try{
+    let id=o.id;try{if((await getDoc(doc(db,'sales',id))).exists())id=genNo();}catch(_){id=genNo();}
+    const now=Date.now(),b=writeBatch(db);
+    b.set(doc(db,'sales',id),{at:now,day:dayKey(now),mode:'retail',customer:customer,items:lines.map(l=>({pid:l.pid,name:l.name,barcode:l.barcode||'',qty:l.qty,price:l.price})),
+      sub:sub,discount:0,total:sub,paid:paid,debt:debt,seller:S.user.uid,sellerName:S.myName,void:false,ts:serverTimestamp(),web:o.id,phone:String(o.phone||'')});
+    b.update(doc(db,'orders',o.id),{status:'sold',soldAt:now,soldBy:S.user.uid,sale:id});
+    await commitSoft(b.commit());
+    toast('داواکاری '+fmtNo(o.id)+' بوو بە پسوولەی '+fmtNo(id)+' · '+fmt(sub)+' د.ع'+(debt?' (قەرز: '+fmt(debt)+')':''));
+  }catch(e){toast(errMsg(e),'error');}
+  finally{if(btn.isConnected)busy(btn,false);}
+}
+function orderCard(o,where){
+  const lines=o.status==='held'?(o.lines||[]):orderLines(o),sum=o.status==='held'?(o.sum||0):lines.reduce((a,l)=>a+l.qty*l.price,0);
+  const who=[o.name,o.phone?'<a href="tel:'+esc(normDigits(o.phone).replace(/[^\d+]/g,''))+'" class="num">'+esc(o.phone)+'</a>':'',o.addr].filter(Boolean).map(x=>x.startsWith&&x.startsWith('<a')?x:esc(x)).join(' · ');
+  const st=o.status==='new'?'<span class="chip warn">هێشتا لە کۆگا کەم نەکراوەتەوە</span>':o.status==='held'?'<span class="chip m-retail">لە کۆگا کەمکراوە</span>':o.status==='sold'?'<span class="chip ok">فرۆشرا</span>':'<span class="chip">گەڕێندراوەتەوە</span>';
+  const open=o.status==='held'||o.status==='new';
+  return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
+    (who?'<div class="wo-who">'+who+'</div>':'')+(o.note?'<div class="wo-who">تێبینی: '+esc(o.note)+'</div>':'')+
+    '<div>'+lines.map(l=>'<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>').join('')+'</div>'+
+    ((o.status==='held'?o.miss:lines.miss)&&(o.status==='held'?o.miss:lines.miss).length?'<div class="wo-who">لە کۆگا نەبوو: '+(o.status==='held'?o.miss:lines.miss).map(x=>esc(x.name)+' ('+fmt(x.want)+')').join('، ')+'</div>':'')+
+    (open?'<div class="wo-acts">'+
+      (where==='orders'&&o.status==='held'?'<label class="sr" for="wp-'+esc(o.id)+'">پارەی وەرگیراو</label><input id="wp-'+esc(o.id)+'" class="inp num-in" inputmode="decimal" placeholder="'+esc(fmt(sum))+'" autocomplete="off"><button type="button" class="btn primary sm" data-wsell>فرۆشرا</button>':'')+
+      '<button type="button" class="btn danger sm" data-wret>گەڕاندنەوەی هەمووی بۆ کۆگا</button></div>':'')+'</div>';
+}
+function renderOrders(){
+  if(S.tab!=='orders')return;
+  const list=WO.list.filter(o=>o.status==='held'||o.status==='new');
+  $('#woList').innerHTML=list.length?list.map(o=>orderCard(o,'orders')).join(''):'<div class="empty"><b>هیچ داواکارییەکی چاوەڕوان نییە</b>کاتێک کڕیار لە ماڵپەڕ داواکاری بنێرێت، لێرە دەردەکەوێت.</div>';
+}
+function findOrder(id){return WO.list.find(o=>o.id===id)||(RT.order&&RT.order.id===id?RT.order:null);}
+$('#woList').addEventListener('click',e=>{
+  const card=e.target.closest('[data-wo]');if(!card)return;const o=findOrder(card.dataset.wo);if(!o)return;
+  const sb=e.target.closest('[data-wsell]');if(sb){sellOrder(o,card.querySelector('input').value.trim(),sb);return;}
+  const rb=e.target.closest('[data-wret]');if(rb)arm(rb,'دڵنیایت؟ دووبارە دابگرە',()=>returnOrder(o,rb));
+});
+// The returns page shows an order found by its code, with the one-tap way back into stock.
+function showRtOrder(o){
+  if(o.status==='sold'&&o.sale){RT.order=null;$('#rtOrder').hidden=true;fetchReceipt(o.sale);return;}
+  RT.order=o;const box=$('#rtOrder');box.hidden=false;renderRet();
+  box.innerHTML='<p class="hint" style="margin:0 0 6px">داواکاری ماڵپەڕ:</p>'+orderCard(o,'ret')+(o.status==='returned'?'<p class="hint" style="margin:6px 0 0">ئەم داواکارییە پێشتر گەڕێندراوەتەوە.</p>':'');
+}
+$('#rtOrder').addEventListener('click',async e=>{
+  const rb=e.target.closest('[data-wret]');if(!rb||!RT.order)return;
+  const o=WO.list.find(x=>x.id===RT.order.id)||RT.order;
+  if(await returnOrder(o,rb)){RT.order=null;$('#rtOrder').hidden=true;$('#rtQ').value='';renderRet();rtBeep(true);}
+});
 
 /* ================= my sales (staff) ================= */
 function subscribeMine(){
@@ -2537,7 +2715,7 @@ function renderProducts(){
     return;
   }
   $('#pvTitle').textContent=PV_TITLES[v]||'';
-  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#photoHint').hidden=v!=='photo';$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
+  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#photoHint').hidden=v!=='photo';$('#offBox').hidden=v!=='photo';if(v==='photo')paintOff();$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
   $('#pKindCost').hidden=!seeCost;if(!seeCost&&S.priceKind==='cost')S.priceKind='any';
   $('#dKindCost').hidden=!seeCost;if(!seeCost&&S.dupPrice==='cost')S.dupPrice='retail';
   setPressed('#pKinds','data-k',S.priceKind);setPressed('#pSort','data-s',S.priceSort);
@@ -2635,7 +2813,7 @@ function openSheet(id,preset,addAfter){
   F.stock.closest('.field').hidden=!p&&!!addAfter&&S.addTarget==='buy';
   $('#sheetTitle').textContent=p?'دەستکاریکردنی کاڵا':'کاڵای نوێ';
   F.bc.value=p?(p.barcode||''):((preset&&preset.barcode)||'');
-  F.name.value=p?p.name:'';F.cost.value=p?plain(costOf(id)):'';F.stock.value=p?plain(p.stock):'';
+  F.name.value=p?p.name:'';F.cost.value=p?plain(costOf(id)):'';F.stock.value=p?plain(p.stock):'';S.formStock=p?p.stock:null;
   F.wh.value=p?plain(p.wholesale):'';F.rt.value=p?plain(p.retail):'';
   F.min.value=p&&typeof p.minStock==='number'?String(p.minStock):'';
   Object.values(F).forEach(i=>i.classList.remove('bad'));
@@ -2643,7 +2821,7 @@ function openSheet(id,preset,addAfter){
   resetImg();$('#fWeb').checked=!(p&&p.web===false);
   if(p&&p.imgV){
     FI.loading=true;paintImg();const want=id;
-    getDoc(doc(db,'pimg',id)).then(sn=>{if(S.editing!==want||FI.changed)return;FI.data=sn.exists()?(sn.data().d||null):null;}).catch(()=>{}).finally(()=>{if(S.editing===want){FI.loading=false;paintImg();}});
+    getDoc(doc(db,'pimg',id)).then(sn=>{if(S.editing!==want||FI.changed)return;FI.data=sn.exists()?(sn.data().d||sn.data().u||null):null;}).catch(()=>{}).finally(()=>{if(S.editing===want){FI.loading=false;paintImg();}});
   }
   $('#sheet').hidden=false;updateMargins();syncLive();
   setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
@@ -2725,6 +2903,8 @@ $('#pForm').addEventListener('submit',async e=>{
   if(F.stock.closest('.field').hidden)data.stock=0;
   const id=S.editing||newId(),after=S.addAfterSave,wasEdit=!!S.editing;
   const prev=S.editing?S.products.get(S.editing):null;
+  // Stock left as it was shown: keep today's number, which may have moved by a sale while the form was open.
+  if(prev&&!F.stock.closest('.field').hidden&&F.stock.value.trim()===plain(S.formStock))data.stock=typeof prev.stock==='number'?prev.stock:0;
   data.createdBy=(prev&&prev.createdBy)||S.user.uid;
   // A stock number changed in the form is logged like any other change, with the difference it made.
   const oldStock=prev&&typeof prev.stock==='number'?prev.stock:0,dStock=rq(data.stock-oldStock);
@@ -2733,6 +2913,7 @@ $('#pForm').addEventListener('submit',async e=>{
   if(FI.loading)return formErr('وێنەکە هێشتا بار دەکرێت، چەند چرکەیەک چاوەڕێ بکە.');
   const imgV=FI.changed?(FI.data?Date.now():0):((prev&&Number(prev.imgV))||0);
   if(imgV)data.imgV=imgV;
+  if(imgV&&!FI.changed&&prev&&prev.imgS)data.imgS=prev.imgS;
   busy($('#fSave'),true,'پاشەکەوت دەکرێت…');
   try{
     const b=writeBatch(db);
@@ -2818,7 +2999,7 @@ $('#importGo').addEventListener('click',async()=>{
       for(const it of items.slice(i,i+200)){
         const ex=it.barcode?S.byCode.get(codeKey(it.barcode)):null;const id=ex||newId();
         const prevP=ex?S.products.get(ex):null;
-        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.web===false?{web:false}:{})};
+        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.imgV&&prevP.imgS?{imgS:prevP.imgS}:{}),...(prevP&&prevP.web===false?{web:false}:{})};
         const from=prevP&&typeof prevP.stock==='number'?prevP.stock:0,d=rq(it.stock-from);
         if(d)moved.push({pid:id,name:it.name,delta:d,from:from});
         else if(prevP&&prevP.lastMove){pd.lastMove=prevP.lastMove;pd.lastBy=prevP.lastBy||'';}
@@ -3167,6 +3348,221 @@ $('#sExport').addEventListener('click',()=>{
   saveCsv('sales_'+(S.range==='debts'?'debts':rangeBounds(S.range).join('_'))+'.csv',rows);
 });
 
+/* ================= photos found by barcode ================= */
+// Open Beauty Facts and Open Food Facts are free, open product databases. Their photos are shared under
+// CC BY-SA, so the website credits them.
+// Their published limits are 10 searches and 15 product reads a minute per address, and going over can get the
+// address banned. So barcodes are asked for 20 at a time in one search per database, with at least 6.5 seconds
+// between calls to either database; one-by-one reads (only when a search cannot be used) wait 4.5 seconds.
+const OFF_HOSTS=['https://world.openbeautyfacts.org','https://world.openfoodfacts.org'];
+const OFF_FIELDS='code,product_name,brands,image_front_url,image_url,selected_images';
+const OFF_CHUNK=20,OFF_GAP=6600,OFF_GAP1=4600;
+const OFF={run:0,busy:false,done:0,total:0,found:[],ready:false,last:0,reach:0,fail:0,stopped:false,wait:'',t0:0,saving:false,drawn:'',lock:null};
+// The databases keep barcodes normalised: leading zeros dropped, then up to 7 digits padded to 8, and 9 to 12 digits to 13.
+function offNorm(c){c=c.replace(/^0+/,'');return c.length<=7?c.padStart(8,'0'):c.length<=12?c.padStart(13,'0'):c;}
+// Shop-made codes (in-store, weighed-goods and company-only ranges) belong to unrelated products in the databases.
+function offInternal(n){return n.length===13?/^(2|0[24])/.test(n):n.length===8&&/^[02]/.test(n);}
+function offCandidates(){return Array.from(S.products.values()).filter(p=>{const c=codeKey(p.barcode||'');return p.web!==false&&!p.imgV&&/^\d{8,14}$/.test(c)&&!offInternal(offNorm(c));});}
+// Still worth a photo from the databases: not deleted, not hidden, no photo yet and the same barcode as when it was looked up.
+function offStill(pid,code){const p=S.products.get(pid);return !!p&&!p.imgV&&p.web!==false&&codeKey(p.barcode||'')===code;}
+async function offWait(gap,run){
+  for(;;){if(run!==OFF.run)return false;const t=OFF.last+gap-Date.now();if(t<=0)break;await sleep(Math.min(t,1000));}
+  OFF.last=Date.now();return true;
+}
+// iOS stops a web app that is in the background or behind a locked screen, and its calls in flight fail.
+// So the search waits while the app is hidden or offline and carries on when it is back.
+async function offReady(run){
+  let w=false;const t=Date.now();
+  while(run===OFF.run&&(document.hidden||!navigator.onLine)){if(!w&&!navigator.onLine){w=true;OFF.wait='net';paintOff();}await sleep(1000);}
+  OFF.t0+=Date.now()-t;   // waiting is not part of the pace used for the time left
+  if(w&&run===OFF.run){OFF.wait='';paintOff();}
+  return run===OFF.run;
+}
+// One call with a time limit. A lost connection or a busy server (429, 5xx) is tried again after a longer wait each
+// time, never counted as "not in the database". Returns {j} (JSON), {miss} (404), {bad} (any other answer), or null
+// when it could not be done.
+async function offGet(url,gap,run){
+  for(let a=0;;a++){
+    if(!await offWait(gap,run)||!await offReady(run))return null;
+    const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000);let r=null,j;
+    try{r=await fetch(url,{signal:ac.signal});if(r.ok)j=await r.json();}catch(_){if(r&&r.ok)r=null;}
+    finally{clearTimeout(tm);}
+    if(run!==OFF.run)return null;
+    if(r&&r.ok){OFF.reach++;return {j:j};}
+    if(r&&r.status===404){OFF.reach++;return {miss:true};}
+    const busyErr=r&&(r.status===429||r.status>=500);
+    if(r&&!busyErr){OFF.reach++;return {bad:true};}
+    if(a>=3)return null;
+    OFF.wait=busyErr?'busy':'net';paintOff();
+    const t=Date.now(),until=t+(busyErr?[20,60,120]:[3,10,30])[a]*1000;
+    while(run===OFF.run&&Date.now()<until)await sleep(1000);
+    if(run!==OFF.run)return null;
+    OFF.t0+=Date.now()-t;OFF.wait='';paintOff();
+  }
+}
+// The front photo: in the product's own language, or failing that the front photo chosen in any language.
+function offPic(p){
+  let u=p&&(p.image_front_url||p.image_url);
+  const sel=p&&p.selected_images&&p.selected_images.front&&p.selected_images.front.display;
+  if(!u&&sel&&typeof sel==='object')u=sel.en||Object.values(sel).find(x=>typeof x==='string');
+  if(typeof u!=='string')return null;
+  u=u.replace(/^http:\/\//,'https://');
+  // Only the databases' own photo servers (the rules accept nothing else for a kept address).
+  return u.length<600&&/^https:\/\/(images|static)\.open(food|beauty|products|petfood)facts\.org\/\S+$/.test(u)?u:null;
+}
+function offHit(p){const u=offPic(p);return u?{url:u,src:[p.brands,p.product_name].filter(x=>typeof x==='string'&&x).join(' · ')}:null;}
+// Barcodes (normalised) → photos found in one database. null: the database could not be reached.
+async function offSearch(h,codes,run){
+  const out=new Map();
+  const r=await offGet(h+'/api/v2/search?code='+codes.join(',')+'&fields='+OFF_FIELDS+'&page_size='+(codes.length*2),OFF_GAP,run);
+  if(!r)return null;
+  const ps=r.j&&Array.isArray(r.j.products)?r.j.products:null;
+  if(ps){
+    for(const p of ps){const n=offNorm(String((p&&p.code)||'').replace(/\D/g,'')),hit=offHit(p);if(hit&&codes.includes(n)&&!out.has(n))out.set(n,hit);}
+    if(!((Number(r.j.count)||0)>ps.length))return out;
+  }
+  // The search was refused or answered only in part: the rest are read one by one, more slowly.
+  for(const n of codes){
+    if(out.has(n))continue;
+    const one=await offGet(h+'/api/v2/product/'+n+'.json?fields='+OFF_FIELDS,OFF_GAP1,run);
+    if(!one)return null;
+    const p=one.j&&one.j.status===1?one.j.product:null,hit=p&&offHit(p);
+    if(hit)out.set(n,hit);
+  }
+  return out;
+}
+// The photo is copied into the shop like a phone photo; if the server does not allow that, its address is kept instead.
+async function offImage(url){
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000);let r;
+  try{r=await fetch(url,{mode:'cors',signal:ac.signal});}catch(_){clearTimeout(tm);return {u:url};}
+  try{if(!r.ok)return r.status>=500?{u:url}:null;return {d:await shrinkImage(await r.blob())};}
+  catch(_){return {u:url};}
+  finally{clearTimeout(tm);}
+}
+// Keeps the screen on during a search, so the phone does not lock and stop it.
+async function offLock(on){
+  try{
+    if(!on){const l=OFF.lock;OFF.lock=null;if(l&&!l.released)await l.release();return;}
+    if(OFF.lock&&OFF.lock.released)OFF.lock=null;
+    if(!OFF.busy||OFF.lock||document.hidden||!navigator.wakeLock)return;
+    const l=await navigator.wakeLock.request('screen');
+    if(OFF.busy&&!OFF.lock)OFF.lock=l;else l.release();
+  }catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&OFF.busy)offLock(true);});
+async function offRun(){
+  if(S.role!=='owner'||OFF.busy)return;
+  if(!navigator.onLine){toast('بۆ گەڕان ئینتەرنێت پێویستە.','error');return;}
+  const list=offCandidates();
+  if(!list.length){toast('هیچ کاڵایەکی بێ وێنە بە بارکۆدەوە نییە.');return;}
+  const run=++OFF.run;Object.assign(OFF,{busy:true,done:0,total:list.length,found:[],ready:false,reach:0,fail:0,stopped:false,wait:'',t0:Date.now(),drawn:''});
+  offLock(true);paintOff();
+  const pics=new Map();   // two products with one barcode share one download
+  for(let i=0;i<list.length;i+=OFF_CHUNK){
+    const part=list.slice(i,i+OFF_CHUNK),left=new Map();
+    // Products that got a photo, were hidden, deleted or given another barcode since the start are skipped.
+    for(const p of part){const c=codeKey(p.barcode||'');if(!offStill(p.id,c)){OFF.done++;continue;}const n=offNorm(c);if(!left.has(n))left.set(n,[]);left.get(n).push(p);}
+    let lost=false;
+    for(const h of OFF_HOSTS){
+      if(!left.size)break;
+      const hits=await offSearch(h,Array.from(left.keys()),run);
+      if(run!==OFF.run)return;
+      if(!hits){lost=true;break;}
+      for(const [n,hit] of hits){
+        const ps=left.get(n);if(!ps)continue;left.delete(n);
+        let im=pics.get(hit.url);
+        if(im===undefined){im=await offImage(hit.url);if(run!==OFF.run)return;pics.set(hit.url,im);}
+        for(const p of ps){OFF.done++;const c=codeKey(p.barcode||'');if(im&&offStill(p.id,c))OFF.found.push(Object.assign({pid:p.id,name:S.products.get(p.id).name,barcode:p.barcode,code:c,src:hit.src,on:true},im));}
+        paintOff();
+      }
+    }
+    // A database that could not be reached even after waiting ends the search; what was not checked stays for next time.
+    if(lost){OFF.fail=OFF.total-OFF.done;break;}
+    for(const ps of left.values())OFF.done+=ps.length;   // in neither database
+    paintOff();
+  }
+  OFF.busy=false;OFF.ready=true;OFF.wait='';offLock(false);paintOff();
+  if(S.tab!=='products'||S.pview!=='photo')toast('گەڕانی وێنە تەواو بوو: '+fmt(OFF.found.length)+' وێنە دۆزرایەوە.','info',{label:'بینین',fn:()=>{showTab('products');openPView('photo');}});
+}
+function offReset(){OFF.run++;Object.assign(OFF,{busy:false,done:0,total:0,found:[],ready:false,reach:0,fail:0,stopped:false,wait:'',drawn:''});offLock(false);paintOff();}
+function offSaveLabel(){
+  const on=OFF.found.filter(f=>f.on&&offStill(f.pid,f.code)).length,b=$('#offSave');
+  b.disabled=!on;b.textContent=on?('پاشەکەوتکردنی '+fmt(on)+' وێنە'):'هیچ وێنەیەک هەڵنەبژێردراوە';
+}
+function paintOff(){
+  if(S.tab!=='products'||S.pview!=='photo')return;
+  const idle=!OFF.busy&&!OFF.ready;
+  $('#offGo').hidden=!idle;$('#offProg').hidden=!OFF.busy;$('#offRes').hidden=!OFF.ready;
+  if(idle){const n=offCandidates().length;$('#offGo').disabled=!n;$('#offGo').textContent=n?('گەڕان بۆ '+fmt(n)+' کاڵا'):'هیچ کاڵایەکی بێ وێنە بە بارکۆدەوە نییە';}
+  if(OFF.busy){
+    $('#offBar').style.width=(OFF.total?Math.round(OFF.done/OFF.total*100):0)+'%';
+    // Time left: the planned calls, or the pace so far if that is slower (photos to download, waits).
+    const rem=OFF.total-OFF.done,plan=Math.ceil(rem/OFF_CHUNK)*OFF_HOSTS.length*OFF_GAP,pace=OFF.done?(Date.now()-OFF.t0)/OFF.done*rem:0;
+    const left=rem>0?Math.max(1,Math.ceil(Math.max(plan,pace)/60000)):0;
+    const st=OFF.wait==='net'?'پەیوەندی بە ئینتەرنێتەوە نییە، چاوەڕێ دەکرێت و دووبارە هەوڵ دەدرێتەوە.':OFF.wait==='busy'?'بنکەی زانیارییەکە قەرەباڵغە، کەمێک چاوەڕێ دەکرێت.':(left?'نزیکەی '+fmt(left)+' خولەکی ماوە.':'');
+    $('#offText').textContent='پشکنینی '+fmt(OFF.done)+' لە '+fmt(OFF.total)+'، '+fmt(OFF.found.length)+' وێنە دۆزرایەوە. '+st+
+      ' ئەپەکە کراوە بهێڵەوە: ئەگەر شاشەکە قفڵ بوو یان چوویتە ئەپێکی تر، گەڕانەکە ڕادەوەستێت و کە گەڕایتەوە بەردەوام دەبێت. دەتوانیت لەم کاتەدا بفرۆشیت.';
+  }
+  if(OFF.ready){
+    const n=OFF.found.length;let t;
+    if(!OFF.reach&&OFF.fail)t='نەتوانرا پەیوەندی بە بنکەی زانیارییەکانەوە بکرێت. ئینتەرنێتەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
+    else{
+      t=OFF.stopped?'گەڕانەکە وەستێنرا دوای پشکنینی '+fmt(OFF.done)+' لە '+fmt(OFF.total)+' کاڵا. ':'';
+      if(n)t+='بۆ '+fmt(n)+' کاڵا لە '+fmt(OFF.done)+' وێنە دۆزرایەوە. ئەوانەی هەڵە یان ناشیرینن لابدە، پاشان پاشەکەوتیان بکە.';
+      else if(OFF.done)t+='بۆ هیچ کام لە '+fmt(OFF.done)+' کاڵاکە وێنە نەدۆزرایەوە. ئەم کاڵایانە لە بنکەی زانیارییەکاندا نین؛ وێنەیان بە مۆبایل بگرە.';
+      if(OFF.fail)t+=' '+fmt(OFF.fail)+' کاڵا نەپشکنران چونکە پەیوەندی پچڕا؛ دواتر دووبارە بگەڕێ.';
+    }
+    $('#offSum').textContent=t;
+    // Drawn again only when the set changes (a product got a photo elsewhere, was deleted…), so ticks,
+    // scrolling and the decoded photos survive the many repaints while the shop is selling.
+    const live=[];OFF.found.forEach((f,i)=>{if(offStill(f.pid,f.code))live.push(i);});
+    const key=live.join(',');
+    if(key!==OFF.drawn){
+      const L=$('#offList'),y=L.scrollTop;OFF.drawn=key;
+      L.innerHTML=live.map(i=>{const f=OFF.found[i];return '<label class="offi"><input type="checkbox" data-off="'+i+'"'+(f.on?' checked':'')+' aria-label="'+esc(f.name)+'">'+
+        '<img alt="" loading="lazy" decoding="async" src="'+esc(f.d||f.u)+'"><span class="offn">'+esc(f.name)+'</span><span class="offs">'+esc(f.src||'')+' <span class="num">'+esc(f.barcode||'')+'</span></span></label>';}).join('');
+      L.scrollTop=y;
+    }
+    $('#offSave').hidden=!live.length;
+    if(!OFF.saving)offSaveLabel();
+    $('#offCancel').textContent=live.length?'هەڵوەشاندنەوە':'داخستن';$('#offCancel').disabled=OFF.saving;
+  }
+}
+async function offSave(){
+  if(OFF.saving)return;
+  const pick=OFF.found.filter(f=>f.on&&offStill(f.pid,f.code));
+  if(!pick.length){offReset();return;}
+  // While saving, the products listener repaints this box after every batch; OFF.saving keeps the button busy.
+  OFF.saving=true;const btn=$('#offSave');busy(btn,true,'پاشەکەوت دەکرێت…');$('#offCancel').disabled=true;
+  let sent=0,pending=false;
+  try{
+    const now=Date.now();
+    for(let i=0;i<pick.length;i+=20){
+      const b=writeBatch(db),ch={},part=pick.slice(i,i+20);
+      part.forEach((f,k)=>{
+        const v=now+i+k;
+        b.set(doc(db,'pimg',f.pid),Object.assign(f.d?{d:f.d}:{u:f.u},{v:v,s:'off'}));
+        b.update(doc(db,'products',f.pid),{imgV:v,imgS:'off'});
+        ch[f.pid]=pubWanted(Object.assign({},S.products.get(f.pid),{imgV:v}))||deleteField();
+      });
+      b.set(doc(db,'pub','cat'),{p:ch,upd:serverTimestamp()},{merge:true});
+      if(await commitSoft(b.commit())==='pending')pending=true;
+      sent+=part.length;
+    }
+    OFF.saving=false;offReset();
+    toast(fmt(sent)+' وێنە پاشەکەوت کران'+(pending?'. کە ئینتەرنێت هاتەوە دەنێردرێن و لە ماڵپەڕەکە دەردەکەون.':' و لە ماڵپەڕەکە دەرکەوتن.'));
+  }catch(e){
+    // What was saved leaves the list; the rest stays ticked for another try.
+    toast((sent?fmt(sent)+' وێنە پاشەکەوت کران، ئەوانی تر نا. ':'')+errMsg(e),'error');
+  }
+  finally{OFF.saving=false;if(btn.isConnected)busy(btn,false);paintOff();}
+}
+$('#offGo').addEventListener('click',()=>{offRun();});
+$('#offStop').addEventListener('click',()=>{OFF.run++;Object.assign(OFF,{busy:false,ready:true,stopped:true,wait:''});offLock(false);paintOff();});
+$('#offCancel').addEventListener('click',()=>{if(!OFF.saving)offReset();});
+$('#offSave').addEventListener('click',offSave);
+$('#offList').addEventListener('change',e=>{const c=e.target.closest('[data-off]');if(!c)return;const f=OFF.found[+c.dataset.off];if(f){f.on=c.checked;if(!OFF.saving)offSaveLabel();}});
+
 /* ================= public website ================= */
 // The website reads only pub/info, pub/cat and pimg/*: name, retail price, in stock or not, photo.
 // Wholesale and purchase prices, quantities, sales and everything else never leave the app.
@@ -3185,8 +3581,9 @@ async function pubSync(){
   const cur=(S.pub&&S.pub.p)||{},ch={};let n=0;
   for(const p of S.products.values()){const w=pubWanted(p),c=cur[p.id];if(!w){if(c){ch[p.id]=deleteField();n++;}}else if(!samePub(c,w)){ch[p.id]=w;n++;}}
   for(const id of Object.keys(cur))if(!S.products.has(id)){ch[id]=deleteField();n++;}
-  const info={name:S.shopName||'',wa:S.shopWa||'',note:S.shopNote||''},ci=S.pubInfo||{};
-  const infoDiff=!S.pubInfo||ci.name!==info.name||(ci.wa||'')!==info.wa||(ci.note||'')!==info.note;
+  let credit=false;for(const p of S.products.values())if(p.imgV&&p.imgS==='off'&&p.web!==false){credit=true;break;}
+  const info={name:S.shopName||'',wa:S.shopWa||'',note:S.shopNote||'',credit:credit},ci=S.pubInfo||{};
+  const infoDiff=!S.pubInfo||ci.name!==info.name||(ci.wa||'')!==info.wa||(ci.note||'')!==info.note||!!ci.credit!==credit;
   if(!n&&!infoDiff)return;
   pubBusy=true;
   try{
@@ -3234,7 +3631,7 @@ $('#f-web').addEventListener('submit',async e=>{
 });
 
 /* ================= stock moves ================= */
-const MOVE_LABEL={sale:'فرۆشتن',return:'گەڕاوە',purchase:'کڕین',topup:'زیادکردنی کۆگا',adjust:'گۆڕینی کۆگا بە دەست',create:'کاڵای نوێ',import:'هاوردەکردن لە Excel',saleEdit:'دەستکاری پسوولە',saleDelete:'سڕینەوەی پسوولە',buyDelete:'سڕینەوەی کڕین',restore:'گەڕاندنەوە لە یەدەگ'};
+const MOVE_LABEL={sale:'فرۆشتن',return:'گەڕاوە',purchase:'کڕین',topup:'زیادکردنی کۆگا',adjust:'گۆڕینی کۆگا بە دەست',create:'کاڵای نوێ',import:'هاوردەکردن لە Excel',saleEdit:'دەستکاری پسوولە',saleDelete:'سڕینەوەی پسوولە',buyDelete:'سڕینەوەی کڕین',restore:'گەڕاندنەوە لە یەدەگ',web:'داواکاری ماڵپەڕ',webReturn:'گەڕاندنەوەی داواکاری ماڵپەڕ'};
 const MOVE_MANUAL=['adjust','topup','create','import','saleEdit','saleDelete','buyDelete','restore'];
 // One log entry per operation (a sale, a purchase, a correction): who, when, why, and how much each item changed.
 function logMove(b,items,reason,ref){
@@ -3383,6 +3780,7 @@ $('#dbList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches
 function renderMenu(){
   if(S.tab!=='menu')return;
   let debt=0;for(const x of S.debts){if(!x.void&&x.type!=='return')debt+=Math.max(0,x.debt||0);}
+  const wn=$('#mnOrders'),open=WO.list.filter(o=>o.status==='held'||o.status==='new').length;wn.hidden=!open;wn.textContent=fmt(open)+' داواکاری چاوەڕێی گەیاندنن';
   const r=$('#mnReports');r.hidden=!(debt>0);r.textContent='قەرزی کڕیاران: '+fmt(debt)+' د.ع';
   const st=$('#mnStaff'),t=S.lastBackup,n=Array.from(S.staff.values()).filter(x=>!x.removed).length;
   const due=t===null?S.products.size>0:(typeof t==='number'&&daysSince(t)>=BK_DAYS);

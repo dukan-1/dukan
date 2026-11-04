@@ -145,6 +145,8 @@ body.has-list main{padding-bottom:120px}
 .scrim{position:absolute;inset:0;background:var(--scrim)}
 .card{position:relative;width:100%;max-width:560px;max-height:92vh;max-height:92dvh;overflow:auto;overscroll-behavior:contain;background:var(--paper);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.card{-webkit-overflow-scrolling:touch}
+.card>*{flex-shrink:0}
 @media (min-width:640px){.sheet{align-items:center}.card{border-radius:22px;max-height:88vh;max-height:88dvh}}
 .sh{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sh h2{margin:0;font-family:var(--f-disp);font-size:22px;font-weight:700;line-height:1.4}

@@ -431,6 +431,9 @@ button.prow:hover{background:var(--sunk)}
 .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
 .sheet-bg{position:absolute;inset:0;background:var(--scrim)}
 .sheet-card{position:relative;width:100%;max-width:560px;max-height:calc(100% - 20px - env(safe-area-inset-top,0px));overflow:auto;background:var(--surface);border-radius:18px 18px 0 0;padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+/* Parts of a sheet keep their full height; the sheet itself scrolls (a long receipt is never cut off). */
+.sheet-card{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.sheet-card>*{flex-shrink:0}
 @media (min-width:640px){.sheet{align-items:center}.sheet-card{border-radius:18px;padding:22px}}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sheet-head h2{margin:0;font-family:var(--f-display);font-size:17px;font-weight:700}

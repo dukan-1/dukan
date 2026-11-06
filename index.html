@@ -306,6 +306,8 @@ main.wrap{padding-block:16px 120px}
 .erow label{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted);min-width:0}
 .erow .inp{padding:7px 9px}
 .erow .x{grid-column:4}
+.erow.flash{animation:flash 1.4s ease-out}
+.eadd-res{max-height:none;overflow:visible;padding:0}
 .perms{grid-column:1/-1;display:flex;gap:6px 18px;flex-wrap:wrap;font-size:14px}
 .perms label,.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 .perms input,.chk input{width:18px;height:18px;accent-color:var(--retail);margin:0}
@@ -1166,6 +1168,11 @@ window.FIREBASE_CONFIG = {
       <p id="eMeta" class="hint" style="margin:0"></p>
       <div class="field"><label for="eCustomer">ناوی کڕیار</label><input id="eCustomer" class="inp" autocomplete="off"></div>
       <div id="eItems" class="eitems"></div>
+      <div id="eAdd" class="field">
+        <label for="eAddQ">زیادکردنی کاڵا بۆ پسوولەکە</label>
+        <div class="inrow"><input id="eAddQ" class="inp" type="search" placeholder="ناو یان بارکۆدی کاڵا بنووسە" autocomplete="off" enterkeyhint="search"><button type="button" id="eAddCam" class="cam" aria-label="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button></div>
+        <div id="eAddRes" class="pick-grid eadd-res" hidden></div>
+      </div>
       <div class="two" id="ePayRow">
         <div class="field"><label for="eDiscount">داشکاندن</label><input id="eDiscount" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field"><label for="ePaid">پارەی وەرگیراو</label><input id="ePaid" class="inp num-in" inputmode="decimal" autocomplete="off"></div>
@@ -3279,9 +3286,13 @@ function openSaleEdit(s){
   $('#eCustomer').value=s.customer||'';
   $('#eDiscount').value=s.discount?String(s.discount):'';
   $('#ePaid').value=String(s.paid==null?s.total:s.paid);
+  // A receipt paid in full stays paid in full when lines change, until the amount paid is typed by hand.
+  E.fullPaid=s.paid==null||s.paid>=s.total;
   $('#ePayRow').hidden=ret;
   $('#eTotalL').textContent=ret?'پارەی گەڕاوە':'کۆی گشتی';
   $('#eErr').hidden=true;
+  // Adding products: for receipts only (a return's goods must come from its receipt).
+  $('#eAdd').hidden=ret;$('#eAddQ').value='';
   renderEItems();$('#saleSheet').hidden=false;
 }
 function closeSaleEdit(){$('#saleSheet').hidden=true;E.s=null;}
@@ -3291,8 +3302,53 @@ function renderEItems(){
     '<label for="eq-'+i+'">بڕ<input id="eq-'+i+'" class="inp num-in" data-f="qty" inputmode="decimal" value="'+esc(fmtQty(it.qty))+'"></label>'+
     '<label for="ep-'+i+'">نرخی دانە<input id="ep-'+i+'" class="inp num-in" data-f="price" inputmode="decimal" value="'+esc(String(it.price))+'"></label>'+
     '<span></span><button type="button" class="x" data-erm aria-label="لابردن">×</button></div>').join('')||'<p class="muted" style="margin:10px">هیچ کاڵایەک نەماوە.</p>';
-  eRecalc();
+  eRecalc();eAddRender();
 }
+/* adding a product to a receipt being edited: by name, barcode or camera */
+const EADD_MAX=8;
+function eAddList(){
+  const raw=$('#eAddQ').value,q=fold(raw.trim()),code=codeKey(raw);
+  if(!q)return [];
+  const list=Array.from(S.products.values()).filter(p=>fold(p.name).includes(q)||(code.length>=3&&codeKey(p.barcode||'').includes(code)));
+  return list.sort((a,b)=>(fold(a.name).startsWith(q)?0:1)-(fold(b.name).startsWith(q)?0:1)||String(a.name).localeCompare(String(b.name),'ar'));
+}
+function eAddRender(){
+  const box=$('#eAddRes');if(!E.s||$('#eAdd').hidden){box.hidden=true;return;}
+  if(!$('#eAddQ').value.trim()){box.hidden=true;box.innerHTML='';return;}
+  let list=eAddList();const more=Math.max(0,list.length-EADD_MAX);list=list.slice(0,EADD_MAX);
+  const inR=new Map();for(const it of E.items)if(it.qty>0)inR.set(it.pid,(inR.get(it.pid)||0)+it.qty);
+  box.hidden=false;
+  box.innerHTML=list.length?list.map(p=>{const n=inR.get(p.id),st=fmtQty(typeof p.stock==='number'?p.stock:0);
+    return '<button type="button" class="pick'+(n?' in':'')+'" data-eadd="'+esc(p.id)+'">'+(n?'<span class="pq">'+fmtQty(n)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span>'+
+      '<span class="ppr num">'+fmt(unitPrice(p,E.s.mode))+'</span><span class="pst">کۆگا: <span class="num">'+st+'</span></span></button>';}).join('')+
+      (more?'<p class="pick-more">'+fmt(more)+' کاڵای تر هەیە. پیتی زیاتر بنووسە بۆ دۆزینەوە.</p>':'')
+    :'<p class="muted" style="margin:0;grid-column:1/-1">هیچ کاڵایەک بەم ناوە نییە.</p>';
+}
+// Already on the receipt: one more of it. New: one, at the receipt's price type (retail or wholesale).
+function eAddProduct(p){
+  let i=E.items.findIndex(it=>it.pid===p.id);
+  if(i>=0)E.items[i].qty=rq(E.items[i].qty+1);
+  else{E.items.push({pid:p.id,name:p.name,barcode:p.barcode||'',qty:1,price:unitPrice(p,E.s.mode)});i=E.items.length-1;}
+  $('#eErr').hidden=true;renderEItems();
+  const row=$('#eItems .erow[data-i="'+i+'"]');if(row){row.classList.remove('flash');void row.offsetWidth;row.classList.add('flash');}
+  const t=$('#eAddRes [data-eadd="'+CSS.escape(p.id)+'"]');if(t){t.classList.remove('flash');void t.offsetWidth;t.classList.add('flash');}
+}
+$('#eAddQ').addEventListener('input',eAddRender);
+$('#eAddQ').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  e.preventDefault();   // Enter here must not save the receipt
+  const raw=$('#eAddQ').value;if(!raw.trim())return;
+  const exact=productByCode(raw),list=exact?[exact]:eAddList();
+  if(list.length===1){eAddProduct(list[0]);if(exact){$('#eAddQ').value='';eAddRender();}beep(true);}
+  else if(!list.length)beep(false);
+});
+$('#eAddRes').addEventListener('click',e=>{
+  const b=e.target.closest('[data-eadd]');if(!b)return;const p=S.products.get(b.dataset.eadd);if(p)eAddProduct(p);
+});
+$('#eAddCam').addEventListener('click',()=>{unlockAudio();openScanner(code=>{
+  const p=productByCode(code);if(!p){beep(false);return 'ئەم بارکۆدە تۆمار نەکراوە: '+code;}
+  eAddProduct(p);beep(true);return p.name+' زیادکرا ✓';
+},'کاڵاکان سکان بکە بۆ زیادکردن بۆ پسوولەکە',$('#eAddQ'),true);});
 function eTotals(){
   const ret=isRet(E.s);let sub=0;for(const it of E.items)sub+=it.qty*it.price;
   const discount=ret?0:Math.min(Math.max(0,parseNum($('#eDiscount').value)),sub);
@@ -3302,6 +3358,11 @@ function eTotals(){
   return {sub,discount,total,paid,debt:Math.max(0,total-paid)};
 }
 function eRecalc(){
+  if(E.fullPaid&&E.s&&!isRet(E.s)){
+    let sub=0;for(const it of E.items)sub+=it.qty*it.price;
+    const discount=Math.min(Math.max(0,parseNum($('#eDiscount').value)),sub);
+    $('#ePaid').value=String(Math.max(0,sub-discount));
+  }
   const t=eTotals();
   $('#eTotal').textContent=fmt(t.total);
   $('#eDebtRow').hidden=!(t.debt>0);$('#eDebt').textContent=fmt(t.debt);
@@ -3318,6 +3379,7 @@ $('#eItems').addEventListener('click',e=>{
   const row=e.target.closest('.erow');E.items.splice(+row.dataset.i,1);renderEItems();
 });
 ['#eDiscount','#ePaid'].forEach(x=>$(x).addEventListener('input',eRecalc));
+$('#ePaid').addEventListener('input',()=>{E.fullPaid=false;},true);
 $$('[data-sclose]').forEach(b=>b.addEventListener('click',closeSaleEdit));
 $('#saleSheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeSaleEdit();});
 $('#saleForm').addEventListener('submit',async e=>{

@@ -651,6 +651,7 @@ window.FIREBASE_CONFIG = {
   <div class="card">
     <div class="card-head"><span class="big-logo"><svg><use href="#i-bars"/></svg></span><h1>حساباتی دوکان</h1><p id="authSub">بە ئیمەیڵ و پاسوێردی خۆت بچۆ ژوورەوە</p></div>
 
+    <div id="lWarn" class="banner" hidden></div>
     <form id="f-login" novalidate>
       <div class="field"><label for="lEmail">ئیمەیڵ</label><input id="lEmail" class="inp ltr-in" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false"></div>
       <div class="field"><label for="lPass">پاسوێرد</label><div class="pw"><input id="lPass" class="inp ltr-in" type="password" autocomplete="current-password"><button type="button" data-eye="lPass">پیشاندان</button></div></div>
@@ -1346,9 +1347,36 @@ function boot(){
   catch(e){db=initializeFirestore(app,{});}
   onAuthStateChanged(auth,u=>{
     if(S.registering)return;
-    if(!u){stopAll();S.user=null;screen('auth');return;}
+    if(!u){stopAll();S.user=null;screen('auth');loginHelp();return;}
+    keepSignedIn(u);
     resolveRole(u);
   });
+}
+
+/* ================= staying signed in ================= */
+// The login is kept in this site's storage on the phone; it only asks again when the phone deletes that storage.
+// So: ask the browser never to clear it, remember the email, and on the sign-in screen say what on this phone
+// makes it forget (an app's built-in browser, private mode, not added to the home screen).
+const LAST_EMAIL='dukan.lastEmail';
+function lsGet(k){try{return localStorage.getItem(k);}catch(_){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(_){return false;}}
+function keepSignedIn(u){
+  if(u&&u.email)lsSet(LAST_EMAIL,u.email);
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{});}catch(_){}
+}
+function installedApp(){try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(_){return false;}}
+function loginHelp(){
+  const em=lsGet(LAST_EMAIL),f=$('#lEmail');if(em&&!f.value)f.value=em;
+  const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  const inApp=/FBAN|FBAV|FB_IAB|Instagram|Snapchat|Line\/|Telegram|TikTok|musical_ly|Viber|MicroMessenger|GSA\/|WhatsApp/i.test(ua);
+  const probe=lsSet('dukan.probe','1');
+  let msg='',err=false;
+  if(inApp){err=true;msg='ئەم لاپەڕەیە لە ناو بەرنامەیەکی تر (وەک Instagram یان Facebook) کراوەتەوە. ئەو بەرنامانە چوونەژوورەوە لەبیر ناکەن. لینکەکە کۆپی بکە و لە '+(ios?'Safari':'Chrome')+' بیکەرەوە.';}
+  else if(!probe){err=true;msg='ئەم وێبگەڕە ڕێگە نادات هیچ شتێک پاشەکەوت بکرێت (Private / Incognito یان کووکی داخراوە)، بۆیە هەموو جارێک داوای چوونەژوورەوە دەکات. پەڕەیەکی ئاسایی بکەرەوە.';}
+  else if(!installedApp()){msg=ios?'بۆ ئەوەی هەمیشە لە ژوورەوە بمێنیتەوە: لە Safari دوگمەی هاوبەشکردن ⬆️ ← «Add to Home Screen» دابگرە، و هەمیشە لە ئایکۆنەکەوە بیکەرەوە.':'بۆ ئەوەی هەمیشە لە ژوورەوە بمێنیتەوە: لە Chrome ⋮ ← «Add to Home screen» یان «Install app» دابگرە، و هەمیشە لە ئایکۆنەکەوە بیکەرەوە.';}
+  const w=$('#lWarn');w.hidden=!msg;w.className='banner'+(err?' err':'');w.textContent=msg;
+  if(inApp){const b=document.createElement('button');b.type='button';b.className='btn sm';b.textContent='کۆپیکردنی لینک';
+    b.addEventListener('click',()=>{try{navigator.clipboard.writeText(location.href.split('#')[0]).then(()=>toast('لینک کۆپی کرا.')).catch(()=>{});}catch(_){}});w.appendChild(b);}
 }
 
 /* ================= auth screens ================= */

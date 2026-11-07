@@ -590,12 +590,10 @@ button.prow:hover{background:var(--sunk)}
 .wo-h .wo-sum{margin-inline-start:auto;font-weight:700}
 .wo-who{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .wo-who a{color:inherit}
+.nt-steps{padding-inline-start:20px;display:flex;flex-direction:column;gap:4px}
 .wo-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .wo-acts .inp{width:9em;flex:none}
 .wolist{display:flex;flex-direction:column;gap:10px}
-.wo-set{display:flex;flex-direction:column;gap:8px}
-.wo-set label{font-weight:600;font-size:14px}
-.wo-set .inp{max-width:7em}
 </style>
 <link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
 </head>
@@ -875,12 +873,7 @@ window.FIREBASE_CONFIG = {
     <!-- WEBSITE ORDERS (owner) -->
     <section id="tab-orders" class="sec" role="tabpanel" hidden>
       <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>داواکارییەکانی ماڵپەڕ</h2></div>
-      <p class="hint" style="margin:0">کاتێک کڕیار لە ماڵپەڕ لیستەکەی بۆ WhatsApp دەنێرێت، کاڵاکان لێرە دەردەکەون و لە کۆگا کەم دەکرێنەوە. کە گەیەندرا «فرۆشرا» دابگرە تا ببێتە پسوولە؛ ئەگەر نەکڕا «گەڕاندنەوە بۆ کۆگا» دابگرە.</p>
-      <form id="woSet" class="panel wo-set" novalidate>
-        <label for="woAuto">لە یەک کاتدا تا چەند داواکاری خۆکار لە کۆگا کەم بکرێتەوە؟</label>
-        <div class="inrow"><input id="woAuto" class="inp num-in" inputmode="numeric" autocomplete="off"><button type="submit" class="btn sm">پاشەکەوت</button></div>
-        <p class="hint" style="margin:0">داواکاری زیاتر لەم ژمارەیە، یان داواکارییەک کە زیاتر لە <span class="num">30</span> دانەی تێدایە، لە کۆگا کەم ناکرێتەوە تا تۆ «پەسەندکردن» دانەگریت. ئەمە ڕێگە دەگرێت لەوەی کەسێک بە داواکاری ساختە کۆگاکەت بەتاڵ بکات. <span class="num">0</span> = هەموو داواکارییەک چاوەڕێی پەسەندکردنی تۆ دەبێت.</p>
-      </form>
+      <p class="hint" style="margin:0">کاتێک کڕیار لە ماڵپەڕ لیستەکەی بۆ WhatsApp دەنێرێت، داواکارییەکە لێرە دەردەکەوێت. هیچ شتێک لە کۆگا کەم ناکرێتەوە تا تۆ «پەسەندکردن» دانەگریت. کە گەیەندرا «فرۆشرا» دابگرە تا ببێتە پسوولە؛ ئەگەر نەکڕا «گەڕاندنەوە بۆ کۆگا» دابگرە.</p>
       <div class="wolist" id="woList"></div>
     </section>
 
@@ -1099,7 +1092,7 @@ window.FIREBASE_CONFIG = {
       </div>
       <div class="panel" id="webPanel">
         <h3>ماڵپەڕی دوکان</h3>
-        <p class="hint" style="margin:0 0 10px">کڕیاران لێرە کاڵا، نرخ و «هەیە / نەماوە» دەبینن و لیستی داواکارییان بۆ WhatsApp ی دوکان دەنێرن. هەر گۆڕانێک لە سیستەم یەکسەر لەوێش دەردەکەوێت.</p>
+        <p class="hint" style="margin:0 0 10px">کڕیاران لێرە ئەو کاڵایانە دەبینن کە لە کۆگا هەن (کاڵای نەماو خۆکار دەشاردرێتەوە و کە زیادت کردەوە دەگەڕێتەوە)، لەگەڵ نرخ و لیستی داواکارییان بۆ WhatsApp ی دوکان دەنێرن. هەر گۆڕانێک لە سیستەم یەکسەر لەوێش دەردەکەوێت.</p>
         <a id="webUrl" class="weburl" target="_blank" rel="noopener"></a>
         <div class="tools" style="margin-top:8px"><button type="button" id="webShare" class="btn ghost sm">ناردنی بەستەر</button><button type="button" id="webCopy" class="btn ghost sm">کۆپیکردن</button></div>
         <form id="f-web" class="sec" style="gap:10px;margin-top:12px" novalidate>
@@ -1109,6 +1102,21 @@ window.FIREBASE_CONFIG = {
           <button type="submit" id="webSave" class="btn primary">پاشەکەوت</button>
         </form>
         <p id="webStats" class="hint" style="margin:10px 0 0"></p>
+        <div class="sec nt" style="gap:8px;margin-top:14px">
+          <h3 style="margin:0">ئاگاداری داواکاری لەسەر مۆبایل</h3>
+          <p class="hint" style="margin:0">کاتێک کڕیار لە ماڵپەڕ داواکاری دەنێرێت، ئاگادارییەکی دەنگی لەسەر مۆبایلەکەت دێت، تەنانەت ئەگەر ئەپەکە داخرابێت یان مۆبایل قوفڵ بێت. بە ئەپی بێبەرامبەری <b>ntfy</b> کار دەکات. تەنها کۆد، ژمارەی کاڵا و کۆی پارەی داواکارییەکە دەنێردرێت؛ ناو و ژمارەی کڕیار نا.</p>
+          <div id="ntOff"><button type="button" id="ntOn" class="btn primary">چالاککردنی ئاگاداری</button></div>
+          <div id="ntBox" class="sec" style="gap:8px" hidden>
+            <div class="field"><label for="ntTopic">ناوی کەناڵ (لە ئەپی ntfy دا ئەمە بنووسە)</label><input id="ntTopic" class="inp ltr-in" readonly></div>
+            <div class="tools"><button type="button" id="ntCopy" class="btn ghost sm">کۆپیکردن</button><button type="button" id="ntTest" class="btn ghost sm">ناردنی ئاگادارییەکی تاقیکردنەوە</button><button type="button" id="ntNew" class="btn ghost sm">ناوی نوێ</button><button type="button" id="ntOffBtn" class="btn ghost sm">ناچالاککردن</button></div>
+            <ol class="hint nt-steps" style="margin:0">
+              <li>ئەپی <b>ntfy</b> لە App Store یان Google Play دابەزێنە.</li>
+              <li>لە ئەپەکەدا <b>+</b> دابگرە، ناوی کەناڵەکەی سەرەوە بنووسە و <b>Subscribe</b> دابگرە.</li>
+              <li>«ناردنی ئاگادارییەکی تاقیکردنەوە» دابگرە؛ دەبێت دەنگێک لە مۆبایلەکەت بێت.</li>
+            </ol>
+            <p class="hint" style="margin:0">«ناوی نوێ» تەنها ئەگەر کەسێکی نەناسراو ئاگاداری بۆت نارد بەکاربهێنە؛ دواتر دەبێت لە ئەپی ntfy ناوە نوێیەکە دابنێیتەوە.</p>
+          </div>
+        </div>
       </div>
       <div class="panel" id="backupPanel">
         <h3>یەدەگ (Backup)</h3>
@@ -1483,7 +1491,7 @@ function stopAll(){
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(RT.unsub){RT.unsub();RT.unsub=null;}
   RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
-  if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.seen=new Set();WO.waitSeen=new Set();
+  if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.waitSeen=new Set();
   syncLive();
 }
 function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
@@ -1524,7 +1532,7 @@ function start(){
   },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
   subscribeOrders();
-  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.webAuto=sd.webAuto;S.shopLoaded=true;holdPending();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
+  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopNt=typeof sd.nt==='string'?sd.nt:'';S.shopLoaded=true;renderNt();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
     S.dupCodes=new Map();
@@ -1532,7 +1540,7 @@ function start(){
       if(p.barcode){const k=codeKey(p.barcode),was=S.byCode.get(k);if(was&&was!==d.id){const l=S.dupCodes.get(k)||[was];l.push(d.id);S.dupCodes.set(k,l);}S.byCode.set(k,d.id);}});
     S.prodLoaded=true;markSync(snap.metadata);
     renderCart();if(S.tab==='products')renderProducts();if(S.tab==='buy')renderBuy();updateNoCode();if(!$('#picker').hidden)renderPicker();updateBackupUI();
-    schedulePubSync();renderWeb();holdPending();
+    schedulePubSync();renderWeb();
   },onErr));
   if(owner){
     // The public copy of the catalogue that the website reads.
@@ -2494,49 +2502,50 @@ $('#rtFinish').addEventListener('click',rtFinish);
 // The website writes orders/{code} with status 'new'. The first shop phone that sees it takes the items out of
 // stock (status 'held'); the rules allow that step only once, so stock is never taken twice. A held order then
 // becomes a receipt when it is delivered ('sold', stock already out) or goes back into stock ('returned').
-const WO={list:[],unsub:null,first:true,seen:new Set(),waitSeen:new Set(),busy:new Set(),chain:Promise.resolve()};
-const WO_MAX_LINES=40,WO_MAX_QTY=50,WO_AUTO_PIECES=30,WO_AUTO_DEFAULT=10;
-// How many website orders may hold stock by themselves at once (the owner sets it; 0 = every order waits for the owner).
-function webAutoLimit(){const n=Number(S.webAuto);return Number.isFinite(n)&&n>=0?Math.floor(n):WO_AUTO_DEFAULT;}
+const WO={list:[],unsub:null,first:true,waitSeen:new Set(),busy:new Set()};
+const WO_MAX_LINES=40,WO_MAX_QTY=50;
 function orderRaw(o){
   return typeof o.items==='string'?o.items.split(';').filter(Boolean).map(x=>{const [pid,q]=x.split('*');return {pid,q};}):(Array.isArray(o.items)?o.items:[]);
 }
-function orderPieces(o){let n=0;for(const it of orderRaw(o).slice(0,WO_MAX_LINES))n+=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it&&it.q)||0)));return n;}
+
 function subscribeOrders(){
   if(WO.unsub)return;
   WO.unsub=onSnapshot(query(collection(db,'orders'),where('status','in',['new','held'])),snap=>{
     WO.list=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id})).sort((a,b)=>(b.at||0)-(a.at||0));
-    // A new order on any phone is announced on the owner's phone (but not the ones already there at start).
-    for(const o of WO.list){if(WO.first){WO.seen.add(o.id);WO.waitSeen.add(o.id);}else if(o.status==='held'&&!WO.seen.has(o.id)){WO.seen.add(o.id);if(S.role==='owner')announceOrder(o);}}
-    WO.first=false;
     holdPending();renderMenu();renderOrders();
   },()=>{});
 }
-function announceOrder(o){
-  beep(true);
-  toast('داواکاری نوێ لە ماڵپەڕ: '+fmtNo(o.id)+' · '+fmt((o.lines||[]).length)+' کاڵا · '+fmt(o.sum||0)+' د.ع','info',{label:'بینین',fn:()=>showTab('orders')});
-}
-// One order at a time, oldest first, so two orders that arrive together do not both take the same last items.
-// Only up to the owner's limit of orders hold stock by themselves, and only ordinary-sized ones; the rest wait for
-// the owner, so a flood of made-up orders cannot empty the shop.
+// Nothing comes out of stock by itself: every website order waits until the owner taps «پەسەندکردن».
+// The owner is told about each new one (and, on opening the app, how many are waiting).
 function holdPending(){
-  if(!S.prodLoaded||!S.shopLoaded||!navigator.onLine)return;
-  const lim=webAutoLimit();let held=WO.list.filter(o=>o.status==='held').length+WO.busy.size;
-  for(const o of WO.list.slice().sort((a,b)=>(a.at||0)-(b.at||0))){
-    if(o.status!=='new'||WO.busy.has(o.id))continue;
-    if(held>=lim||orderPieces(o)>WO_AUTO_PIECES){waitNotice(o);continue;}
-    held++;WO.busy.add(o.id);WO.chain=WO.chain.then(()=>holdOrder(o.id)).catch(()=>{});
-  }
+  const waiting=WO.list.filter(o=>o.status==='new');
+  if(WO.first){WO.first=false;waiting.forEach(o=>WO.waitSeen.add(o.id));
+    if(waiting.length&&S.role==='owner'){orderAlarm();toast(fmt(waiting.length)+' داواکاری ماڵپەڕ چاوەڕێی پەسەندکردنی تۆن.','info',{label:'بینین',fn:()=>showTab('orders')});}
+    return;}
+  for(const o of waiting)waitNotice(o);
+}
+// A new website order rings in the app: a three-note chime, twice, and a buzz (it cannot ring while the app is closed;
+// the ntfy alert covers that).
+function orderAlarm(){
+  try{navigator.vibrate&&navigator.vibrate([250,120,250,120,500]);}catch(_){}
+  try{
+    if(!audioCtx||audioCtx.state!=='running')return;
+    const t0=audioCtx.currentTime+0.02,notes=[880,1175,1568];
+    for(let r=0;r<2;r++)notes.forEach((f,i)=>{const t=t0+r*0.9+i*0.18,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.5,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+      o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+0.32);});
+  }catch(_){}
 }
 function waitNotice(o){
   if(WO.waitSeen.has(o.id))return;WO.waitSeen.add(o.id);
   if(S.role!=='owner')return;
-  beep(true);
+  orderAlarm();
   toast('داواکاری نوێ لە ماڵپەڕ: '+fmtNo(o.id)+' · چاوەڕێی پەسەندکردنی تۆیە (هێشتا لە کۆگا کەم نەکراوەتەوە).','info',{label:'بینین',fn:()=>showTab('orders')});
 }
 // The owner takes a waiting order: its items come out of stock now.
 async function acceptOrder(o,btn){
-  if(WO.busy.has(o.id))return;
+  if(WO.busy.has(o.id)||S.role!=='owner')return;
+  if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن، چەند چرکەیەک چاوەڕێ بکە.');return;}
   busy(btn,true,'لە کۆگا کەم دەکرێتەوە…');WO.busy.add(o.id);
   const r=await holdOrder(o.id,true);
   if(btn.isConnected)busy(btn,false);
@@ -2574,13 +2583,11 @@ async function holdOrder(id,byHand){
       addStock(b,new Map(lines.map(l=>[l.pid,-l.qty])),'web',id);
       b.update(ref,{status:'held',heldAt:Date.now(),heldBy:S.user.uid,lines:lines.slice(),miss:miss,sum:sum});
     }
-    WO.seen.add(id);   // this phone tells the owner itself, below, not when the change comes back
     // Another phone may have been first: then the rules refuse this one and nothing changes.
     // A very slow line does not hold up the next order.
     await Promise.race([b.commit(),sleep(8000)]);
-    if(lines.length&&S.role==='owner'&&!byHand)announceOrder(Object.assign({},o,{lines,sum}));
     return lines.length?'held':'empty';
-  }catch(e){WO.seen.delete(id);return byHand?errMsg(e):'error';}
+  }catch(e){return byHand?errMsg(e):'error';}
   finally{WO.busy.delete(id);}
 }
 // One tap: everything in the order goes back into stock.
@@ -2635,7 +2642,6 @@ function orderCard(o,where){
 }
 function renderOrders(){
   if(S.tab!=='orders')return;
-  const ai=$('#woAuto');if(document.activeElement!==ai)ai.value=String(webAutoLimit());
   const list=WO.list.filter(o=>o.status==='held'||o.status==='new');
   $('#woList').innerHTML=list.length?list.map(o=>orderCard(o,'orders')).join(''):'<div class="empty"><b>هیچ داواکارییەکی چاوەڕوان نییە</b>کاتێک کڕیار لە ماڵپەڕ داواکاری بنێرێت، لێرە دەردەکەوێت.</div>';
 }
@@ -2645,16 +2651,6 @@ $('#woList').addEventListener('click',e=>{
   const sb=e.target.closest('[data-wsell]');if(sb){sellOrder(o,card.querySelector('input').value.trim(),sb);return;}
   const hb=e.target.closest('[data-whold]');if(hb){acceptOrder(o,hb);return;}
   const rb=e.target.closest('[data-wret]');if(rb)arm(rb,'دڵنیایت؟ دووبارە دابگرە',()=>returnOrder(o,rb));
-});
-$('#woSet').addEventListener('submit',async e=>{
-  e.preventDefault();if(S.role!=='owner')return;
-  const raw=$('#woAuto').value.trim(),n=raw===''?WO_AUTO_DEFAULT:Math.floor(parseNum(raw));
-  if(!(n>=0&&n<=100)){toast('ژمارەیەک لە 0 تا 100 بنووسە.','error');return;}
-  const btn=$('#woSet button');busy(btn,true);
-  try{await commitSoft(setDoc(doc(db,'meta','shop'),{webAuto:n},{merge:true}));S.webAuto=n;$('#woAuto').value=String(n);
-    toast(n?('تا '+fmt(n)+' داواکاری لە یەک کاتدا خۆکار لە کۆگا کەم دەکرێتەوە.'):'هەموو داواکارییەک چاوەڕێی پەسەندکردنی تۆ دەبێت.');holdPending();}
-  catch(err){toast(errMsg(err),'error');}
-  finally{busy(btn,false);}
 });
 // The returns page shows an order found by its code, with the one-tap way back into stock.
 function showRtOrder(o){
@@ -3737,13 +3733,16 @@ $('#offSave').addEventListener('click',offSave);
 $('#offList').addEventListener('change',e=>{const c=e.target.closest('[data-off]');if(!c)return;const f=OFF.found[+c.dataset.off];if(f){f.on=c.checked;if(!OFF.saving)offSaveLabel();}});
 
 /* ================= public website ================= */
-// The website reads only pub/info, pub/cat and pimg/*: name, retail price, in stock or not, photo.
-// Wholesale and purchase prices, quantities, sales and everything else never leave the app.
+// The website reads only pub/info, pub/cat and pimg/*: name, retail price, in stock or not, how many a customer may
+// ask for (the stock, but never more than 50), photo. Wholesale and purchase prices, sales and everything else never leave the app.
+const PUB_MAXQ=50;
+function pubStock(st){const ok=st>0;return {ok:ok,m:ok?Math.max(1,Math.min(PUB_MAXQ,Math.floor(st))):0};}
 function pubWanted(p){
   if(!p||p.web===false||!String(p.name||'').trim())return null;
-  return {n:String(p.name),r:Number(p.retail)||0,ok:(typeof p.stock==='number'?p.stock:0)>0,iv:Number(p.imgV)||0};
+  const k=pubStock(typeof p.stock==='number'?p.stock:0);
+  return {n:String(p.name),r:Number(p.retail)||0,ok:k.ok,m:k.m,iv:Number(p.imgV)||0};
 }
-function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.iv)||0)===(Number(b.iv)||0);}
+function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0);}
 function pubPut(b,pid,p){b.set(doc(db,'pub','cat'),{p:{[pid]:pubWanted(p)||deleteField()},upd:serverTimestamp()},{merge:true});}
 let pubTimer=null,pubBusy=false;
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}
@@ -3755,8 +3754,8 @@ async function pubSync(){
   for(const p of S.products.values()){const w=pubWanted(p),c=cur[p.id];if(!w){if(c){ch[p.id]=deleteField();n++;}}else if(!samePub(c,w)){ch[p.id]=w;n++;}}
   for(const id of Object.keys(cur))if(!S.products.has(id)){ch[id]=deleteField();n++;}
   let credit=false;for(const p of S.products.values())if(p.imgV&&p.imgS==='off'&&p.web!==false){credit=true;break;}
-  const info={name:S.shopName||'',wa:S.shopWa||'',note:S.shopNote||'',credit:credit},ci=S.pubInfo||{};
-  const infoDiff=!S.pubInfo||ci.name!==info.name||(ci.wa||'')!==info.wa||(ci.note||'')!==info.note||!!ci.credit!==credit;
+  const info={name:S.shopName||'',wa:S.shopWa||'',note:S.shopNote||'',credit:credit,nt:S.shopNt||''},ci=S.pubInfo||{};
+  const infoDiff=!S.pubInfo||ci.name!==info.name||(ci.wa||'')!==info.wa||(ci.note||'')!==info.note||!!ci.credit!==credit||(ci.nt||'')!==info.nt;
   if(!n&&!infoDiff)return;
   pubBusy=true;
   try{
@@ -3768,6 +3767,33 @@ async function pubSync(){
   finally{pubBusy=false;}
 }
 function webUrl(){const u=new URL('shop.html',location.href);u.search='';u.hash='';return u.href;}
+/* order alerts on the owner's phone: the website posts to the owner's ntfy channel (code, items, total only) */
+const NT_HOST='https://ntfy.sh/';
+function ntfyUrl(topic,title,click){
+  return NT_HOST+encodeURIComponent(topic)+'?title='+encodeURIComponent(title)+'&priority=high&tags=shopping_cart'+(click?'&click='+encodeURIComponent(click):'');
+}
+function ntfySend(topic,title,msg,click){
+  const url=ntfyUrl(topic,title,click);
+  try{if(navigator.sendBeacon&&navigator.sendBeacon(url,new Blob([msg],{type:'text/plain;charset=UTF-8'})))return true;}catch(_){}
+  try{fetch(url,{method:'POST',body:msg,mode:'no-cors',keepalive:true}).catch(()=>{});return true;}catch(_){return false;}
+}
+function newTopic(){const a=new Uint8Array(14),c='abcdefghijkmnpqrstuvwxyz23456789';crypto.getRandomValues(a);let s='dukan-';for(const x of a)s+=c[x&31];return s;}
+function renderNt(){
+  if(S.role!=='owner')return;const on=!!S.shopNt;$('#ntOff').hidden=on;$('#ntBox').hidden=!on;$('#ntTopic').value=S.shopNt||'';
+}
+async function setNt(topic,btn,done){
+  if(S.role!=='owner')return;busy(btn,true);
+  try{const b=writeBatch(db);b.set(doc(db,'meta','shop'),{nt:topic},{merge:true});b.set(doc(db,'pub','info'),{nt:topic},{merge:true});
+    await commitSoft(b.commit());S.shopNt=topic;renderNt();toast(done);}
+  catch(err){toast(errMsg(err),'error');}
+  finally{if(btn.isConnected)busy(btn,false);}
+}
+$('#ntOn').addEventListener('click',e=>setNt(newTopic(),e.currentTarget,'ئاگاداری چالاک کرا. ئێستا ئەپی ntfy دابەزێنە و ئەم ناوە تێیدا بنووسە.'));
+$('#ntNew').addEventListener('click',e=>{const b=e.currentTarget;arm(b,'دڵنیایت؟ دووبارە دابگرە',()=>setNt(newTopic(),b,'ناوێکی نوێ دانرا؛ لە ئەپی ntfy دا ناوە نوێیەکە دابنێ.'));});
+$('#ntOffBtn').addEventListener('click',e=>{const b=e.currentTarget;arm(b,'دڵنیایت؟ دووبارە دابگرە',()=>setNt('',b,'ئاگاداری ناچالاک کرا.'));});
+$('#ntCopy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(S.shopNt);toast('ناوەکە کۆپی کرا.');}catch(_){toast(S.shopNt);}});
+$('#ntTest').addEventListener('click',()=>{if(!S.shopNt)return;
+  toast(ntfySend(S.shopNt,'تاقیکردنەوە · '+(S.shopName||'دوکان'),'ئەگەر ئەم ئاگادارییەت بینی، ئاگاداری داواکاری ماڵپەڕ ئامادەیە.',location.href.split('#')[0])?'نێردرا. چەند چرکەیەکی تر دەبێت لە ئەپی ntfy دەربکەوێت.':'نەتوانرا بنێردرێت.');});
 // WhatsApp wants the international number: 0750 123 4567 → 9647501234567.
 function normWa(raw){
   let d=normDigits(raw).replace(/\D/g,'');
@@ -3795,7 +3821,7 @@ $('#f-web').addEventListener('submit',async e=>{
   try{
     const b=writeBatch(db);
     b.set(doc(db,'meta','shop'),{wa:wa,note:note},{merge:true});
-    b.set(doc(db,'pub','info'),{name:S.shopName||'',wa:wa,note:note});
+    b.set(doc(db,'pub','info'),{name:S.shopName||'',wa:wa,note:note},{merge:true});
     await commitSoft(b.commit());
     S.shopWa=wa;S.shopNote=note;$('#webWa').blur();$('#webNote').blur();renderWeb();
     toast('زانیاری ماڵپەڕ پاشەکەوت کرا.');
@@ -3821,9 +3847,10 @@ function addStock(b,deltas,reason,ref){
   if(!items.length)return '';
   const mid=logMove(b,items,reason,ref);
   for(const it of items)b.update(doc(db,'products',it.pid),{stock:increment(it.delta),lastMove:mid,lastBy:S.user.uid});
-  // An item that runs out (or comes back) changes on the website in the same write, whoever made it.
+  // An item that runs out, comes back, or has fewer than 50 left changes on the website in the same write, whoever made it.
   const flip={};
-  for(const it of items){const p=S.products.get(it.pid);if(!p||p.web===false)continue;const was=it.from>0,now=rq(it.from+it.delta)>0;if(was!==now)flip[it.pid]={ok:now};}
+  for(const it of items){const p=S.products.get(it.pid);if(!p||p.web===false)continue;
+    const was=pubStock(it.from),now=pubStock(rq(it.from+it.delta));if(was.ok!==now.ok||was.m!==now.m)flip[it.pid]={ok:now.ok,m:now.m};}
   if(Object.keys(flip).length)b.set(doc(db,'pub','cat'),{p:flip,upd:serverTimestamp()},{merge:true});
   return mid;
 }

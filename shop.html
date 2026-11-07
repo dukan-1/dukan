@@ -168,6 +168,7 @@ body.has-list main{padding-bottom:120px}
 .step{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper)}
 .step button{width:44px;height:44px;border:0;background:transparent;font-size:20px;line-height:1}
 .step button:disabled{opacity:.3;cursor:default}
+.step button.atmax{opacity:.45}
 .step output,.step span{min-width:2.4em;text-align:center;font-family:var(--f-num);font-weight:600;font-size:16px}
 .act{display:flex;gap:10px;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;border-radius:14px;padding:12px 18px;font-weight:700;font-size:16px;line-height:1.3}
@@ -237,7 +238,6 @@ body.has-list main{padding-bottom:120px}
       <button type="button" class="clr" id="qClear" aria-label="پاککردنەوەی گەڕان" hidden>×</button>
     </div>
     <div class="opts">
-      <button type="button" class="tog" id="onlyOk" aria-pressed="false"><span class="dot" aria-hidden="true"></span>تەنها ئەوانەی هەن</button>
       <span class="sortw">
         <label for="sort" class="sr">ڕیزکردن</label>
         <span id="sortV" aria-hidden="true">ناو</span>
@@ -360,6 +360,13 @@ function money(n){return Math.round(Number(n)||0).toLocaleString('en-US');}
 const NO_CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function genCode(){const a=new Uint8Array(8);crypto.getRandomValues(a);let s='';for(const x of a)s+=NO_CH[x&31];return s;}
 function fmtCode(c){return c.slice(0,4)+'-'+c.slice(4);}
+function notifyShop(code,n,total){
+  const t=S.info.nt;if(!t)return;
+  const url='https://ntfy.sh/'+encodeURIComponent(t)+'?title='+encodeURIComponent('داواکاری نوێ لە ماڵپەڕ')+'&priority=high&tags=shopping_cart&click='+encodeURIComponent(new URL('./',location.href).href);
+  const msg='کۆد: '+fmtCode(code)+' · '+money(n)+' کاڵا · '+money(total)+' د.ع';
+  try{if(navigator.sendBeacon&&navigator.sendBeacon(url,new Blob([msg],{type:'text/plain;charset=UTF-8'})))return;}catch(_){}
+  try{fetch(url,{method:'POST',body:msg,mode:'no-cors',keepalive:true}).catch(()=>{});}catch(_){}
+}
 function showCode(c){const el=$('#afterCode');el.textContent='';if(!c)return;el.append('کۆدی داواکارییەکەت: ');const b=document.createElement('bdi');b.dir='ltr';b.textContent=fmtCode(c);el.append(b);}
 const MAXQ=50,MAXLINES=40,SENT_KEY='shop.sent.v1';
 function listSig(){return Array.from(S.list).map(([k,q])=>k+'*'+q).sort().join(';');}
@@ -375,8 +382,10 @@ const S={info:{name:'',wa:'',note:''},cat:null,err:false,q:'',onlyOk:false,sort:
 const LIST_KEY='shop.list.v1',WHO_KEY='shop.who.v1';
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
-function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push({id,n:e.n,r:Number(e.r)||0,ok:e.ok===true,iv:Number(e.iv)||0});}return out;}
-function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?{id,n:e.n,r:Number(e.r)||0,ok:e.ok===true,iv:Number(e.iv)||0}:null;}
+// m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
+function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0};}
+function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
+function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
 /* ---------- photos: only the ones that come into view, from this phone's cache when still current ---------- */
 const imgs=new Map();   // pid -> {v,d}
@@ -439,15 +448,12 @@ function paintItem(li,e){
 }
 function visible(){
   const words=fold(S.q).split(' ').filter(Boolean);
-  let list=items();
-  if(S.onlyOk)list=list.filter(e=>e.ok);
+  let list=items().filter(e=>e.ok);   // what the shop has run out of is not shown; it comes back with new stock
   if(words.length)list=list.filter(e=>{const f=fold(e.n);return words.every(w=>f.includes(w));});
   const byName=(a,b)=>a.n.localeCompare(b.n,'ar');
   if(S.sort==='asc')list.sort((a,b)=>a.r-b.r||byName(a,b));
   else if(S.sort==='desc')list.sort((a,b)=>b.r-a.r||byName(a,b));
   else list.sort(byName);
-  // in-stock first when not filtering by price, so the shelves start with what can be bought
-  if(S.sort==='name')list.sort((a,b)=>(b.ok-a.ok));
   return list;
 }
 function skeleton(){
@@ -464,7 +470,7 @@ function render(){
   $('#count').innerHTML=all.length?('<span class="n">'+money(list.length)+'</span> کاڵا'):'';
   if(!all.length){grid.innerHTML='';st.hidden=false;st.innerHTML='<b>هێشتا هیچ کاڵایەک دانەنراوە.</b>کەمێکی تر سەردان بکەرەوە.';return;}
   if(!list.length){grid.innerHTML='';st.hidden=false;
-    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە.</b>ناوێکی تر تاقی بکەرەوە'+(S.onlyOk?'، یان «تەنها ئەوانەی هەن» لاببە.':'.')):'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>«تەنها ئەوانەی هەن» لاببە بۆ بینینی هەموو کاڵاکان.';
+    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە.</b>ناوێکی تر تاقی بکەرەوە.'):'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>«تەنها ئەوانەی هەن» لاببە بۆ بینینی هەموو کاڵاکان.';
     return;}
   st.hidden=true;
   const kids=grid.children,same=kids.length===list.length&&list.every((e,i)=>kids[i].dataset&&kids[i].dataset.id===e.id);
@@ -479,10 +485,15 @@ function render(){
 }
 
 /* ---------- list ---------- */
-function setQty(id,q){q=Math.max(0,Math.min(MAXQ,Math.floor(q)));if(q)S.list.set(id,q);else S.list.delete(id);saveList();$('#after').hidden=true;refreshList();}
+function maxOf(id){const e=entry(id);return e&&e.ok?e.m:MAXQ;}
+function setQty(id,q){q=Math.max(0,Math.floor(q));const mx=maxOf(id);
+  if(q>mx){q=mx;toast('تەنها '+money(mx)+' دانە لەم کاڵایە هەیە.');}if(q)S.list.set(id,q);else S.list.delete(id);saveList();$('#after').hidden=true;refreshList();}
 function listView(){
   const rows=[];let total=0,count=0,gone=0;
-  for(const [id,q] of S.list){const e=entry(id);if(e&&e.ok){total+=e.r*q;count+=q;}else gone++;rows.push({id,q,e});}
+  let cut=0;
+  for(const [id,q0] of S.list){const e=entry(id);let q=q0;
+    if(e&&e.ok){if(q>e.m){q=e.m;cut++;}total+=e.r*q;count+=q;}else gone++;rows.push({id,q,e});}
+  return {rows,total,count,gone,cut};
   return {rows,total,count,gone};
 }
 function refreshList(){
@@ -503,11 +514,15 @@ function renderList(){
     return '<li class="ln'+(ok?'':' gone')+'" data-id="'+esc(id)+'"><span class="lnm">'+esc(name)+'</span>'+
       '<button type="button" class="rm" data-rm aria-label="لابردنی «'+esc(name)+'»">×</button>'+
       '<span class="lsub">'+(ok&&!(e.r>0)?('<span class="n">× '+q+'</span><span class="amt">نرخ لە دوکان</span>'):ok?('<span class="n">'+money(e.r)+' × '+q+'</span><span class="amt"><span class="n">'+money(e.r*q)+'</span> د.ع</span>'):('<span class="tag">'+(e?'نەماوە':'نەماوە لە ماڵپەڕ')+'</span>'))+'</span>'+
-      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button><span class="n">'+q+'</span><button type="button" data-inc aria-label="زیادکردن"'+(q>=MAXQ?' disabled':'')+'>+</button></span>':'<span></span>')+'</li>';
+      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button><span class="n">'+q+'</span><button type="button" data-inc aria-label="زیادکردن"'+(e&&q>=e.m?' class="atmax"':'')+'>+</button></span>':'<span></span>')+'</li>';
   }).join('');
   $('#lTotal').textContent=money(v.total);
-  const w=$('#lWarn');w.hidden=!v.gone;
-  if(v.gone)w.textContent=(v.gone===1?'کاڵایەک':money(v.gone)+' کاڵا')+' لە لیستەکەت ئێستا نەماوە و لە نامەکەدا نانێردرێت.';
+  // Fewer left than the list asks for: the list is brought down to what the shop has.
+  if(v.cut){for(const r of v.rows)if(r.e&&r.e.ok&&S.list.get(r.id)>r.q)S.list.set(r.id,r.q);saveList();}
+  const w=$('#lWarn'),wt=[];
+  if(v.gone)wt.push((v.gone===1?'کاڵایەک':money(v.gone)+' کاڵا')+' لە لیستەکەت ئێستا نەماوە و لە نامەکەدا نانێردرێت.');
+  if(v.cut)wt.push('بڕی '+(v.cut===1?'کاڵایەک':money(v.cut)+' کاڵا')+' کەمکرایەوە بەپێی ئەوەی لە دوکان ماوە.');
+  w.hidden=!wt.length;w.textContent=wt.join(' ');
   const has=v.count>0,wa=!!S.info.wa;
   $('#noWa').hidden=wa;
   $('#send').disabled=!has||!wa;
@@ -577,14 +592,15 @@ function paintSheet(){
   if(e.iv&&have&&have.v===e.iv)setPic(pic,e,have.d);else if(!pic.querySelector('img')||!e.iv)setPic(pic,e,null);
   const inList=S.list.get(e.id)||0;
   const wasMinus=document.activeElement===$('#pMinus'),wasPlus=document.activeElement===$('#pPlus');
-  $('#pQty').textContent=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=pq>=MAXQ||!e.ok;
+  if(e.ok&&pq>e.m)pq=e.m;
+  $('#pQty').textContent=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=!e.ok;$('#pPlus').classList.toggle('atmax',e.ok&&pq>=e.m);
   if(wasMinus||wasPlus)keepFocus($('#psheet .card'),wasMinus?$('#pPlus'):$('#pMinus'));
   const b=$('#pAdd');b.disabled=!e.ok;
   b.textContent=!e.ok?'ئێستا نەماوە':(inList?(inList===pq?'لە لیستەکەتە':'گۆڕینی بڕ لە لیست'):'زیادکردن بۆ لیست');
   if(e.ok&&inList&&inList===pq)b.disabled=true;
 }
 $('#pMinus').addEventListener('click',()=>{pq=Math.max(1,pq-1);paintSheet();});
-$('#pPlus').addEventListener('click',()=>{pq=Math.min(MAXQ,pq+1);paintSheet();});
+$('#pPlus').addEventListener('click',()=>{const mx=maxOf(S.open);if(pq>=mx){toast('تەنها '+money(mx)+' دانە لەم کاڵایە هەیە.');return;}pq=pq+1;paintSheet();});
 $('#pAdd').addEventListener('click',()=>{const e=entry(S.open);if(!e||!e.ok)return;const had=S.list.has(e.id);setQty(e.id,pq);bump();closeSheet($('#psheet'));toast(had?'بڕەکە گۆڕدرا.':'زیاد کرا بۆ لیستەکەت.');});
 function bump(){const b=$('#openList');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
 
@@ -620,7 +636,7 @@ $('#send').addEventListener('click',async()=>{
     // Saved, or still on its way on a slow line (it is kept on the phone and sent when it can): the code goes in the message.
     // Refused (the shop has not switched orders on): the message goes without a code, as before.
     let r;try{r=await Promise.race([setDoc(doc(db,'orders',cand),order).then(()=>'ok'),new Promise(ok=>setTimeout(()=>ok('slow'),5000))]);}catch(_){r='no';}
-    if(r!=='no'){code=cand;store.set(SENT_KEY,{code:cand,sig:listSig()});}
+    if(r!=='no'){code=cand;store.set(SENT_KEY,{code:cand,sig:listSig()});notifyShop(cand,lines.length,order.total);}
   }
   const w=waUrl(code),url=w.url;
   if(w.cut)try{navigator.clipboard.writeText(w.full).catch(()=>{});}catch(_){}
@@ -637,7 +653,7 @@ $('#q').addEventListener('focus',()=>document.body.classList.add('typing'));
 $('#q').addEventListener('blur',()=>document.body.classList.remove('typing'));
 $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#q').blur();}});
 $('#qClear').addEventListener('click',()=>{$('#q').value='';$('#qClear').hidden=true;S.q='';render();$('#q').focus();});
-$('#onlyOk').addEventListener('click',()=>{S.onlyOk=!S.onlyOk;$('#onlyOk').setAttribute('aria-pressed',String(S.onlyOk));render();});
+
 $('#sort').addEventListener('change',()=>{S.sort=$('#sort').value;render();});
 
 /* ---------- live data from the shop ---------- */
@@ -651,7 +667,7 @@ function paintInfo(){
   if(!$('#lsheet').hidden)renderList();
 }
 skeleton();refreshList();
-onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
+onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),nt:/^[A-Za-z0-9_-]{1,64}$/.test(String(d.nt||''))?String(d.nt):'',note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
 onSnapshot(doc(db,'pub','cat'),s=>{
   if(!s.exists()&&s.metadata&&s.metadata.fromCache){if(!S.cat){const st=$('#state');grid.innerHTML='';st.hidden=false;st.innerHTML='<b>چاوەڕێی ئینتەرنێت…</b>کە پەیوەندی هات، کاڵاکان دەردەکەون.';}return;}
   S.err=false;S.cat=s.exists()?(s.data()||{p:{}}):{p:{}};if(!S.cat.p)S.cat.p={};render();refreshList();},()=>{S.err=true;render();});

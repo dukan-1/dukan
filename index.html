@@ -593,6 +593,9 @@ button.prow:hover{background:var(--sunk)}
 .wo-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .wo-acts .inp{width:9em;flex:none}
 .wolist{display:flex;flex-direction:column;gap:10px}
+.wo-set{display:flex;flex-direction:column;gap:8px}
+.wo-set label{font-weight:600;font-size:14px}
+.wo-set .inp{max-width:7em}
 </style>
 <link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
 </head>
@@ -873,6 +876,11 @@ window.FIREBASE_CONFIG = {
     <section id="tab-orders" class="sec" role="tabpanel" hidden>
       <div class="backbar"><button type="button" class="btn ghost sm" data-back><svg><use href="#i-back"/></svg>گەڕانەوە</button><h2>داواکارییەکانی ماڵپەڕ</h2></div>
       <p class="hint" style="margin:0">کاتێک کڕیار لە ماڵپەڕ لیستەکەی بۆ WhatsApp دەنێرێت، کاڵاکان لێرە دەردەکەون و لە کۆگا کەم دەکرێنەوە. کە گەیەندرا «فرۆشرا» دابگرە تا ببێتە پسوولە؛ ئەگەر نەکڕا «گەڕاندنەوە بۆ کۆگا» دابگرە.</p>
+      <form id="woSet" class="panel wo-set" novalidate>
+        <label for="woAuto">لە یەک کاتدا تا چەند داواکاری خۆکار لە کۆگا کەم بکرێتەوە؟</label>
+        <div class="inrow"><input id="woAuto" class="inp num-in" inputmode="numeric" autocomplete="off"><button type="submit" class="btn sm">پاشەکەوت</button></div>
+        <p class="hint" style="margin:0">داواکاری زیاتر لەم ژمارەیە، یان داواکارییەک کە زیاتر لە <span class="num">30</span> دانەی تێدایە، لە کۆگا کەم ناکرێتەوە تا تۆ «پەسەندکردن» دانەگریت. ئەمە ڕێگە دەگرێت لەوەی کەسێک بە داواکاری ساختە کۆگاکەت بەتاڵ بکات. <span class="num">0</span> = هەموو داواکارییەک چاوەڕێی پەسەندکردنی تۆ دەبێت.</p>
+      </form>
       <div class="wolist" id="woList"></div>
     </section>
 
@@ -1475,7 +1483,7 @@ function stopAll(){
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(RT.unsub){RT.unsub();RT.unsub=null;}
   RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
-  if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.seen=new Set();
+  if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.seen=new Set();WO.waitSeen=new Set();
   syncLive();
 }
 function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
@@ -1516,7 +1524,7 @@ function start(){
   },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
   subscribeOrders();
-  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopLoaded=true;schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
+  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.webAuto=sd.webAuto;S.shopLoaded=true;holdPending();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
     S.dupCodes=new Map();
@@ -2486,14 +2494,20 @@ $('#rtFinish').addEventListener('click',rtFinish);
 // The website writes orders/{code} with status 'new'. The first shop phone that sees it takes the items out of
 // stock (status 'held'); the rules allow that step only once, so stock is never taken twice. A held order then
 // becomes a receipt when it is delivered ('sold', stock already out) or goes back into stock ('returned').
-const WO={list:[],unsub:null,first:true,seen:new Set(),busy:new Set(),chain:Promise.resolve()};
-const WO_MAX_LINES=40,WO_MAX_QTY=50;
+const WO={list:[],unsub:null,first:true,seen:new Set(),waitSeen:new Set(),busy:new Set(),chain:Promise.resolve()};
+const WO_MAX_LINES=40,WO_MAX_QTY=50,WO_AUTO_PIECES=30,WO_AUTO_DEFAULT=10;
+// How many website orders may hold stock by themselves at once (the owner sets it; 0 = every order waits for the owner).
+function webAutoLimit(){const n=Number(S.webAuto);return Number.isFinite(n)&&n>=0?Math.floor(n):WO_AUTO_DEFAULT;}
+function orderRaw(o){
+  return typeof o.items==='string'?o.items.split(';').filter(Boolean).map(x=>{const [pid,q]=x.split('*');return {pid,q};}):(Array.isArray(o.items)?o.items:[]);
+}
+function orderPieces(o){let n=0;for(const it of orderRaw(o).slice(0,WO_MAX_LINES))n+=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it&&it.q)||0)));return n;}
 function subscribeOrders(){
   if(WO.unsub)return;
   WO.unsub=onSnapshot(query(collection(db,'orders'),where('status','in',['new','held'])),snap=>{
     WO.list=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id})).sort((a,b)=>(b.at||0)-(a.at||0));
     // A new order on any phone is announced on the owner's phone (but not the ones already there at start).
-    for(const o of WO.list){if(WO.first)WO.seen.add(o.id);else if(o.status==='held'&&!WO.seen.has(o.id)){WO.seen.add(o.id);if(S.role==='owner')announceOrder(o);}}
+    for(const o of WO.list){if(WO.first){WO.seen.add(o.id);WO.waitSeen.add(o.id);}else if(o.status==='held'&&!WO.seen.has(o.id)){WO.seen.add(o.id);if(S.role==='owner')announceOrder(o);}}
     WO.first=false;
     holdPending();renderMenu();renderOrders();
   },()=>{});
@@ -2502,16 +2516,39 @@ function announceOrder(o){
   beep(true);
   toast('داواکاری نوێ لە ماڵپەڕ: '+fmtNo(o.id)+' · '+fmt((o.lines||[]).length)+' کاڵا · '+fmt(o.sum||0)+' د.ع','info',{label:'بینین',fn:()=>showTab('orders')});
 }
-// One order at a time, so two orders that arrive together do not both take the same last items.
+// One order at a time, oldest first, so two orders that arrive together do not both take the same last items.
+// Only up to the owner's limit of orders hold stock by themselves, and only ordinary-sized ones; the rest wait for
+// the owner, so a flood of made-up orders cannot empty the shop.
 function holdPending(){
-  if(!S.prodLoaded||!navigator.onLine)return;
-  for(const o of WO.list)if(o.status==='new'&&!WO.busy.has(o.id)){WO.busy.add(o.id);WO.chain=WO.chain.then(()=>holdOrder(o.id)).catch(()=>{});}
+  if(!S.prodLoaded||!S.shopLoaded||!navigator.onLine)return;
+  const lim=webAutoLimit();let held=WO.list.filter(o=>o.status==='held').length+WO.busy.size;
+  for(const o of WO.list.slice().sort((a,b)=>(a.at||0)-(b.at||0))){
+    if(o.status!=='new'||WO.busy.has(o.id))continue;
+    if(held>=lim||orderPieces(o)>WO_AUTO_PIECES){waitNotice(o);continue;}
+    held++;WO.busy.add(o.id);WO.chain=WO.chain.then(()=>holdOrder(o.id)).catch(()=>{});
+  }
+}
+function waitNotice(o){
+  if(WO.waitSeen.has(o.id))return;WO.waitSeen.add(o.id);
+  if(S.role!=='owner')return;
+  beep(true);
+  toast('داواکاری نوێ لە ماڵپەڕ: '+fmtNo(o.id)+' · چاوەڕێی پەسەندکردنی تۆیە (هێشتا لە کۆگا کەم نەکراوەتەوە).','info',{label:'بینین',fn:()=>showTab('orders')});
+}
+// The owner takes a waiting order: its items come out of stock now.
+async function acceptOrder(o,btn){
+  if(WO.busy.has(o.id))return;
+  busy(btn,true,'لە کۆگا کەم دەکرێتەوە…');WO.busy.add(o.id);
+  const r=await holdOrder(o.id,true);
+  if(btn.isConnected)busy(btn,false);
+  if(r==='held')toast('داواکاری '+fmtNo(o.id)+' پەسەند کرا و لە کۆگا کەم کرایەوە.');
+  else if(r==='empty')toast('هیچ کاڵایەکی ئەم داواکارییە لە کۆگا نەماوە؛ داواکارییەکە داخرا.','error');
+  else if(r==='gone')toast('ئەم داواکارییە پێشتر لە مۆبایلێکی ترەوە وەرگیراوە.');
+  else if(r)toast(r,'error');
 }
 // What the customer asked for, checked against today's products, prices and stock (the website's own figures are not
 // trusted): no more is taken than the shop has; what was missing is kept to show the owner.
 function orderLines(o){
-  const m=new Map();
-  const raw=typeof o.items==='string'?o.items.split(';').filter(Boolean).map(x=>{const [pid,q]=x.split('*');return {pid,q};}):(Array.isArray(o.items)?o.items:[]);
+  const m=new Map(),raw=orderRaw(o);
   for(const it of raw.slice(0,WO_MAX_LINES)){
     const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it.q)||0)));
     if(!p||!n||p.web===false)continue;
@@ -2528,9 +2565,9 @@ function orderLines(o){
   }
   lines.miss=miss;return lines;
 }
-async function holdOrder(id){
+async function holdOrder(id,byHand){
   try{
-    const o=WO.list.find(x=>x.id===id);if(!o||o.status!=='new'||!S.user)return;   // meanwhile taken by another phone
+    const o=WO.list.find(x=>x.id===id);if(!o||o.status!=='new'||!S.user)return 'gone';   // meanwhile taken by another phone
     const lines=orderLines(o),miss=lines.miss,b=writeBatch(db),ref=doc(db,'orders',id),sum=lines.reduce((a,l)=>a+l.qty*l.price,0);
     if(!lines.length)b.update(ref,{status:'returned',retAt:Date.now(),retBy:S.user.uid,why:'empty',miss:miss});
     else{
@@ -2541,8 +2578,9 @@ async function holdOrder(id){
     // Another phone may have been first: then the rules refuse this one and nothing changes.
     // A very slow line does not hold up the next order.
     await Promise.race([b.commit(),sleep(8000)]);
-    if(lines.length&&S.role==='owner')announceOrder(Object.assign({},o,{lines,sum}));
-  }catch(_){WO.seen.delete(id);}
+    if(lines.length&&S.role==='owner'&&!byHand)announceOrder(Object.assign({},o,{lines,sum}));
+    return lines.length?'held':'empty';
+  }catch(e){WO.seen.delete(id);return byHand?errMsg(e):'error';}
   finally{WO.busy.delete(id);}
 }
 // One tap: everything in the order goes back into stock.
@@ -2584,7 +2622,7 @@ function orderCard(o,where){
   if(o.phone)wp.push('<a href="tel:'+esc(normDigits(String(o.phone)).replace(/[^\d+]/g,''))+'" class="num">'+esc(o.phone)+'</a>');
   if(o.addr)wp.push(esc(o.addr));
   const who=wp.join(' · ');
-  const st=o.status==='new'?'<span class="chip warn">هێشتا لە کۆگا کەم نەکراوەتەوە</span>':o.status==='held'?'<span class="chip m-retail">لە کۆگا کەمکراوە</span>':o.status==='sold'?'<span class="chip ok">فرۆشرا</span>':'<span class="chip">گەڕێندراوەتەوە</span>';
+  const st=o.status==='new'?'<span class="chip warn">چاوەڕێی پەسەندکردنە · هێشتا لە کۆگا کەم نەکراوەتەوە</span>':o.status==='held'?'<span class="chip m-retail">لە کۆگا کەمکراوە</span>':o.status==='sold'?'<span class="chip ok">فرۆشرا</span>':'<span class="chip">گەڕێندراوەتەوە</span>';
   const open=o.status==='held'||o.status==='new';
   return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
     (who?'<div class="wo-who">'+who+'</div>':'')+(o.note?'<div class="wo-who">تێبینی: '+esc(o.note)+'</div>':'')+
@@ -2592,10 +2630,12 @@ function orderCard(o,where){
     ((o.status==='held'?o.miss:lines.miss)&&(o.status==='held'?o.miss:lines.miss).length?'<div class="wo-who">لە کۆگا نەبوو: '+(o.status==='held'?o.miss:lines.miss).map(x=>esc(x.name)+' ('+fmt(x.want)+')').join('، ')+'</div>':'')+
     (open?'<div class="wo-acts">'+
       (where==='orders'&&o.status==='held'?'<label class="sr" for="wp-'+esc(o.id)+'">پارەی وەرگیراو</label><input id="wp-'+esc(o.id)+'" class="inp num-in" inputmode="decimal" placeholder="'+esc(fmt(sum))+'" autocomplete="off"><button type="button" class="btn primary sm" data-wsell>فرۆشرا</button>':'')+
-      '<button type="button" class="btn danger sm" data-wret>گەڕاندنەوەی هەمووی بۆ کۆگا</button></div>':'')+'</div>';
+      (o.status==='new'?(S.role==='owner'&&where==='orders'?'<button type="button" class="btn primary sm" data-whold>پەسەندکردن (کەمکردنەوە لە کۆگا)</button>':'')+'<button type="button" class="btn danger sm" data-wret>ڕەتکردنەوە</button>'
+        :'<button type="button" class="btn danger sm" data-wret>گەڕاندنەوەی هەمووی بۆ کۆگا</button>')+'</div>':'')+'</div>';
 }
 function renderOrders(){
   if(S.tab!=='orders')return;
+  const ai=$('#woAuto');if(document.activeElement!==ai)ai.value=String(webAutoLimit());
   const list=WO.list.filter(o=>o.status==='held'||o.status==='new');
   $('#woList').innerHTML=list.length?list.map(o=>orderCard(o,'orders')).join(''):'<div class="empty"><b>هیچ داواکارییەکی چاوەڕوان نییە</b>کاتێک کڕیار لە ماڵپەڕ داواکاری بنێرێت، لێرە دەردەکەوێت.</div>';
 }
@@ -2603,7 +2643,18 @@ function findOrder(id){return WO.list.find(o=>o.id===id)||(RT.order&&RT.order.id
 $('#woList').addEventListener('click',e=>{
   const card=e.target.closest('[data-wo]');if(!card)return;const o=findOrder(card.dataset.wo);if(!o)return;
   const sb=e.target.closest('[data-wsell]');if(sb){sellOrder(o,card.querySelector('input').value.trim(),sb);return;}
+  const hb=e.target.closest('[data-whold]');if(hb){acceptOrder(o,hb);return;}
   const rb=e.target.closest('[data-wret]');if(rb)arm(rb,'دڵنیایت؟ دووبارە دابگرە',()=>returnOrder(o,rb));
+});
+$('#woSet').addEventListener('submit',async e=>{
+  e.preventDefault();if(S.role!=='owner')return;
+  const raw=$('#woAuto').value.trim(),n=raw===''?WO_AUTO_DEFAULT:Math.floor(parseNum(raw));
+  if(!(n>=0&&n<=100)){toast('ژمارەیەک لە 0 تا 100 بنووسە.','error');return;}
+  const btn=$('#woSet button');busy(btn,true);
+  try{await commitSoft(setDoc(doc(db,'meta','shop'),{webAuto:n},{merge:true}));S.webAuto=n;$('#woAuto').value=String(n);
+    toast(n?('تا '+fmt(n)+' داواکاری لە یەک کاتدا خۆکار لە کۆگا کەم دەکرێتەوە.'):'هەموو داواکارییەک چاوەڕێی پەسەندکردنی تۆ دەبێت.');holdPending();}
+  catch(err){toast(errMsg(err),'error');}
+  finally{busy(btn,false);}
 });
 // The returns page shows an order found by its code, with the one-tap way back into stock.
 function showRtOrder(o){
@@ -3912,7 +3963,8 @@ $('#dbList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches
 function renderMenu(){
   if(S.tab!=='menu')return;
   let debt=0;for(const x of S.debts){if(!x.void&&x.type!=='return')debt+=Math.max(0,x.debt||0);}
-  const wn=$('#mnOrders'),open=WO.list.filter(o=>o.status==='held'||o.status==='new').length;wn.hidden=!open;wn.textContent=fmt(open)+' داواکاری چاوەڕێی گەیاندنن';
+  const wn=$('#mnOrders'),nh=WO.list.filter(o=>o.status==='held').length,nw=WO.list.filter(o=>o.status==='new').length;wn.hidden=!(nh||nw);
+  wn.textContent=[nw?fmt(nw)+' چاوەڕێی پەسەندکردنن':'',nh?fmt(nh)+' چاوەڕێی گەیاندنن':''].filter(Boolean).join(' · ');
   const r=$('#mnReports');r.hidden=!(debt>0);r.textContent='قەرزی کڕیاران: '+fmt(debt)+' د.ع';
   const st=$('#mnStaff'),t=S.lastBackup,n=Array.from(S.staff.values()).filter(x=>!x.removed).length;
   const due=t===null?S.products.size>0:(typeof t==='number'&&daysSince(t)>=BK_DAYS);

@@ -1396,13 +1396,14 @@ $('#f-reg').addEventListener('submit',async e=>{
 async function resolveRole(u){
   screen('boot');S.user=u;
   try{
-    const os=await getDoc(doc(db,'meta','owner'));
-    if(os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true};S.myName=os.data().name||u.displayName||u.email;return start();}
+    let os=null;
+    try{os=await getDoc(doc(db,'meta','owner'));}catch(e){if(!(e&&e.code==='permission-denied'))throw e;}   // not the owner's or staff's: not shown
+    if(os&&os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true};S.myName=os.data().name||u.displayName||u.email;return start();}
     const us=await getDoc(doc(db,'users',u.uid));
     if(us.exists()){const d=us.data();
       if(d.role==='staff'&&d.active===true&&!d.removed){S.role='staff';S.perm=staffPerm(d);S.myName=d.name||u.email;return start();}
-      return denied(d.removed?'removed':(d.active===false?'paused':'none'),!os.exists());}
-    return denied('none',!os.exists());
+      return denied(d.removed?'removed':(d.active===false?'paused':'none'),!!os&&!os.exists());}
+    return denied('none',!!os&&!os.exists());
   }catch(err){denied('error',false,err);}
 }
 function denied(kind,canClaim,err){
@@ -1490,7 +1491,9 @@ function start(){
   S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopLoaded=true;schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
-    snap.docs.forEach(d=>{const p=Object.assign({},d.data(),{id:d.id});S.products.set(d.id,p);if(p.barcode)S.byCode.set(codeKey(p.barcode),d.id);});
+    S.dupCodes=new Map();
+    snap.docs.forEach(d=>{const p=Object.assign({},d.data(),{id:d.id});S.products.set(d.id,p);
+      if(p.barcode){const k=codeKey(p.barcode),was=S.byCode.get(k);if(was&&was!==d.id){const l=S.dupCodes.get(k)||[was];l.push(d.id);S.dupCodes.set(k,l);}S.byCode.set(k,d.id);}});
     S.prodLoaded=true;markSync(snap.metadata);
     renderCart();if(S.tab==='products')renderProducts();if(S.tab==='buy')renderBuy();updateNoCode();if(!$('#picker').hidden)renderPicker();updateBackupUI();
     schedulePubSync();renderWeb();holdPending();
@@ -1566,8 +1569,17 @@ function unknownCode(code){
   else toast('بارکۆدی '+code+' تۆمار نەکراوە. بە خاوەنی دوکان بڵێ.','error');
 }
 // One place that handles every barcode, whatever read it.
+// Two products with one barcode (a mistake, or a cheap copy of an expensive item): ask which, never guess.
+function codeClash(code){
+  const ids=S.dupCodes&&S.dupCodes.get(codeKey(code));if(!ids)return false;
+  const names=ids.map(id=>{const p=S.products.get(id);return p?p.name+' ('+fmt(unitPrice(p,S.mode))+')':'';}).filter(Boolean);
+  beep(false);if(!$('#scanner').hidden)closeScanner();
+  toast('ئەم بارکۆدە هی '+fmt(names.length)+' کاڵایە: '+names.join('، ')+'. کاڵاکە بە ناو هەڵبژێرە و لە «کاڵاکان» بارکۆدەکە ڕاست بکەرەوە.','error');
+  return true;
+}
 function handleCode(code){
   code=codeKey(code);if(!code)return;
+  if(codeClash(code))return;
   const p=productByCode(code);
   if(!p){
     if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
@@ -2216,7 +2228,10 @@ function buildRef(s){
   const sub=Number(s.sub)||0,total=Number(s.total)||0,f=sub>0?total/sub:1,back=s.returned||{},m=new Map();
   for(const it of s.items||[]){const v=m.get(it.pid)||{pid:it.pid,name:it.name,barcode:it.barcode||'',sold:0,val:0};v.sold+=Number(it.qty)||0;v.val+=(Number(it.qty)||0)*(Number(it.price)||0);m.set(it.pid,v);}
   for(const v of m.values()){v.sold=rq(v.sold);v.returned=rq(Number(back[v.pid])||0);v.max=rq(Math.max(0,v.sold-v.returned));v.price=v.sold?Math.round(v.val/v.sold*f*100)/100:0;}
-  return {id:s.id,at:s.at,mode:s.mode==='wholesale'?'wholesale':'retail',customer:s.customer||'',seller:s.sellerName||'',debt:debtOf(s),lines:m};
+  // Refunded so far: the running total, or for receipts from before it was kept, the returned items at their prices.
+  let prior=0;for(const v of m.values())prior+=v.returned*v.price;
+  return {id:s.id,at:s.at,mode:s.mode==='wholesale'?'wholesale':'retail',customer:s.customer||'',seller:s.sellerName||'',debt:debtOf(s),lines:m,
+    retTotal:typeof s.retTotal==='number'?s.retTotal:null,prior:Math.round(prior)};
 }
 function rtLeft(s){let n=0;for(const v of buildRef(s).lines.values())n+=v.max;return rq(n);}
 function rtReset(){RT.ref=null;RT.noRef=false;RT.lines=[];RT.mode='retail';RT.order=null;$('#rtOrder').hidden=true;$('#rtQ').value='';$('#rtScan').value='';$('#rtCust').value='';}
@@ -2394,8 +2409,9 @@ async function rtFinish(){
     const deltas=new Map();for(const it of items)deltas.set(it.pid,(deltas.get(it.pid)||0)+it.qty);
     addStock(b,deltas,'return',id);
     if(R){const up=returnedUpdate(deltas);
-      if(cut>0){up.debt=increment(-cut);up.paid=increment(cut);up.lastReturn=id;}
-      if(Object.keys(up).length)b.update(doc(db,'sales',R.id),up);}
+      up.lastReturn=id;up.retTotal=R.retTotal!=null?increment(sub):Math.round(R.prior+sub);
+      if(cut>0){up.debt=increment(-cut);up.paid=increment(cut);}
+      b.update(doc(db,'sales',R.id),up);}
     const r=await commitSoft(b.commit());
     const done=Object.assign({},rec,{id:id,ts:null}),cash=sub-cut;
     rtReset();showTab('sell');
@@ -2467,7 +2483,8 @@ function holdPending(){
 // trusted): no more is taken than the shop has; what was missing is kept to show the owner.
 function orderLines(o){
   const m=new Map();
-  for(const it of (Array.isArray(o.items)?o.items:[]).slice(0,WO_MAX_LINES)){
+  const raw=typeof o.items==='string'?o.items.split(';').filter(Boolean).map(x=>{const [pid,q]=x.split('*');return {pid,q};}):(Array.isArray(o.items)?o.items:[]);
+  for(const it of raw.slice(0,WO_MAX_LINES)){
     const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it.q)||0)));
     if(!p||!n||p.web===false)continue;
     const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:Number(p.retail)||0};
@@ -2534,7 +2551,11 @@ async function sellOrder(o,paidRaw,btn){
 }
 function orderCard(o,where){
   const lines=o.status==='held'?(o.lines||[]):orderLines(o),sum=o.status==='held'?(o.sum||0):lines.reduce((a,l)=>a+l.qty*l.price,0);
-  const who=[o.name,o.phone?'<a href="tel:'+esc(normDigits(o.phone).replace(/[^\d+]/g,''))+'" class="num">'+esc(o.phone)+'</a>':'',o.addr].filter(Boolean).map(x=>x.startsWith&&x.startsWith('<a')?x:esc(x)).join(' · ');
+  // Everything here was typed by a stranger on the website: each part is escaped on its own.
+  const wp=[];if(o.name)wp.push(esc(o.name));
+  if(o.phone)wp.push('<a href="tel:'+esc(normDigits(String(o.phone)).replace(/[^\d+]/g,''))+'" class="num">'+esc(o.phone)+'</a>');
+  if(o.addr)wp.push(esc(o.addr));
+  const who=wp.join(' · ');
   const st=o.status==='new'?'<span class="chip warn">هێشتا لە کۆگا کەم نەکراوەتەوە</span>':o.status==='held'?'<span class="chip m-retail">لە کۆگا کەمکراوە</span>':o.status==='sold'?'<span class="chip ok">فرۆشرا</span>':'<span class="chip">گەڕێندراوەتەوە</span>';
   const open=o.status==='held'||o.status==='new';
   return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
@@ -3025,7 +3046,9 @@ $('#importGo').addEventListener('click',async()=>{
   }catch(err){toast(errMsg(err),'error');}
   finally{busy(btn,false);}
 });
-function csvCell(v){v=String(v==null?'':v);return /[",\n\r;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function csvCell(v){const raw=v;v=String(v==null?'':v);
+  if(typeof raw==='string'&&/^[=+\-@\t\r]/.test(v)&&!/^[-+]?\d[\d,]*(\.\d+)?$/.test(v))v="'"+v;
+  return /[",\n\r;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 async function saveCsv(name,rows){
   const text='﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
   const blob=new Blob([text],{type:'text/csv;charset=utf-8'});
@@ -3259,15 +3282,17 @@ function stockDeltas(s,newItems){
 }
 function qtyMap(items,sign){const m=new Map();for(const it of items||[])m.set(it.pid,(m.get(it.pid)||0)+sign*it.qty);return m;}
 function returnedUpdate(m){const up={};for(const [pid,q] of m){const v=rq(q);if(v)up['returned.'+pid]=increment(v);}return up;}
-// Is the receipt a return was taken from still there? (its count of returned items needs fixing)
-async function refExists(s){if(!isRet(s)||!s.ref||s.void)return false;try{return (await getDoc(doc(db,'sales',s.ref))).exists();}catch(_){return false;}}
+// The receipt a return was taken from, if it is still there (its counts and refund total need fixing).
+async function refDoc(s){if(!isRet(s)||!s.ref||s.void)return null;try{const d=await getDoc(doc(db,'sales',s.ref));return d.exists()?d.data():null;}catch(_){return null;}}
+async function refExists(s){return !!(await refDoc(s));}
 async function deleteSale(s){
   try{
-    const orig=await refExists(s);
+    const orig=await refDoc(s);
     const b=writeBatch(db);b.delete(doc(db,'sales',s.id));
     if(!s.void)addStock(b,stockDeltas(s,[]),'saleDelete',s.id);
     // A deleted return gives its quantities back to the original receipt, so they can be returned again.
     if(orig){const up=returnedUpdate(qtyMap(s.items,-1));
+      if(typeof orig.retTotal==='number')up.retTotal=increment(-(Number(s.total)||0));
       if(s.debtCut>0){up.debt=increment(s.debtCut);up.paid=increment(-s.debtCut);}
       if(Object.keys(up).length)b.update(doc(db,'sales',s.ref),up);}
     await commitSoft(b.commit());S.open.delete(s.id);if(S.rFound&&S.rFound.id===s.id)S.rFound=null;
@@ -3338,6 +3363,7 @@ $('#eAddQ').addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   e.preventDefault();   // Enter here must not save the receipt
   const raw=$('#eAddQ').value;if(!raw.trim())return;
+  if(S.dupCodes&&S.dupCodes.has(codeKey(raw))){codeClash(raw);return;}
   const exact=productByCode(raw),list=exact?[exact]:eAddList();
   if(list.length===1){eAddProduct(list[0]);if(exact){$('#eAddQ').value='';eAddRender();}beep(true);}
   else if(!list.length)beep(false);
@@ -3346,6 +3372,7 @@ $('#eAddRes').addEventListener('click',e=>{
   const b=e.target.closest('[data-eadd]');if(!b)return;const p=S.products.get(b.dataset.eadd);if(p)eAddProduct(p);
 });
 $('#eAddCam').addEventListener('click',()=>{unlockAudio();openScanner(code=>{
+  if(codeClash(code))return '';
   const p=productByCode(code);if(!p){beep(false);return 'ئەم بارکۆدە تۆمار نەکراوە: '+code;}
   eAddProduct(p);beep(true);return p.name+' زیادکرا ✓';
 },'کاڵاکان سکان بکە بۆ زیادکردن بۆ پسوولەکە',$('#eAddQ'),true);});
@@ -3392,11 +3419,13 @@ $('#saleForm').addEventListener('submit',async e=>{
   const s=E.s,clean=items.map(it=>({pid:it.pid,name:it.name,barcode:it.barcode||'',qty:it.qty,price:it.price}));
   const btn=$('#eSave');busy(btn,true,'پاشەکەوت دەکرێت…');
   try{
-    const orig=await refExists(s);
+    const orig=await refDoc(s);
     const b=writeBatch(db);
     b.update(doc(db,'sales',s.id),{customer:customer,items:clean,sub:t.sub,discount:t.discount,total:t.total,paid:t.paid,debt:Math.round(t.debt),editedAt:Date.now()});
     if(!s.void)addStock(b,stockDeltas(s,clean),'saleEdit',s.id);
-    if(orig){const m=qtyMap(clean,1);for(const [pid,q] of qtyMap(s.items,-1))m.set(pid,(m.get(pid)||0)+q);const up=returnedUpdate(m);if(Object.keys(up).length)b.update(doc(db,'sales',s.ref),up);}
+    if(orig){const m=qtyMap(clean,1);for(const [pid,q] of qtyMap(s.items,-1))m.set(pid,(m.get(pid)||0)+q);const up=returnedUpdate(m);
+      if(typeof orig.retTotal==='number'&&t.total!==s.total)up.retTotal=increment(t.total-(Number(s.total)||0));
+      if(Object.keys(up).length)b.update(doc(db,'sales',s.ref),up);}
     await commitSoft(b.commit());
     closeSaleEdit();toast('پسوولەکە نوێکرایەوە.');
   }catch(ex){err(errMsg(ex));}
@@ -3701,7 +3730,8 @@ const MOVE_MANUAL=['adjust','topup','create','import','saleEdit','saleDelete','b
 // One log entry per operation (a sale, a purchase, a correction): who, when, why, and how much each item changed.
 function logMove(b,items,reason,ref){
   const mref=doc(collection(db,'moves')),now=Date.now();
-  b.set(mref,{reason:reason,ref:ref||'',items:items,pids:items.map(x=>x.pid),by:S.user.uid,byName:S.myName,at:now,day:dayKey(now),ts:serverTimestamp()});
+  const d={};for(const x of items)d[x.pid]=rq((d[x.pid]||0)+(Number(x.delta)||0));
+  b.set(mref,{reason:reason,ref:ref||'',items:items,pids:items.map(x=>x.pid),d:d,by:S.user.uid,byName:S.myName,at:now,day:dayKey(now),ts:serverTimestamp()});
   return mref.id;
 }
 // Every stock change goes through here: the log entry and the items it changed are written together,
@@ -3726,7 +3756,15 @@ function subscribeMoves(){
   },onErr);
 }
 function moveKind(m){return MOVE_MANUAL.includes(m.reason)?'manual':m.reason;}
-function moveItems(m,pid){const its=Array.isArray(m.items)?m.items:[];return pid?its.filter(i=>i.pid===pid):its;}
+function moveItems(m,pid){
+  let its=Array.isArray(m.items)?m.items.filter(i=>i&&typeof i==='object'):[];
+  const d=m.d&&typeof m.d==='object'?m.d:null;
+  if(d){
+    its=its.map(i=>(i.pid in d)?Object.assign({},i,{delta:d[i.pid]}):i);
+    for(const k of Object.keys(d))if(!its.some(i=>i.pid===k)){const p=S.products.get(k);its.push({pid:k,name:p?p.name:'کاڵایەکی نەناسراو',delta:d[k],from:NaN});}
+  }
+  return pid?its.filter(i=>i.pid===pid):its;
+}
 function moveRow(m,pid){
   const its=moveItems(m,pid),k=moveKind(m),no=fmtNo(m.ref);
   const cls=k==='manual'?'warn':(k==='return'?'ret':(k==='purchase'?'m-wholesale':'m-retail'));
@@ -3734,8 +3772,9 @@ function moveRow(m,pid){
   return '<li class="mv"><div class="mv-h"><span class="tm num">'+dm(m.at||0)+'</span><span class="chip '+cls+'">'+esc(MOVE_LABEL[m.reason]||m.reason||'—')+'</span><span class="who">'+esc(m.byName||'—')+'</span>'+
     (no?'<span class="muted">پسوولە <span class="num">'+no+'</span></span>':'')+
     (skew?'<span class="chip danger">کاتی مۆبایلەکە هەڵە بوو · ڕاستەقینە <span class="num">'+dm(tsv)+'</span></span>':'')+'</div>'+
-    its.map(i=>{const from=Number(i.from)||0,dl=Number(i.delta)||0;
-      return '<div class="mv-it"><span class="in">'+esc(i.name)+'</span><span class="num muted">'+fmtQty(from)+' → '+fmtQty(rq(from+dl))+'</span><span class="num '+(dl<0?'neg':'pos')+'">'+(dl<0?'−':'+')+fmtQty(Math.abs(dl))+'</span></div>';}).join('')+'</li>';
+    (its.length?'':'<div class="mv-it"><span class="in muted">هیچ کاڵایەکی تێدا نییە</span></div>')+
+    its.map(i=>{const known=isFinite(Number(i.from))&&i.from!==null&&i.from!=='',from=Number(i.from)||0,dl=Number(i.delta)||0;
+      return '<div class="mv-it"><span class="in">'+esc(i.name)+'</span><span class="num muted">'+(known?fmtQty(from)+' → '+fmtQty(rq(from+dl)):'')+'</span><span class="num '+(dl<0?'neg':'pos')+'">'+(dl<0?'−':'+')+fmtQty(Math.abs(dl))+'</span></div>';}).join('')+'</li>';
 }
 function renderMoves(){
   if(S.tab!=='moves')return;
@@ -3749,7 +3788,7 @@ function renderMoves(){
   const raw=$('#mvSearch').value,q=fold(raw),qn=normNo(raw);
   const list=S.moves.filter(m=>{
     if(S.mvKind!=='all'&&moveKind(m)!==S.mvKind)return false;
-    const its=moveItems(m,pid);if(!its.length)return false;
+    const its=moveItems(m,pid);if(!its.length&&pid)return false;
     if(q&&!(fold(m.byName||'').includes(q)||its.some(i=>fold(i.name||'').includes(q))||(qn.length>=3&&normNo(m.ref||'').includes(qn))))return false;
     return true;
   });

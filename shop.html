@@ -612,10 +612,11 @@ $('#send').addEventListener('click',async()=>{
   // Sending the same list again opens WhatsApp again without a second order.
   let code=sentCode();
   if(!code){
-    const cand=genCode(),val=x=>String(x||'').trim();
-    const order={status:'new',items:v.rows.filter(r=>r.e&&r.e.ok).slice(0,MAXLINES).map(r=>({pid:r.id,q:Math.min(MAXQ,r.q),n:r.e.n.slice(0,120)})),
+    const cand=genCode(),val=x=>String(x||'').replace(/[<>]/g,'').trim();
+    const lines=v.rows.filter(r=>r.e&&r.e.ok&&/^[A-Za-z0-9_-]{1,40}$/.test(r.id)).slice(0,MAXLINES);
+    const order={status:'new',items:lines.map(r=>r.id+'*'+Math.max(1,Math.min(MAXQ,Math.floor(r.q)))+';').join(''),
       name:val($('#fName').value).slice(0,80),phone:phoneDigits(val($('#fPhone').value)).slice(0,30),addr:val($('#fAddr').value).slice(0,200),note:val($('#fNote').value).slice(0,300),
-      total:v.total,at:Date.now(),ts:serverTimestamp()};
+      total:Math.round(Number(v.total)||0),at:Date.now(),ts:serverTimestamp()};
     // Saved, or still on its way on a slow line (it is kept on the phone and sent when it can): the code goes in the message.
     // Refused (the shop has not switched orders on): the message goes without a code, as before.
     let r;try{r=await Promise.race([setDoc(doc(db,'orders',cand),order).then(()=>'ok'),new Promise(ok=>setTimeout(()=>ok('slow'),5000))]);}catch(_){r='no';}

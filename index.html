@@ -266,6 +266,12 @@ main.wrap{padding-block:16px 120px}
 .pp.hit{background:var(--warn-soft);border-radius:6px;padding-inline:4px}
 .pp.sortk b{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
 .mtile[data-pv="dup"] .mi{background:var(--danger-soft);color:var(--danger)}
+.prow.vrow{display:flex;flex-direction:column;align-items:stretch;gap:4px;text-align:start}
+.vrow .vr1{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.vrow .vr2{font-size:13px}
+.vrow .vr3{display:flex;flex-wrap:wrap;gap:6px}
+.vsum{padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.vsum p{margin:0}
 .dgh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;background:var(--sunk);font-weight:700;font-size:14px;border-top:1px solid var(--line)}
 .dgh:first-child{border-top:0}
 .dgh .dgk{min-width:0;overflow-wrap:anywhere}
@@ -971,6 +977,7 @@ window.FIREBASE_CONFIG = {
           <button type="button" class="mtile sm" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">کاڵاکان بەپێی نرخ</span></span></button>
           <button type="button" class="mtile sm" data-pv="dup"><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="mnote" id="pDupNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="photo" data-owner><span class="mi"><svg><use href="#i-cam"/></svg></span><span class="mtx"><b>وێنە و ماڵپەڕ</b><span class="mnote" id="pPhotoNote"></span></span></button>
+          <button type="button" class="mtile sm" data-pv="value" data-owner><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>پشکنینی بەهای کۆگا</b><span class="mnote" id="pValNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتن</span></span></button>
         </div>
       </div>
@@ -2769,7 +2776,7 @@ $('#lowShare').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(text);toast('لیستەکە کۆپی کرا. لە WhatsApp دایبنێ.');}
   catch(_){toast('ناردن سەرکەوتوو نەبوو.','error');}
 });
-const PV_TITLES={photo:'کاڵا بێ وێنەکان',all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',dup:'کاڵا دووبارەکان',excel:'Excel'};
+const PV_TITLES={value:'پشکنینی بەهای کۆگا',photo:'کاڵا بێ وێنەکان',all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',dup:'کاڵا دووبارەکان',excel:'Excel'};
 function priceHits(p,price,kind,seeCost){
   const r=x=>Math.round(Number(x)||0),hit={retail:r(p.retail)===price,wholesale:r(p.wholesale)===price,cost:seeCost&&r(costOf(p.id))===price};
   const ok=kind==='any'?(hit.retail||hit.wholesale||hit.cost):!!hit[kind];
@@ -2801,6 +2808,43 @@ function rowHtml(p,h,sortk){
     '<span class="pp rt'+sk('retail')+'"><small>تاک</small><b class="num">'+fmt(p.retail)+'</b></span>'+
     '<span class="pstock"><span class="chip '+cls+'">'+(st<=0?'نەماوە':fmtQty(st))+'</span></span></button>';
 }
+// Checking the stock value: what each item adds (stock × purchase price), and whatever about it looks wrong —
+// one mistyped price (a barcode in the price box, an extra zero) can make the total many times too big.
+function valueCheck(all){
+  const rows=[];let total=0,noCost=0;
+  const cs=all.map(p=>costOf(p.id)).filter(c=>c>0).sort((a,b)=>a-b),med=cs.length?cs[Math.floor(cs.length/2)]:0;
+  for(const p of all){
+    const st=typeof p.stock==='number'?p.stock:0,c=costOf(p.id),v=Math.max(0,st)*c,r=Number(p.retail)||0,w=Number(p.wholesale)||0,flags=[];
+    if(st>0&&!c)noCost++;
+    if(c>=10000000)flags.push('نرخی کڕین وەک بارکۆد دەچێت');
+    else if(c>Math.max(1000000,med*20))flags.push('نرخی کڕین زۆر بەرزە بەراورد بە کاڵاکانی تر');
+    if(r>0&&c>r)flags.push('نرخی کڕین لە نرخی تاک زیاترە');
+    else if(w>0&&c>w)flags.push('نرخی کڕین لە نرخی جوملە زیاترە');
+    if(st>=1000)flags.push('بڕی کۆگا زۆر زۆرە ('+fmtQty(st)+')');
+    if(st<0)flags.push('بڕی کۆگا لە سفر کەمترە');
+    total+=v;rows.push({p,st,c,v,flags});
+  }
+  if(rows.length>=10&&total>0)for(const x of rows)if(x.v/total>=0.25)x.flags.push('بەتەنها '+fmt(Math.round(x.v/total*100))+'%ی هەموو بەهاکەیە');
+  return {rows,total,noCost,flagged:rows.filter(x=>x.flags.length).length};
+}
+function renderValue(all,body){
+  const vc=valueCheck(all),pct=v=>vc.total>0?Math.round(v/vc.total*1000)/10:0;
+  $('#pvCount').innerHTML='<span class="num">'+fmt(vc.flagged)+'</span> گومانلێکراو';
+  $('.phead').hidden=true;
+  const byV=(a,b)=>b.v-a.v||String(a.p.name).localeCompare(String(b.p.name),'ar');
+  const bad=vc.rows.filter(x=>x.flags.length).sort(byV),good=vc.rows.filter(x=>!x.flags.length&&x.v>0).sort(byV);
+  const top=good.concat(bad).sort(byV).slice(0,5).reduce((a,x)=>a+x.v,0);
+  const row=x=>'<button type="button" class="prow vrow" data-id="'+esc(x.p.id)+'">'+
+    '<span class="vr1"><span class="pname">'+esc(x.p.name)+'</span><b class="num">'+fmt(x.v)+' د.ع</b></span>'+
+    '<span class="vr2 muted"><span class="num">'+fmtQty(x.st)+'</span> دانە × <span class="num">'+(x.c?fmt(x.c):'—')+'</span> نرخی کڕین'+(x.v>0?' · <span class="num">'+pct(x.v)+'%</span>':'')+(x.p.barcode?' · <span class="num">'+esc(x.p.barcode)+'</span>':'')+'</span>'+
+    (x.flags.length?'<span class="vr3">'+x.flags.map(f=>'<span class="chip danger">'+esc(f)+'</span>').join('')+'</span>':'')+'</button>';
+  body.innerHTML='<div class="vsum"><p><b>بەهای کۆگا</b> = بڕی هەر کاڵایەک × نرخی کڕینەکەی، بۆ هەموو کاڵاکان کۆ دەکرێتەوە.</p>'+
+    '<p>کۆ: <b class="num">'+fmt(vc.total)+'</b> د.ع'+(top&&vc.total?' · ٥ کاڵای یەکەم <b class="num">'+pct(top)+'%</b>ی ئەم بەهایەن':'')+'.</p>'+
+    (vc.noCost?'<p><span class="num">'+fmt(vc.noCost)+'</span> کاڵا کە لە کۆگا هەن نرخی کڕینیان نییە، بۆیە لەم ژمارەیەدا نەژمێردراون.</p>':'')+
+    '<p>ئەگەر ژمارەیەک هەڵەیە، کاڵاکە دابگرە و نرخی کڕین یان بڕی کۆگاکەی ڕاست بکەرەوە.</p></div>'+
+    (bad.length?'<div class="dgh"><span class="dgk">پێویستی بە پشکنینە</span><span class="chip danger"><span class="num">'+fmt(bad.length)+'</span> کاڵا</span></div>'+bad.map(row).join(''):'<div class="dgh"><span class="dgk">هیچ هەڵەیەکی دیار نییە</span></div>')+
+    (good.length?'<div class="dgh"><span class="dgk">هەموو کاڵاکان، لە بەهای زۆرەوە</span><span class="chip"><span class="num">'+fmt(good.length)+'</span> کاڵا</span></div>'+good.slice(0,400).map(row).join(''):'');
+}
 function setPressed(sel,attr,val){$$(sel+' ['+attr+']').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute(attr)===val)));}
 function renderProducts(){
   const owner=S.role==='owner',seeCost=owner||S.perm.cost,all=Array.from(S.products.values());
@@ -2811,7 +2855,9 @@ function renderProducts(){
   const dn=$('#pDupNote');dn.className='mnote'+(dupIds.size?' danger':'');
   dn.textContent=dupIds.size?(fmt(dupIds.size)+' کاڵا ناو یان بارکۆدیان دووبارەیە'):'هیچ ناو یان بارکۆدێکی دووبارە نییە';
   let v=S.pview||'home';
-  if((v==='excel'||v==='photo')&&!owner)v=S.pview='home';
+  if((v==='excel'||v==='photo'||v==='value')&&!owner)v=S.pview='home';
+  {const vc=valueCheck(all),vn=$('#pValNote');vn.className='mnote'+(vc.flagged?' danger':'');
+    vn.textContent=vc.flagged?(fmt(vc.flagged)+' کاڵا پێویستی بە پشکنینە'):'هیچ هەڵەیەکی دیار نییە';}
   {const np=all.filter(p=>p.web!==false&&!p.imgV).length,pn=$('#pPhotoNote');pn.className='mnote'+(np?' warn':'');
     pn.textContent=all.length?(np?(fmt(np)+' کاڵا بێ وێنە'):'هەموو کاڵاکان وێنەیان هەیە'):'وێنە بۆ ماڵپەڕی دوکان';}
   $('#pHome').hidden=v!=='home';$('#pView').hidden=v==='home';
@@ -2830,6 +2876,7 @@ function renderProducts(){
   const body=$('#pBody');
   $('#plist').classList.toggle('nocost',!seeCost);
   if(!S.prodLoaded){$('.phead').hidden=true;body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
+  if(v==='value'){renderValue(all,body);return;}
   if(v==='dup'){
     const groups=dupGroups(S.dupBy,S.dupPrice,seeCost),n=groups.reduce((a,g)=>a+g[1].length,0);
     $('#dHint').textContent=S.dupBy==='name'?'ئەو کاڵایانەی ناویان وەک یەکە. ئەگەر یەکێکیان زیادەیە، دەستی لێبدە و بیسڕەوە یان ناوەکەی بگۆڕە.'

@@ -19,7 +19,7 @@
   --bg:#F7F2F3; --paper:#FFFFFF; --ink:#2A1830; --muted:#7A6672; --line:#E7DADF;
   --rose:#A8325A; --rose-ink:#FFFFFF; --rose-soft:#F6E3EA; --blush:#F1DDE3;
   --shelf-a:#E6D2D9; --shelf-b:#D4BBC4; --shelf-shadow:rgba(42,24,48,.20);
-  --leaf:#4F7A62; --wa:#167F3F; --wa-ink:#FFFFFF;
+  --leaf:#4F7A62; --wa:#167F3F; --wa-ink:#FFFFFF; --wa-soft:#E2F1E7;
   --scrim:rgba(42,24,48,.42); --bar:rgba(247,242,243,.92);
   --cap1:#C98AA0; --cap2:#9C7AA6; --cap3:#B9976F; --cap4:#7FA08C;
   --f-disp:"Noto Naskh Arabic","Noto Sans Arabic",serif;
@@ -32,7 +32,7 @@
     --bg:#1A1020; --paper:#251829; --ink:#F4E9EF; --muted:#B9A3B1; --line:#3A2A38;
     --rose:#E3769A; --rose-ink:#1A1020; --rose-soft:#3A2030; --blush:#3A2433;
     --shelf-a:#3B2838; --shelf-b:#2C1D2A; --shelf-shadow:rgba(0,0,0,.55);
-    --leaf:#8CC4A2; --wa:#2FC56A; --wa-ink:#0D1B12;
+    --leaf:#8CC4A2; --wa:#2FC56A; --wa-ink:#0D1B12; --wa-soft:#18301F;
     --scrim:rgba(0,0,0,.62); --bar:rgba(26,16,32,.92);
     --cap1:#9A5C73; --cap2:#6F5680; --cap3:#86704F; --cap4:#577563;
     color-scheme:dark;
@@ -55,9 +55,14 @@ button{cursor:pointer}
 .hd{padding:34px 0 14px}
 .shop{margin:0;font-family:var(--f-disp);font-weight:700;font-size:clamp(34px,9.5vw,56px);line-height:1.25;letter-spacing:0;overflow-wrap:anywhere}
 .note{margin:6px 0 0;color:var(--muted);font-size:15px;max-width:60ch}
-.contact{display:inline-flex;align-items:center;gap:8px;margin-top:14px;min-height:44px;padding:8px 14px;border:1.5px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;background:var(--paper)}
-.contact svg{width:18px;height:18px;color:var(--leaf)}
-.contact:hover{border-color:var(--rose)}
+/* WhatsApp and the shop on the map: two soft round icons */
+.contacts{display:flex;gap:12px;margin-top:16px}
+.ib{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;text-decoration:none;border:0;transition:transform .15s ease,filter .15s ease}
+.ib svg{width:24px;height:24px}
+.ib.wa{background:var(--wa-soft);color:var(--wa)}
+.ib.map{background:var(--rose-soft);color:var(--rose)}
+.ib:hover{filter:brightness(.97)}
+.ib:active{transform:scale(.93)}
 
 /* ---------- toolbar ---------- */
 .bar{position:sticky;top:0;z-index:20;background:var(--bar);-webkit-backdrop-filter:saturate(1.2) blur(10px);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
@@ -78,7 +83,15 @@ button{cursor:pointer}
 .sortw:has(select:focus-visible){outline:2.5px solid var(--rose);outline-offset:2px}
 .sortw select{position:absolute;top:-1.5px;left:-1.5px;width:calc(100% + 3px);height:calc(100% + 3px);margin:0;opacity:0;font-size:16px;appearance:none;-webkit-appearance:none;border:0;cursor:pointer}
 .sortw svg{position:absolute;left:11px;top:50%;width:14px;height:14px;margin-top:-7px;pointer-events:none;color:var(--muted)}
-.count{margin-inline-start:auto;color:var(--muted);font-size:13px;white-space:nowrap}
+/* the shop's buttons (categories): one row that slides sideways, and a second row for the chosen one's sections */
+.opts{flex-wrap:nowrap}
+.cats,.subs{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding-inline:8px}
+.cats::-webkit-scrollbar,.subs::-webkit-scrollbar{display:none}
+.cats{flex:1;min-width:0;padding-block:2px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 28px);mask-image:linear-gradient(to right,transparent 0,#000 28px);padding-inline-end:24px}
+.cat{flex:none;min-height:44px;padding:6px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-weight:600;font-size:14px;white-space:nowrap;cursor:pointer}
+.cat[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:var(--rose-ink)}
+.subs .cat{min-height:40px;padding:4px 14px;font-size:13px;background:transparent}
+.subs .cat[aria-pressed="true"]{background:var(--rose-soft);border-color:var(--rose);color:var(--rose)}
 
 /* ---------- the shelves ---------- */
 main{padding-top:22px;padding-bottom:40px}
@@ -222,10 +235,14 @@ body.has-list main{padding-bottom:120px}
   <div class="wrap">
     <h1 class="shop" id="shopName">دوکان</h1>
     <p class="note" id="shopNote" hidden></p>
-    <a class="contact" id="contact" target="_blank" rel="noopener" hidden>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06a6.73 6.73 0 0 1-3.37-2.95c-.25-.44.25-.41.72-1.36.08-.16.04-.3-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.76 2.68 4.25 3.76 1.58.68 2.2.74 2.99.62.48-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/></svg>
-      <span>پەیوەندی بە WhatsApp</span>
-    </a>
+    <div class="contacts">
+      <a class="ib wa" id="contact" target="_blank" rel="noopener" aria-label="پەیوەندی بە WhatsApp" title="WhatsApp" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06a6.73 6.73 0 0 1-3.37-2.95c-.25-.44.25-.41.72-1.36.08-.16.04-.3-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.76 2.68 4.25 3.76 1.58.68 2.2.74 2.99.62.48-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/></svg>
+      </a>
+      <a class="ib map" id="mapLink" target="_blank" rel="noopener" aria-label="ناونیشانی دوکان لەسەر نەخشە" title="ناونیشان" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2c-4 0-7.2 3.1-7.2 7 0 5.1 6.3 11.9 6.6 12.2.3.3.9.3 1.2 0 .3-.3 6.6-7.1 6.6-12.2 0-3.9-3.2-7-7.2-7Zm0 9.8a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6Z"/></svg>
+      </a>
+    </div>
   </div>
 </header>
 
@@ -248,8 +265,10 @@ body.has-list main{padding-bottom:120px}
         </select>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
-      <span class="count" id="count" aria-live="polite"></span>
+      <div class="cats" id="cats" role="group" aria-label="بەشەکان" hidden></div>
     </div>
+    <div class="subs" id="subs" role="group" aria-label="بەشەکانی ناوەوە" hidden></div>
+    <span class="sr" id="count" aria-live="polite"></span>
   </div>
 </div>
 
@@ -378,12 +397,12 @@ let toastT;
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true;},2600);}
 
 /* ---------- state ---------- */
-const S={info:{name:'',wa:'',note:''},cat:null,err:false,q:'',onlyOk:false,sort:'name',list:new Map(),open:null};
+const S={info:{name:'',wa:'',note:'',cats:[],map:''},cat:null,err:false,q:'',sort:'name',list:new Map(),open:null,fc:'',fs:''};
 const LIST_KEY='shop.list.v1',WHO_KEY='shop.who.v1';
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
-function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0};}
+function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||'')};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -449,6 +468,8 @@ function paintItem(li,e){
 function visible(){
   const words=fold(S.q).split(' ').filter(Boolean);
   let list=items().filter(e=>e.ok);   // what the shop has run out of is not shown; it comes back with new stock
+  if(S.fc)list=list.filter(e=>e.c===S.fc);
+  if(S.fc&&S.fs)list=list.filter(e=>e.s===S.fs);
   if(words.length)list=list.filter(e=>{const f=fold(e.n);return words.every(w=>f.includes(w));});
   const byName=(a,b)=>a.n.localeCompare(b.n,'ar');
   if(S.sort==='asc')list.sort((a,b)=>a.r-b.r||byName(a,b));
@@ -467,10 +488,11 @@ function render(){
   grid.removeAttribute('aria-busy');
   const all=items(),list=visible();
   for(const id of Array.from(els.keys()))if(!entry(id)){if(io)io.unobserve(els.get(id));els.delete(id);}
-  $('#count').innerHTML=all.length?('<span class="n">'+money(list.length)+'</span> کاڵا'):'';
+  $('#count').textContent=all.length?(money(list.length)+' کاڵا'):'';
+  paintCats();
   if(!all.length){grid.innerHTML='';st.hidden=false;st.innerHTML='<b>هێشتا هیچ کاڵایەک دانەنراوە.</b>کەمێکی تر سەردان بکەرەوە.';return;}
   if(!list.length){grid.innerHTML='';st.hidden=false;
-    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە.</b>ناوێکی تر تاقی بکەرەوە.'):'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>«تەنها ئەوانەی هەن» لاببە بۆ بینینی هەموو کاڵاکان.';
+    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە'+(S.fc?' لەم بەشەدا':'')+'.</b>ناوێکی تر تاقی بکەرەوە'+(S.fc?'، یان «هەمووی» دابگرە':'')+'.'):(S.fc?'<b>ئێستا هیچ کاڵایەک لەم بەشەدا نییە.</b>«هەمووی» دابگرە بۆ بینینی هەموو کاڵاکان.':'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>دواتر سەردان بکەرەوە.');
     return;}
   st.hidden=true;
   const kids=grid.children,same=kids.length===list.length&&list.every((e,i)=>kids[i].dataset&&kids[i].dataset.id===e.id);
@@ -483,6 +505,37 @@ function render(){
   if(anchor&&anchor.isConnected&&anchor.classList.contains('it')&&!anchor.classList.contains('sk')){const d=anchor.getBoundingClientRect().top-top;if(Math.abs(d)>1)window.scrollBy(0,d);}
   if(fo&&fo.isConnected)fo.focus({preventScroll:true});
 }
+
+/* ---------- the shop's buttons and their sections ---------- */
+function parseCats(raw){
+  if(!Array.isArray(raw))return [];
+  return raw.slice(0,40).filter(c=>c&&typeof c.id==='string'&&typeof c.n==='string'&&c.n.trim()).map(c=>({id:c.id,n:c.n.slice(0,40),
+    subs:(Array.isArray(c.subs)?c.subs:[]).slice(0,40).filter(x=>x&&typeof x.id==='string'&&typeof x.n==='string'&&x.n.trim()).map(x=>({id:x.id,n:x.n.slice(0,40)}))}));
+}
+function okMap(u){try{const x=new URL(String(u||''));return x.protocol==='https:'&&/(^|\.)(google\.[a-z.]+|goo\.gl|g\.co|apple\.com)$/.test(x.hostname)?x.href:'';}catch(_){return '';}}
+// Only buttons (and sections) that have something in stock are shown.
+function paintCats(){
+  const inStock=items().filter(e=>e.ok),has=new Set(inStock.map(e=>e.c)),hasS=new Set(inStock.map(e=>e.c+'|'+e.s));
+  const cats=(S.info.cats||[]).filter(c=>has.has(c.id));
+  if(S.fc&&!cats.some(c=>c.id===S.fc)){S.fc='';S.fs='';}
+  const box=$('#cats');box.hidden=!cats.length;
+  const html=cats.length?('<button type="button" class="cat" data-c="" aria-pressed="'+(!S.fc)+'">هەمووی</button>'+
+    cats.map(c=>'<button type="button" class="cat" data-c="'+esc(c.id)+'" aria-pressed="'+(S.fc===c.id)+'">'+esc(c.n)+'</button>').join('')):'';
+  if(box.innerHTML!==html)box.innerHTML=html;
+  const cur=cats.find(c=>c.id===S.fc),subs=cur?cur.subs.filter(x=>hasS.has(cur.id+'|'+x.id)):[];
+  if(S.fs&&!subs.some(x=>x.id===S.fs))S.fs='';
+  const sb=$('#subs');sb.hidden=!subs.length;
+  const sh=subs.length?('<button type="button" class="cat" data-s="" aria-pressed="'+(!S.fs)+'">هەمووی '+esc(cur.n)+'</button>'+
+    subs.map(x=>'<button type="button" class="cat" data-s="'+esc(x.id)+'" aria-pressed="'+(S.fs===x.id)+'">'+esc(x.n)+'</button>').join('')):'';
+  if(sb.innerHTML!==sh)sb.innerHTML=sh;
+}
+// After choosing, the shelves start from the top (just under the bar), with the chosen button in view.
+function toShelfTop(){const y=$('main').getBoundingClientRect().top+window.scrollY-$('.bar').offsetHeight;if(window.scrollY>y)window.scrollTo(0,Math.max(0,y));}
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const id=b.dataset.c;
+  if(S.fc===id&&id){S.fc='';}else S.fc=id;S.fs='';render();toShelfTop();
+  const on=$('#cats [aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'});});
+$('#subs').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;S.fs=b.dataset.s;render();toShelfTop();
+  const on=$('#subs [aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'});});
 
 /* ---------- list ---------- */
 function maxOf(id){const e=entry(id);return e&&e.ok?e.m:MAXQ;}
@@ -664,10 +717,14 @@ function paintInfo(){
   $('#shopNote').textContent=note;$('#shopNote').hidden=!note;$('#ftNote').textContent=note;$('#ftNote').hidden=!note;
   $('#ftCredit').hidden=!i.credit;
   const c=$('#contact');c.hidden=!i.wa;if(i.wa)c.href='https://wa.me/'+encodeURIComponent(i.wa);
+  // the shop on the map: the owner's own link, or else a map search for the shop's name and address
+  const m=$('#mapLink'),q=[name,note].filter(Boolean).join(' ');
+  m.href=i.map||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q));m.hidden=!(i.map||note);
+  if(S.cat)render();
   if(!$('#lsheet').hidden)renderList();
 }
 skeleton();refreshList();
-onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),nt:/^[A-Za-z0-9_-]{1,64}$/.test(String(d.nt||''))?String(d.nt):'',note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
+onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),nt:/^[A-Za-z0-9_-]{1,64}$/.test(String(d.nt||''))?String(d.nt):'',cats:parseCats(d.cats),map:okMap(d.map),note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
 onSnapshot(doc(db,'pub','cat'),s=>{
   if(!s.exists()&&s.metadata&&s.metadata.fromCache){if(!S.cat){const st=$('#state');grid.innerHTML='';st.hidden=false;st.innerHTML='<b>چاوەڕێی ئینتەرنێت…</b>کە پەیوەندی هات، کاڵاکان دەردەکەون.';}return;}
   S.err=false;S.cat=s.exists()?(s.data()||{p:{}}):{p:{}};if(!S.cat.p)S.cat.p={};render();refreshList();},()=>{S.err=true;render();});

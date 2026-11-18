@@ -267,6 +267,7 @@ textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit
 .pp.hit{background:var(--warn-soft);border-radius:6px;padding-inline:4px}
 .pp.sortk b{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
 .mtile[data-pv="dup"] .mi{background:var(--danger-soft);color:var(--danger)}
+.mtile[data-pv="media"] .mi{background:var(--mode-soft);color:var(--mode)}
 .fcats{display:flex;flex-direction:column;gap:6px}
 .cchips{display:flex;gap:6px;flex-wrap:wrap}
 .cchips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px;color:var(--muted);min-height:38px}
@@ -610,6 +611,17 @@ button.prow:hover{background:var(--sunk)}
 .fimg-prev img{width:100%;height:100%;object-fit:contain;display:block}
 .fimg-acts{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
 .fimg-acts label.btn{cursor:pointer}
+/* photo and note by barcode */
+.mdscan{min-height:54px;font-size:17px;width:100%}
+.mdscan svg{width:24px;height:24px}
+.mdimg{display:flex;gap:14px;align-items:center}
+.mdimg .fimg-prev{width:124px;height:124px}
+.mdacts{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;flex:1}
+.mdacts label.btn{cursor:pointer}
+.mdsub{margin:-6px 0 0;color:var(--muted);font-size:13px}
+.mdweb{margin:0;font-size:13px;padding:8px 10px;border-radius:var(--r-sm);background:var(--warn-soft);color:var(--warn)}
+#mediaSheet .tools .btn{flex:1 1 auto}
+#pvMedia .psearch{flex:none}
 .chip.web-off{margin-inline-start:6px;vertical-align:middle}
 .weburl{display:block;direction:ltr;text-align:left;unicode-bidi:isolate;overflow-wrap:anywhere;font-family:var(--f-num);font-size:13px;color:var(--retail);background:var(--sunk);border-radius:var(--r-sm);padding:8px 10px;text-decoration:none}
 .offbox{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
@@ -658,6 +670,7 @@ window.FIREBASE_CONFIG = {
   <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M11 20V8"/><path d="M16 20v-9"/><path d="M21 20V5"/></g></symbol>
   <symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.3"/><path d="M2.8 20a6.2 6.2 0 0 1 12.4 0"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2A5 5 0 0 1 21.5 19.5"/></g></symbol>
   <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6M9 16h3"/></g></symbol>
+  <symbol id="i-scanimg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V5.5a2 2 0 0 1 2-2H8M16 3.5h2.5a2 2 0 0 1 2 2V8M20.5 16v2.5a2 2 0 0 1-2 2H16M8 20.5H5.5a2 2 0 0 1-2-2V16"/><path d="M8 8.5v7M11 8.5v7M13.5 8.5v7M16 8.5v7"/></g></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 8h3.2l1.8-2.8h7l1.8 2.8h3.2v11h-17z"/><circle cx="12" cy="13.2" r="3.6"/></g></symbol>
  <symbol id="i-truck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6h11v10h-11z"/><path d="M13.5 9.5h4l3 3.2V16h-7"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></g></symbol>
  <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></g></symbol>
@@ -1003,13 +1016,14 @@ window.FIREBASE_CONFIG = {
     <!-- PRODUCTS -->
     <section id="tab-products" class="sec" role="tabpanel" hidden>
       <div id="pHome">
-        <button type="button" class="mtile hero" data-pv="new"><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">بارکۆد سکان بکە و کاڵاکان یەک لە دوای یەک زیاد بکە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
+        <button type="button" class="mtile hero" data-pv="new" data-addp><span class="mi"><svg><use href="#i-plus"/></svg></span><span class="mtx"><b>کاڵای نوێ</b><span class="msub">بارکۆد سکان بکە و کاڵاکان یەک لە دوای یەک زیاد بکە</span></span><svg class="chev"><use href="#i-next"/></svg></button>
         <div class="menu-grid two" id="pTiles">
-          <button type="button" class="mtile sm" data-pv="all"><span class="mi"><svg><use href="#i-box"/></svg></span><span class="mtx"><b>هەموو کاڵاکان</b><span class="msub"><span class="mbig" id="pCount">0</span> کاڵا</span><span class="mnote" id="pValueLine" data-owner>بەهای کۆگا: <span class="num" id="pValue">0</span> د.ع</span></span></button>
-          <button type="button" class="mtile sm" data-pv="low"><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span></span></button>
-          <button type="button" class="mtile sm" data-pv="search"><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">نووسین، کامێرا یان سکانەر</span></span></button>
-          <button type="button" class="mtile sm" data-pv="price"><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">کاڵاکان بەپێی نرخ</span></span></button>
-          <button type="button" class="mtile sm" data-pv="dup"><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="mnote" id="pDupNote"></span></span></button>
+          <button type="button" class="mtile sm" data-pv="all" data-addp><span class="mi"><svg><use href="#i-box"/></svg></span><span class="mtx"><b>هەموو کاڵاکان</b><span class="msub"><span class="mbig" id="pCount">0</span> کاڵا</span><span class="mnote" id="pValueLine" data-owner>بەهای کۆگا: <span class="num" id="pValue">0</span> د.ع</span></span></button>
+          <button type="button" class="mtile sm" data-pv="low" data-addp><span class="mi"><svg><use href="#i-alert"/></svg></span><span class="mtx"><b>کەم ماوە یان نەماوە</b><span class="msub"><span class="mbig" id="pLow">0</span> کاڵا</span></span></button>
+          <button type="button" class="mtile sm" data-pv="search" data-addp><span class="mi"><svg><use href="#i-search"/></svg></span><span class="mtx"><b>گەڕان بە ناو یان بارکۆد</b><span class="msub">نووسین، کامێرا یان سکانەر</span></span></button>
+          <button type="button" class="mtile sm" data-pv="price" data-addp><span class="mi"><svg><use href="#i-tag"/></svg></span><span class="mtx"><b>گەڕان بە نرخ</b><span class="msub">کاڵاکان بەپێی نرخ</span></span></button>
+          <button type="button" class="mtile sm" data-pv="dup" data-addp><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="mnote" id="pDupNote"></span></span></button>
+          <button type="button" class="mtile sm" data-pv="media" data-media><span class="mi"><svg><use href="#i-scanimg"/></svg></span><span class="mtx"><b>وێنە و تێبینی بە بارکۆد</b><span class="msub">سکان بکە، وێنە بگرە و تێبینی بنووسە</span><span class="mnote" id="pMediaNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="photo" data-owner><span class="mi"><svg><use href="#i-cam"/></svg></span><span class="mtx"><b>وێنە و ماڵپەڕ</b><span class="mnote" id="pPhotoNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="cats" data-owner><span class="mi"><svg><use href="#i-grid"/></svg></span><span class="mtx"><b>بەشەکانی ماڵپەڕ</b><span class="mnote" id="pCatNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="value" data-owner><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>پشکنینی بەهای کۆگا</b><span class="mnote" id="pValNote"></span></span></button>
@@ -1052,6 +1066,16 @@ window.FIREBASE_CONFIG = {
             <button type="button" data-dk="cost" aria-pressed="false" id="dKindCost">کڕین</button>
           </div>
           <p class="hint" id="dHint" style="margin:0"></p>
+        </div>
+        <div id="pvMedia" class="sec" style="gap:10px" hidden>
+          <button type="button" id="mdScan" class="btn primary mdscan"><svg><use href="#i-cam"/></svg>سکانی بارکۆد</button>
+          <p class="hint" style="margin:0">بارکۆدی کاڵاکە سکان بکە، ڕاستەوخۆ داوای وێنە و تێبینی دەکات. کە پاشەکەوتت کرد لە ماڵپەڕەکەش دەردەکەون. کاڵای بێ بارکۆد لە خوارەوە بە ناو بدۆزەوە.</p>
+          <div class="psearch"><label for="mdQ" class="sr">گەڕان بە ناو یان بارکۆد</label><input id="mdQ" class="inp" type="search" placeholder="ناو یان بارکۆد بنووسە" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search"></div>
+          <div class="pkinds" id="mdKinds" role="group" aria-label="پیشاندان">
+            <button type="button" data-mk="nophoto" aria-pressed="true">بێ وێنە · <span class="num" id="mdKnP">0</span></button>
+            <button type="button" data-mk="nonote" aria-pressed="false">بێ تێبینی · <span class="num" id="mdKnN">0</span></button>
+            <button type="button" data-mk="all" aria-pressed="false">هەموو</button>
+          </div>
         </div>
         <p id="photoHint" class="hint" style="margin:0" hidden>دەستی لە کاڵایەک بدە و وێنەی بگرە. ئەوانەی وێنەیان هەیە لێرە لادەچن.</p>
         <div id="offBox" class="offbox" hidden>
@@ -1181,6 +1205,7 @@ window.FIREBASE_CONFIG = {
             <label class="chk"><input type="checkbox" id="sCanAdd"> دەتوانێت کاڵا زیاد بکات</label>
             <label class="chk"><input type="checkbox" id="sCanRet" checked> دەتوانێت گەڕاوە وەربگرێت</label>
             <label class="chk"><input type="checkbox" id="sCanBuy"> دەتوانێت نرخی کڕین ببینێت و بینووسێت</label>
+            <label class="chk"><input type="checkbox" id="sCanMedia"> دەتوانێت وێنە و تێبینی بۆ کاڵاکان دابنێت (بە سکانی بارکۆد)</label>
           </div>
           <p id="sMsg" class="msg" hidden></p>
           <button type="submit" id="sBtn" class="btn primary">دروستکردنی ئەکاونت</button>
@@ -1261,6 +1286,27 @@ window.FIREBASE_CONFIG = {
   </div>
 
   <!-- PRODUCT SHEET -->
+  <div id="mediaSheet" class="sheet" hidden>
+    <div class="sheet-bg" data-mdclose></div>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="mdTitle">
+      <div class="sheet-head"><h2 id="mdTitle"></h2><button type="button" class="x" data-mdclose aria-label="داخستن">×</button></div>
+      <p id="mdSub" class="mdsub"></p>
+      <div class="mdimg">
+        <div class="fimg-prev" id="mdPrev"><span>وێنە نییە</span></div>
+        <div class="mdacts">
+          <label class="btn primary" for="mdCam" id="mdCamBtn"><svg><use href="#i-cam"/></svg><span id="mdCamTxt">وێنە بگرە</span></label>
+          <input type="file" id="mdCam" accept="image/*" capture="environment" hidden>
+          <label class="btn ghost sm" for="mdFile">لە گەلەری هەڵیبژێرە</label>
+          <input type="file" id="mdFile" accept="image/*" hidden>
+          <button type="button" id="mdDel" class="btn ghost sm" hidden>لابردنی وێنە</button>
+        </div>
+      </div>
+      <div class="field"><label for="mdNote">تێبینی بۆ موشتەری <span class="muted">(ئارەزوومەندانە)</span></label><textarea id="mdNote" class="inp" rows="3" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ بە دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت.</span></div>
+      <p id="mdWebNote" class="mdweb" hidden></p>
+      <p id="mdErr" class="msg" hidden></p>
+      <div class="tools"><button type="button" id="mdNext" class="btn primary">پاشەکەوت و سکانی دواتر</button><button type="button" id="mdSave" class="btn ghost">پاشەکەوت</button></div>
+    </div>
+  </div>
   <div id="sheet" class="sheet" hidden>
     <div class="sheet-bg" data-close></div>
     <form id="pForm" class="sheet-card" novalidate role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -1505,7 +1551,7 @@ async function resolveRole(u){
   try{
     let os=null;
     try{os=await getDoc(doc(db,'meta','owner'));}catch(e){if(!(e&&e.code==='permission-denied'))throw e;}   // not the owner's or staff's: not shown
-    if(os&&os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true};S.myName=os.data().name||u.displayName||u.email;return start();}
+    if(os&&os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true,media:true};S.myName=os.data().name||u.displayName||u.email;return start();}
     const us=await getDoc(doc(db,'users',u.uid));
     if(us.exists()){const d=us.data();
       if(d.role==='staff'&&d.active===true&&!d.removed){S.role='staff';S.perm=staffPerm(d);S.myName=d.name||u.email;return start();}
@@ -1550,18 +1596,22 @@ function stopAll(){
   offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
   S.products=new Map();S.byCode=new Map();setCosts(null);S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
-  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false};
+  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false,media:false};
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(RT.unsub){RT.unsub();RT.unsub=null;}
   RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
   if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.waitSeen=new Set();
   syncLive();
 }
-function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true};}
+function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true,media:d.canMedia===true};}
 // Show or hide what this person may do; runs at start and whenever the owner changes a staff member's permissions.
 function applyPerms(){
   const owner=S.role==='owner';
-  $$('[data-prodtab]').forEach(el=>{el.hidden=!(owner||S.perm.add);});
+  // The products page opens for staff who may add items, or who may only set photos and notes (then it shows just that button).
+  $$('[data-prodtab]').forEach(el=>{el.hidden=!(owner||S.perm.add||S.perm.media);});
+  $$('[data-addp]').forEach(el=>{el.hidden=!(owner||S.perm.add);});
+  $$('[data-media]').forEach(el=>{el.hidden=!(owner||S.perm.media);});
+  if(!owner&&!S.perm.media&&!$('#mediaSheet').hidden)closeMedia();
   $$('[data-buytab]').forEach(el=>{el.hidden=!owner;});
   if(S.tab==='buy'&&!owner)showTab('sell');
   // Staff allowed to see purchase prices read them live; switching it off drops them at once.
@@ -1573,7 +1623,7 @@ function applyPerms(){
   }
   $('#retOpen').hidden=!(owner||S.perm.ret);
   if(S.tab==='ret'&&!(owner||S.perm.ret))showTab('sell');
-  if(S.tab==='products'&&!owner&&!S.perm.add)showTab('sell');
+  if(S.tab==='products'&&!owner&&!S.perm.add&&!S.perm.media)showTab('sell');
   if(S.tab==='products')renderProducts();
 }
 function onErr(err){
@@ -1631,7 +1681,7 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab==='products')S.pview='home';showTab(b.dataset.tab);}));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves','orders'].includes(t)||(t==='products'&&!S.perm.add)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves','orders'].includes(t)||(t==='products'&&!S.perm.add&&!S.perm.media)))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   if(t==='ret'&&!(S.role==='owner'||S.perm.ret))t='sell';
   S.tab=t;
@@ -1708,8 +1758,9 @@ $('#scanGo').addEventListener('click',submitScan);
 // and pull it back out of another field (e.g. customer name) if it landed there by mistake.
 const wedge={buf:'',t:0};
 document.addEventListener('keydown',e=>{
-  if(!['sell','buy','products','ret'].includes(S.tab)||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden)return;
-  const T={sell:[scan,submitScan,handleCode],buy:[$('#bScan'),submitBuyScan,handleBuyCode],products:[$('#pSearch'),()=>findByBarcode($('#pSearch').value),findByBarcode],
+  if(!['sell','buy','products','ret'].includes(S.tab)||$('#s-app').hidden||!$('#sheet').hidden||!$('#picker').hidden||!$('#scanner').hidden||!$('#mediaSheet').hidden)return;
+  const mdw=S.pview==='media'||(S.role!=='owner'&&!S.perm.add);   // on the photo page (or for staff who may only do photos) a scan opens the photo and note
+  const T={sell:[scan,submitScan,handleCode],buy:[$('#bScan'),submitBuyScan,handleBuyCode],products:mdw?[$('#mdQ'),()=>mediaCode($('#mdQ').value),mediaCode]:[$('#pSearch'),()=>findByBarcode($('#pSearch').value),findByBarcode],
     ret:(RT.ref||RT.noRef)?[$('#rtScan'),submitRtScan,rtCode]:[$('#rtQ'),rtSubmit,rtCode]}[S.tab];
   const box=T[0],go=T[1],hit=T[2];
   const a=document.activeElement,inField=!!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA');
@@ -2812,6 +2863,7 @@ function isLow(p){return (typeof p.stock==='number'?p.stock:0)<=lowOf(p);}
 // The products page is a set of buttons; each opens its own view with a way back.
 function openPView(v){
   if(v==='new'){openSheet(null,{batch:true},false);return;}
+  if(v==='media'){if(!canMedia())return;S.pview='media';renderProducts();window.scrollTo(0,0);scanMedia();return;}
   if(v==='cats'){CM.mode='list';CM.sel.clear();}
   S.pview=v;renderProducts();window.scrollTo(0,0);
   if(v==='search'){const i=$('#pSearch');i.focus();try{i.select();}catch(_){}}
@@ -2837,7 +2889,7 @@ $('#lowShare').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(text);toast('لیستەکە کۆپی کرا. لە WhatsApp دایبنێ.');}
   catch(_){toast('ناردن سەرکەوتوو نەبوو.','error');}
 });
-const PV_TITLES={cats:'بەشەکانی ماڵپەڕ',value:'پشکنینی بەهای کۆگا',photo:'کاڵا بێ وێنەکان',all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',dup:'کاڵا دووبارەکان',excel:'Excel'};
+const PV_TITLES={media:'وێنە و تێبینی بە بارکۆد',cats:'بەشەکانی ماڵپەڕ',value:'پشکنینی بەهای کۆگا',photo:'کاڵا بێ وێنەکان',all:'هەموو کاڵاکان',low:'کەم ماوە یان نەماوە',search:'گەڕان بە ناو یان بارکۆد',price:'گەڕان بە نرخ',dup:'کاڵا دووبارەکان',excel:'Excel'};
 function priceHits(p,price,kind,seeCost){
   const r=x=>Math.round(Number(x)||0),hit={retail:r(p.retail)===price,wholesale:r(p.wholesale)===price,cost:seeCost&&r(costOf(p.id))===price};
   const ok=kind==='any'?(hit.retail||hit.wholesale||hit.cost):!!hit[kind];
@@ -3102,6 +3154,9 @@ function renderProducts(){
   dn.textContent=dupIds.size?(fmt(dupIds.size)+' کاڵا ناو یان بارکۆدیان دووبارەیە'):'هیچ ناو یان بارکۆدێکی دووبارە نییە';
   let v=S.pview||'home';
   if((v==='excel'||v==='photo'||v==='value'||v==='cats')&&!owner)v=S.pview='home';
+  if(!owner&&v!=='home'&&(v==='media'?!S.perm.media:!S.perm.add))v=S.pview='home';
+  {const np=all.filter(p=>!p.imgV).length,nn=all.filter(p=>!hasNote(p)).length,mn=$('#pMediaNote');mn.className='mnote'+(np?' warn':'');
+    mn.textContent=!all.length?'':(np?fmt(np)+' کاڵا بێ وێنە':'هەموو کاڵاکان وێنەیان هەیە')+(all.length&&nn?' · '+fmt(nn)+' بێ تێبینی':'');}
   {const nn=all.filter(p=>!catById(p.cat)).length,cn=$('#pCatNote');cn.className='mnote'+(nn?' warn':'');
     cn.textContent=!S.cats.length?'هیچ دوگمەیەک نییە':(nn?fmt(nn)+' کاڵا بێ بەشن':'هەموو کاڵاکان بەشیان هەیە');}
   {const vc=valueCheck(all),vn=$('#pValNote');vn.className='mnote'+(vc.flagged?' danger':'');
@@ -3115,7 +3170,7 @@ function renderProducts(){
     return;
   }
   $('#pvTitle').textContent=PV_TITLES[v]||'';
-  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#photoHint').hidden=v!=='photo';$('#offBox').hidden=v!=='photo';if(v==='photo')paintOff();$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
+  $('#pvSearch').hidden=v!=='search';$('#pvPrice').hidden=v!=='price';$('#pvDup').hidden=v!=='dup';$('#lowTools').hidden=v!=='low';$('#pvMedia').hidden=v!=='media';$('#photoHint').hidden=v!=='photo';$('#offBox').hidden=v!=='photo';if(v==='photo')paintOff();$('#pvExcel').hidden=v!=='excel';$('#plist').hidden=v==='excel';
   $('#pKindCost').hidden=!seeCost;if(!seeCost&&S.priceKind==='cost')S.priceKind='any';
   $('#dKindCost').hidden=!seeCost;if(!seeCost&&S.dupPrice==='cost')S.dupPrice='retail';
   setPressed('#pKinds','data-k',S.priceKind);setPressed('#pSort','data-s',S.priceSort);
@@ -3124,6 +3179,7 @@ function renderProducts(){
   const body=$('#pBody');
   $('#plist').classList.toggle('nocost',!seeCost);
   if(!S.prodLoaded){$('.phead').hidden=true;body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
+  if(v==='media'){renderMedia(all,body);return;}
   if(v==='value'){renderValue(all,body);return;}
   if(v==='cats'){renderCatMgr(all,body);return;}
   if(v==='dup'){
@@ -4034,6 +4090,136 @@ $('#offCancel').addEventListener('click',()=>{if(!OFF.saving)offReset();});
 $('#offSave').addEventListener('click',offSave);
 $('#offList').addEventListener('change',e=>{const c=e.target.closest('[data-off]');if(!c)return;const f=OFF.found[+c.dataset.off];if(f){f.on=c.checked;if(!OFF.saving)offSaveLabel();}});
 
+/* ================= photo and note by barcode ================= */
+// Scan an item: its photo and its note for customers open at once, and saving puts them on the website too.
+// The owner, and staff the owner allows («وێنە و تێبینی»), may do this for any item; nothing else of the item changes.
+const MD={pid:null,data:null,changed:false,fetch:false,busy:false,saving:false};
+const MDV={k:'nophoto',q:''};
+function canMedia(){return S.role==='owner'||!!S.perm.media;}
+function hasNote(p){return !!p&&typeof p.note==='string'&&!!p.note.trim();}
+function cleanNote(t){return String(t||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,300);}
+function mdErr(t){const e=$('#mdErr');e.textContent=t||'';e.hidden=!t;}
+function mdPaint(){
+  const box=$('#mdPrev');
+  if(MD.data){box.classList.add('has');box.innerHTML='<img alt="" src="'+esc(MD.data)+'">';}
+  else{box.classList.remove('has');box.innerHTML='<span>'+(MD.fetch||MD.busy?'بار دەکرێت…':'وێنە نییە')+'</span>';}
+  $('#mdDel').hidden=!MD.data;$('#mdCamTxt').textContent=MD.data?'وێنەی نوێ بگرە':'وێنە بگرە';
+}
+function onSite(p){return p.web!==false&&(typeof p.stock==='number'?p.stock:0)>0;}
+function openMedia(p){
+  if(!canMedia()||!p)return;
+  Object.assign(MD,{pid:p.id,data:null,changed:false,fetch:!!p.imgV,busy:false,saving:false});
+  $('#mdTitle').textContent=p.name;
+  $('#mdSub').innerHTML=(p.barcode?'<span class="num">'+esc(p.barcode)+'</span> · ':'')+'نرخی تاک: <span class="num">'+fmt(p.retail)+'</span> د.ع';
+  $('#mdNote').value=hasNote(p)?p.note:'';
+  const wn=$('#mdWebNote');wn.hidden=onSite(p);
+  wn.textContent=p.web===false?'ئەم کاڵایە لە ماڵپەڕ شاراوەیە. وێنە و تێبینییەکە پاشەکەوت دەکرێن، بەڵام تا خاوەنی دوکان پیشانی نەداتەوە لە ماڵپەڕ دەرناکەون.'
+    :'ئەم کاڵایە لە کۆگا نەماوە، بۆیە ئێستا لە ماڵپەڕ دیار نییە. کە کۆگای بۆ زیاد کرایەوە بە وێنە و تێبینییەکەیەوە دەردەکەوێتەوە.';
+  mdErr('');mdPaint();
+  $('#mediaSheet').hidden=false;$('#mediaSheet .sheet-card').scrollTop=0;
+  if(p.imgV){const want=p.id;
+    getDoc(doc(db,'pimg',want)).then(sn=>{if(MD.pid!==want||MD.changed)return;MD.data=sn.exists()?(sn.data().d||sn.data().u||null):null;})
+      .catch(()=>{}).finally(()=>{if(MD.pid===want){MD.fetch=false;mdPaint();}});}
+}
+function closeMedia(){if(MD.saving)return;$('#mediaSheet').hidden=true;Object.assign(MD,{pid:null,data:null,changed:false,fetch:false,busy:false});}
+// The camera, for one item after another.
+function scanMedia(){
+  if(!canMedia())return;
+  unlockAudio();
+  openScanner(code=>{
+    if(codeClash(code))return '';
+    if(!S.prodLoaded)return 'کاڵاکان هێشتا بار دەکرێن…';
+    const p=productByCode(code);
+    if(!p){beep(false);return 'ئەم بارکۆدە تۆمار نەکراوە: '+code;}
+    closeScanner();openMedia(p);return '';
+  },'بارکۆدی کاڵاکە سکان بکە',$('#mdQ'),true);
+}
+// A code typed, or read by a hardware scanner, on this page.
+function mediaCode(code){
+  code=codeKey(String(code||''));$('#mdQ').value='';MDV.q='';
+  if(!code||!canMedia())return;
+  if(codeClash(code))return;
+  if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
+  const p=productByCode(code);
+  if(S.pview!=='media'){S.pview='media';renderProducts();}else renderProducts();
+  if(!p){beep(false);toast('بارکۆدی '+code+' تۆمار نەکراوە.','error');return;}
+  beep(true);openMedia(p);
+}
+async function mdPick(e){
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f||!MD.pid)return;
+  const forId=MD.pid;MD.busy=true;mdErr('');mdPaint();
+  try{const d=await shrinkImage(f);if(MD.pid!==forId)return;MD.data=d;MD.changed=true;}
+  catch(_){toast('وێنەکە نەخوێندرایەوە. دووبارە هەوڵ بدەرەوە.','error');}
+  finally{if(MD.pid===forId){MD.busy=false;mdPaint();}}
+}
+$('#mdCam').addEventListener('change',mdPick);
+$('#mdFile').addEventListener('change',mdPick);
+$('#mdDel').addEventListener('click',()=>{MD.data=null;MD.changed=true;mdPaint();});
+async function mdSave(next){
+  if(MD.saving||!MD.pid)return;
+  if(!canMedia()){closeMedia();return;}
+  const pid=MD.pid,p=S.products.get(pid);
+  if(!p){closeMedia();toast('ئەم کاڵایە نەماوە.','error');return;}
+  if(MD.busy)return mdErr('وێنەکە هێشتا ئامادە دەکرێت، چەند چرکەیەک چاوەڕێ بکە.');
+  const note=cleanNote($('#mdNote').value),up={},merged=Object.assign({},p);
+  let v=0;
+  if(MD.changed){
+    if(MD.data){v=Date.now();up.imgV=v;merged.imgV=v;}
+    else if(p.imgV)up.imgV=deleteField();
+    if(MD.data||p.imgV){if('imgS' in p)up.imgS=deleteField();delete merged.imgS;}
+    if(!MD.data)delete merged.imgV;
+  }
+  if(note!==(typeof p.note==='string'?p.note:'')){up.note=note||deleteField();if(note)merged.note=note;else delete merged.note;}
+  if(!Object.keys(up).length){closeMedia();toast('هیچ شتێک نەگۆڕا.');if(next)scanMedia();return;}
+  MD.saving=true;mdErr('');
+  const btn=next?$('#mdNext'):$('#mdSave');busy(btn,true,'پاشەکەوت دەکرێت…');$('#mdNext').disabled=$('#mdSave').disabled=true;
+  try{
+    const b=writeBatch(db);
+    if('imgV' in up){if(v)b.set(doc(db,'pimg',pid),{d:MD.data,v:v});else b.delete(doc(db,'pimg',pid));}
+    b.update(doc(db,'products',pid),up);
+    pubPut(b,pid,merged);
+    const r=await commitSoft(b.commit());
+    const what=('imgV' in up?(v?'وێنە':'لابردنی وێنە'):'')+('imgV' in up&&'note' in up?' و ':'')+('note' in up?(note?'تێبینی':'لابردنی تێبینی'):'');
+    MD.saving=false;closeMedia();
+    toast('«'+p.name+'»: '+what+' پاشەکەوت کرا'+(r==='pending'?'. کە ئینتەرنێت هاتەوە دەنێردرێت.':(onSite(p)?' و لە ماڵپەڕ نوێ کرایەوە.':'.')));
+    if(next)scanMedia();
+  }catch(err){mdErr(errMsg(err));}
+  finally{MD.saving=false;busy(btn,false);$('#mdNext').disabled=$('#mdSave').disabled=false;}
+}
+$('#mdNext').addEventListener('click',()=>mdSave(true));
+$('#mdSave').addEventListener('click',()=>mdSave(false));
+$$('[data-mdclose]').forEach(b=>b.addEventListener('click',closeMedia));
+$('#mediaSheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeMedia();});
+// The page behind the tile: scan button, and the items to find by name (those without a barcode too).
+function mdRow(p){
+  const n=hasNote(p);
+  return '<button type="button" class="prow vrow mdrow" data-md="'+esc(p.id)+'">'+
+    '<span class="vr1"><span class="pname">'+esc(p.name)+'</span><b class="num">'+fmt(p.retail)+'</b></span>'+
+    '<span class="vr2 muted">'+(p.barcode?'<span class="num">'+esc(p.barcode)+'</span>':'بێ بارکۆد')+'</span>'+
+    '<span class="vr3"><span class="chip '+(p.imgV?'ok':'warn')+'">'+(p.imgV?'وێنەی هەیە':'بێ وێنە')+'</span><span class="chip'+(n?' ok':'')+'">'+(n?'تێبینی هەیە':'بێ تێبینی')+'</span>'+
+    (p.web===false?'<span class="chip">شاراوە لە ماڵپەڕ</span>':'')+'</span></button>';
+}
+function renderMedia(all,body){
+  $('.phead').hidden=true;setPressed('#mdKinds','data-mk',MDV.k);
+  $('#mdKnP').textContent=fmt(all.filter(p=>!p.imgV).length);$('#mdKnN').textContent=fmt(all.filter(p=>!hasNote(p)).length);
+  const q=normText(MDV.q),fq=fold(q),byName=(a,b)=>String(a.name).localeCompare(String(b.name),'ar');
+  let list=all.filter(p=>MDV.k==='nophoto'?!p.imgV:(MDV.k==='nonote'?!hasNote(p):true));
+  if(q)list=list.filter(p=>fold(p.name).includes(fq)||normText(p.barcode||'').includes(q));
+  list.sort(byName);
+  $('#pvCount').innerHTML='<span class="num">'+fmt(list.length)+'</span> کاڵا';
+  if(!list.length){body.innerHTML='<div class="empty">'+(q?'هیچ کاڵایەک بەم ناوە یان بارکۆدە لەم لیستەدا نییە.':(MDV.k==='nophoto'?'<b>هەموو کاڵاکان وێنەیان هەیە</b>':(MDV.k==='nonote'?'<b>هەموو کاڵاکان تێبینییان هەیە</b>':'هێشتا هیچ کاڵایەک تۆمار نەکراوە.')))+'</div>';return;}
+  body.innerHTML=list.slice(0,300).map(mdRow).join('')+(list.length>300?'<div class="more">'+fmt(list.length-300)+' کاڵای تر هەیە. بۆ دۆزینەوەیان ناو یان بارکۆد بنووسە.</div>':'');
+}
+$('#mdScan').addEventListener('click',scanMedia);
+$('#mdQ').addEventListener('input',()=>{MDV.q=$('#mdQ').value;renderProducts();});
+$('#mdQ').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;e.preventDefault();
+  const v=$('#mdQ').value;if(/^\d{4,}$/.test(codeKey(v))&&productByCode(v)){mediaCode(v);return;}
+  $('#mdQ').blur();
+});
+$('#mdKinds').addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;MDV.k=b.dataset.mk;renderProducts();});
+$('#pBody').addEventListener('click',e=>{if(S.pview!=='media')return;const b=e.target.closest('[data-md]');if(!b)return;const p=S.products.get(b.dataset.md);if(p)openMedia(p);});
+
 /* ================= public website ================= */
 // The website reads only pub/info, pub/cat and pimg/*: name, retail price, in stock or not, how many a customer may
 // ask for (the stock, but never more than 50), photo. Wholesale and purchase prices, sales and everything else never leave the app.
@@ -4419,7 +4605,7 @@ $('#f-shop').addEventListener('submit',async e=>{
 $('#f-staff').addEventListener('submit',async e=>{
   e.preventDefault();
   const name=$('#sName').value.trim(),email=$('#sEmail').value.trim().toLowerCase(),pw=$('#sPass').value;
-  const perms={canAddProducts:$('#sCanAdd').checked,canReturn:$('#sCanRet').checked,canPurchase:$('#sCanBuy').checked};
+  const perms={canAddProducts:$('#sCanAdd').checked,canReturn:$('#sCanRet').checked,canPurchase:$('#sCanBuy').checked,canMedia:$('#sCanMedia').checked};
   if(!name)return setMsg($('#sMsg'),'ناوی شاگرد بنووسە.');
   if(!email)return setMsg($('#sMsg'),'ئیمەیڵ بنووسە.');
   if(pw.length<6)return setMsg($('#sMsg'),'پاسوێرد دەبێت لانیکەم ٦ پیت یان ژمارە بێت.');
@@ -4434,7 +4620,7 @@ $('#f-staff').addEventListener('submit',async e=>{
     await setDoc(doc(db,'users',cred.user.uid),Object.assign({name:name,email:email,role:'staff',active:true,createdAt:Date.now()},perms));
     await signOut(sa).catch(()=>{});
     setMsg($('#sMsg'),'ئەکاونتی '+name+' دروست کرا. ئیمەیڵ: '+email,true);
-    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;
+    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;
   }catch(err){
     if(err&&err.code==='auth/email-already-in-use'){
       const ex=Array.from(S.staff.values()).find(x=>(x.email||'').toLowerCase()===email);
@@ -4444,7 +4630,7 @@ $('#f-staff').addEventListener('submit',async e=>{
           await updateDoc(doc(db,'users',ex.id),Object.assign({name:name,active:true,removed:false},perms));
           try{await sendPasswordResetEmail(auth,email);}catch(_){}
           setMsg($('#sMsg'),'ئەکاونتی '+name+' دووبارە چالاک کرایەوە. پاسوێردە کۆنەکەی وەک خۆیەتی؛ ئیمەیڵی گۆڕینی پاسوێردی بۆ نێردرا.',true);
-          $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;
+          $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;
         }catch(e2){setMsg($('#sMsg'),errMsg(e2));}
       }else setMsg($('#sMsg'),ex?('ئەم ئیمەیڵە هی «'+ex.name+'» ە.'):'ئەم ئیمەیڵە پێشتر ئەکاونتی هەیە. ئیمەیڵێکی تر بەکاربهێنە.');
     }else setMsg($('#sMsg'),errMsg(err));
@@ -4460,7 +4646,8 @@ function renderStaff(){
     (S.renaming===s.id?'<form class="inrow rename" data-rename="'+id+'" novalidate><label for="rn-'+id+'" class="sr">ناوی نوێ</label><input id="rn-'+id+'" class="inp" value="'+esc(s.name)+'" autocomplete="off"><button type="submit" class="btn primary sm">پاشەکەوت</button><button type="button" class="btn ghost sm" data-rename-cancel>داخستن</button></form>':'')+
     '<div class="perms"><label class="chk"><input type="checkbox" id="pa-'+id+'" data-perm="canAddProducts" data-uid="'+id+'"'+(pa?' checked':'')+'> زیادکردنی کاڵا</label>'+
     '<label class="chk"><input type="checkbox" id="pr-'+id+'" data-perm="canReturn" data-uid="'+id+'"'+(pr?' checked':'')+'> گەڕاوە</label>'+
-    '<label class="chk"><input type="checkbox" id="pb-'+id+'" data-perm="canPurchase" data-uid="'+id+'"'+(s.canPurchase===true?' checked':'')+'> نرخی کڕین</label></div>'+
+    '<label class="chk"><input type="checkbox" id="pb-'+id+'" data-perm="canPurchase" data-uid="'+id+'"'+(s.canPurchase===true?' checked':'')+'> نرخی کڕین</label>'+
+    '<label class="chk"><input type="checkbox" id="pm-'+id+'" data-perm="canMedia" data-uid="'+id+'"'+(s.canMedia===true?' checked':'')+'> وێنە و تێبینی</label></div>'+
     '<div class="sa"><button type="button" class="btn ghost sm" data-toggle-staff="'+id+'">'+(s.active?'ڕاگرتن':'چالاککردنەوە')+'</button>'+
     '<button type="button" class="btn ghost sm" data-rename-open="'+id+'">گۆڕینی ناو</button>'+
     '<button type="button" class="btn ghost sm" data-reset="'+esc(s.email)+'">ئیمەیڵی گۆڕینی پاسوێرد</button>'+
@@ -4483,7 +4670,7 @@ $('#staffList').addEventListener('click',async e=>{
 $('#staffList').addEventListener('change',async e=>{
   const c=e.target.closest('[data-perm]');if(!c)return;
   const s=S.staff.get(c.dataset.uid);if(!s)return;
-  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'نرخی کڕین'}[f]||f;
+  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'نرخی کڕین',canMedia:'وێنە و تێبینی'}[f]||f;
   try{await commitSoft(updateDoc(doc(db,'users',s.id),{[f]:on}));toast(s.name+': '+label+' '+(on?'ڕێگەی پێدرا.':'ڕێگەی لێ گیرا.'));}
   catch(err){c.checked=!on;toast(errMsg(err),'error');}
 });

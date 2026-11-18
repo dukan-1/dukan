@@ -117,6 +117,12 @@ body.has-list main{padding-bottom:120px}
 .meta{padding:12px 14px 0;display:flex;flex-direction:column;gap:6px;flex:1}
 .nm{margin:0;font-family:var(--f-disp);font-weight:600;font-size:16px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;overflow-wrap:anywhere}
 .pr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+/* a product with a note from the shop: a small button on the card, the note itself in the product view */
+.tip{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:3px 11px 3px 9px;border:0;border-radius:999px;background:var(--rose-soft);color:var(--rose);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.tip svg{width:15px;height:15px;flex:none}
+.pnote{display:flex;gap:10px;align-items:flex-start;margin:4px 0 2px;padding:12px 14px;border-radius:14px;background:var(--rose-soft);color:var(--ink)}
+.pnote svg{width:20px;height:20px;flex:none;color:var(--rose);margin-top:2px}
+.pnote p{margin:0;font-size:15px;line-height:1.75;white-space:pre-line;overflow-wrap:anywhere}
 .price{font-weight:600;font-size:15px;color:var(--rose);white-space:nowrap}
 .after .code{display:block;margin-top:4px;font-family:var(--f-ui);letter-spacing:.04em}
 .after .code:empty{display:none}
@@ -304,6 +310,7 @@ body.has-list main{padding-bottom:120px}
     <div class="big" id="pBig"><div class="pic" id="pPic"></div></div>
     <h2 class="pn" id="pName"></h2>
     <div class="prow"><span class="pprice" id="pPrice"></span><span class="avail" id="pAvail"></span></div>
+    <div class="pnote" id="pNote" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.6a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6ZM13.3 17h-2.6v-6.4h2.6V17Z"/></svg><p id="pNoteText"></p></div>
     <div class="act" id="pAct">
       <span class="step"><button type="button" id="pMinus" aria-label="کەمکردنەوە">−</button><output id="pQty" class="n" aria-live="polite">1</output><button type="button" id="pPlus" aria-label="زیادکردن">+</button></span>
       <button type="button" class="btn main" id="pAdd">زیادکردن بۆ لیست</button>
@@ -402,7 +409,7 @@ const LIST_KEY='shop.list.v1',WHO_KEY='shop.who.v1';
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
-function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||'')};}
+function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),t:typeof e.t==='string'?e.t.slice(0,300):''};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -445,12 +452,13 @@ const grid=$('#grid'),els=new Map();
 function makeItem(id){
   const li=document.createElement('li');li.className='it';li.dataset.id=id;
   li.innerHTML='<button type="button" class="ph" data-open><span class="pic"></span><span class="oos" hidden>نەماوە</span></button>'+
-    '<div class="meta"><h3 class="nm" data-open></h3><div class="pr"><span class="price"><span class="n"></span><span class="cur">د.ع</span></span><button type="button" class="add" data-add>+</button></div></div>';
+    '<div class="meta"><h3 class="nm" data-open></h3><button type="button" class="tip" data-open data-note hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.6a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6ZM13.3 17h-2.6v-6.4h2.6V17Z"/></svg>تێبینی</button><div class="pr"><span class="price"><span class="n"></span><span class="cur">د.ع</span></span><button type="button" class="add" data-add>+</button></div></div>';
   els.set(id,li);return li;
 }
 function paintItem(li,e){
   li.classList.toggle('out',!e.ok);
   const nm=li.querySelector('.nm');if(nm.textContent!==e.n)nm.textContent=e.n;
+  const tp=li.querySelector('.tip');tp.hidden=!e.t;if(e.t)tp.setAttribute('aria-label','تێبینی دەربارەی «'+e.n+'»');
   li.querySelector('.ph').setAttribute('aria-label',e.n+(e.ok?'':'، نەماوە'));
   li.querySelector('.price .n').textContent=e.r>0?money(e.r):'بپرسە';li.querySelector('.price .cur').hidden=!(e.r>0);
   li.querySelector('.oos').hidden=e.ok;
@@ -638,6 +646,7 @@ async function openProduct(id){
 function paintSheet(){
   const e=entry(S.open);if(!e){closeSheet($('#psheet'));return;}
   $('#pName').textContent=e.n;
+  $('#pNote').hidden=!e.t;$('#pNoteText').textContent=e.t||'';
   $('#pPrice').innerHTML=e.r>0?'<span class="n">'+money(e.r)+'</span><span class="cur">د.ع</span>':'<span class="ask">نرخ لە دوکان بپرسە</span>';
   const a=$('#pAvail');a.textContent=e.ok?'هەیە':'نەماوە';a.classList.toggle('no',!e.ok);
   $('#pBig').classList.toggle('out',!e.ok);

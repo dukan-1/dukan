@@ -139,6 +139,7 @@ main.wrap{padding-block:16px 120px}
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
 .field label{font-size:13px;color:var(--muted);font-weight:500}
 .inp{width:100%;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg);padding:10px 11px;font-size:16px;min-width:0}
+textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit}
 .inp:focus{border-color:var(--mode);outline:none;background:var(--surface)}
 .inp.bad{border-color:var(--danger)}
 .num-in,.ltr-in{direction:ltr;text-align:right}
@@ -1275,6 +1276,7 @@ window.FIREBASE_CONFIG = {
         <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field span2"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
         <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
         <div class="field span2" id="fImgWrap">
           <span class="flabel">وێنە (بۆ ماڵپەڕ)</span>
@@ -3216,6 +3218,7 @@ function openSheet(id,preset,addAfter){
   F.name.value=p?p.name:'';F.cost.value=p?plain(costOf(id)):'';F.stock.value=p?plain(p.stock):'';S.formStock=p?p.stock:null;
   F.wh.value=p?plain(p.wholesale):'';F.rt.value=p?plain(p.retail):'';
   F.min.value=p&&typeof p.minStock==='number'?String(p.minStock):'';
+  $('#fNote').value=p&&typeof p.note==='string'?p.note:'';
   Object.values(F).forEach(i=>i.classList.remove('bad'));
   $('#fErr').hidden=true;disarmDel();$('#fDelete').hidden=!p||!owner;$('#fMoves').hidden=!p||!owner;
   resetImg();$('#fWeb').checked=!(p&&p.web===false);
@@ -3299,6 +3302,7 @@ $('#pForm').addEventListener('submit',async e=>{
   const data={barcode:normDigits(F.bc.value).replace(/\s+/g,''),name:F.name.value.trim(),wholesale:parseNum(F.wh.value),retail:parseNum(F.rt.value),stock:rq(parseNum(F.stock.value)),updatedAt:Date.now()};
   const cost=parseNum(F.cost.value);
   if(F.min.value.trim()!=='')data.minStock=rq(Math.max(0,parseNum(F.min.value)));
+  {const nt=$('#fNote').value.replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,300);if(nt)data.note=nt;}
   if(!data.name)return formErr('ناوی کاڵا بنووسە.',F.name);
   if(!(data.retail>0))return formErr('نرخی تاک بنووسە.',F.rt);
   if(data.barcode&&!S.editing&&!S.addAfterSave&&checkExisting(codeKey(data.barcode)))return;
@@ -3403,7 +3407,7 @@ $('#importGo').addEventListener('click',async()=>{
       for(const it of items.slice(i,i+200)){
         const ex=it.barcode?S.byCode.get(codeKey(it.barcode)):null;const id=ex||newId();
         const prevP=ex?S.products.get(ex):null;
-        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.imgV&&prevP.imgS?{imgS:prevP.imgS}:{}),...(prevP&&prevP.web===false?{web:false}:{}),...(prevP&&prevP.cat?{cat:prevP.cat,sub:prevP.sub||''}:{})};
+        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.imgV&&prevP.imgS?{imgS:prevP.imgS}:{}),...(prevP&&prevP.web===false?{web:false}:{}),...(prevP&&prevP.cat?{cat:prevP.cat,sub:prevP.sub||''}:{}),...(prevP&&prevP.note?{note:prevP.note}:{})};
         const from=prevP&&typeof prevP.stock==='number'?prevP.stock:0,d=rq(it.stock-from);
         if(d)moved.push({pid:id,name:it.name,delta:d,from:from});
         else if(prevP&&prevP.lastMove){pd.lastMove=prevP.lastMove;pd.lastBy=prevP.lastBy||'';}
@@ -4038,9 +4042,12 @@ function pubStock(st){const ok=st>0;return {ok:ok,m:ok?Math.max(1,Math.min(PUB_M
 function pubWanted(p){
   if(!p||p.web===false||!String(p.name||'').trim())return null;
   const k=pubStock(typeof p.stock==='number'?p.stock:0);
-  return {n:String(p.name),r:Number(p.retail)||0,ok:k.ok,m:k.m,iv:Number(p.imgV)||0,c:String(p.cat||''),s:String(p.cat&&p.sub||'')};
+  const w={n:String(p.name),r:Number(p.retail)||0,ok:k.ok,m:k.m,iv:Number(p.imgV)||0,c:String(p.cat||''),s:String(p.cat&&p.sub||'')};
+  // the customer note (always written, empty when there is none, so removing a note also clears it on the website)
+  w.t=typeof p.note==='string'?p.note.trim().slice(0,300):'';
+  return w;
 }
-function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0)&&String(a.c||'')===String(b.c||'')&&String(a.s||'')===String(b.s||'');}
+function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0)&&String(a.c||'')===String(b.c||'')&&String(a.s||'')===String(b.s||'')&&String(a.t||'')===String(b.t||'');}
 function pubPut(b,pid,p){b.set(doc(db,'pub','cat'),{p:{[pid]:pubWanted(p)||deleteField()},upd:serverTimestamp()},{merge:true});}
 let pubTimer=null,pubBusy=false;
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}

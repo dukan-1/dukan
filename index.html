@@ -622,6 +622,24 @@ button.prow:hover{background:var(--sunk)}
 .mdweb{margin:0;font-size:13px;padding:8px 10px;border-radius:var(--r-sm);background:var(--warn-soft);color:var(--warn)}
 #mediaSheet .tools .btn{flex:1 1 auto}
 #pvMedia .psearch{flex:none}
+/* note written from the photo */
+.nhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ainote{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--mode-soft);color:var(--mode);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ainote svg{width:17px;height:17px;flex:none}
+.ainote:disabled{opacity:.6;cursor:default}
+.ainote.work svg{animation:aispin 1.1s linear infinite}
+@keyframes aispin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ainote.work svg{animation:none}}
+.aiall{width:100%;justify-content:center}
+#aiLog{display:flex;flex-direction:column;gap:6px;max-height:42vh;overflow:auto;margin:0;padding:0;list-style:none}
+#aiLog li{padding:8px 10px;border-radius:var(--r-sm);background:var(--bg);font-size:13px;line-height:1.5}
+#aiLog li b{display:block;font-size:13px}
+#aiLog li span{white-space:pre-line;color:var(--muted)}
+#aiLog li.ok span{color:var(--ink)}
+#aiLog li.bad span{color:var(--danger)}
+.banner.good{background:var(--ok-soft);color:var(--ok)}
+.aibar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.aibar i{display:block;height:100%;width:0;background:var(--mode);transition:width .3s}
 .chip.web-off{margin-inline-start:6px;vertical-align:middle}
 .weburl{display:block;direction:ltr;text-align:left;unicode-bidi:isolate;overflow-wrap:anywhere;font-family:var(--f-num);font-size:13px;color:var(--retail);background:var(--sunk);border-radius:var(--r-sm);padding:8px 10px;text-decoration:none}
 .offbox{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
@@ -670,6 +688,7 @@ window.FIREBASE_CONFIG = {
   <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 20h18"/><path d="M6 20v-6"/><path d="M11 20V8"/><path d="M16 20v-9"/><path d="M21 20V5"/></g></symbol>
   <symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.3"/><path d="M2.8 20a6.2 6.2 0 0 1 12.4 0"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2A5 5 0 0 1 21.5 19.5"/></g></symbol>
   <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6M9 16h3"/></g></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></g></symbol>
   <symbol id="i-scanimg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V5.5a2 2 0 0 1 2-2H8M16 3.5h2.5a2 2 0 0 1 2 2V8M20.5 16v2.5a2 2 0 0 1-2 2H16M8 20.5H5.5a2 2 0 0 1-2-2V16"/><path d="M8 8.5v7M11 8.5v7M13.5 8.5v7M16 8.5v7"/></g></symbol>
   <symbol id="i-cam" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 8h3.2l1.8-2.8h7l1.8 2.8h3.2v11h-17z"/><circle cx="12" cy="13.2" r="3.6"/></g></symbol>
  <symbol id="i-truck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6h11v10h-11z"/><path d="M13.5 9.5h4l3 3.2V16h-7"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></g></symbol>
@@ -1069,6 +1088,7 @@ window.FIREBASE_CONFIG = {
         </div>
         <div id="pvMedia" class="sec" style="gap:10px" hidden>
           <button type="button" id="mdScan" class="btn primary mdscan"><svg><use href="#i-cam"/></svg>سکانی بارکۆد</button>
+          <button type="button" id="aiAll" class="ainote aiall" data-owner><svg><use href="#i-spark"/></svg><span>نووسینی تێبینی بۆ هەموو کاڵاکان لە وێنەکانیانەوە</span></button>
           <p class="hint" style="margin:0">بارکۆدی کاڵاکە سکان بکە، ڕاستەوخۆ داوای وێنە و تێبینی دەکات. کە پاشەکەوتت کرد لە ماڵپەڕەکەش دەردەکەون. کاڵای بێ بارکۆد لە خوارەوە بە ناو بدۆزەوە.</p>
           <div class="psearch"><label for="mdQ" class="sr">گەڕان بە ناو یان بارکۆد</label><input id="mdQ" class="inp" type="search" placeholder="ناو یان بارکۆد بنووسە" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search"></div>
           <div class="pkinds" id="mdKinds" role="group" aria-label="پیشاندان">
@@ -1286,6 +1306,20 @@ window.FIREBASE_CONFIG = {
   </div>
 
   <!-- PRODUCT SHEET -->
+  <div id="aiSheet" class="sheet" hidden>
+    <div class="sheet-bg" data-aiclose></div>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+      <div class="sheet-head"><h2 id="aiTitle">نووسینی تێبینی بۆ هەموو کاڵاکان</h2><button type="button" class="x" data-aiclose aria-label="داخستن">×</button></div>
+      <p class="hint" style="margin:0">بۆ هەر کاڵایەک کە وێنەی هەیە، تێبینییەکی کورت لەو نووسینانەی سەر وێنەکە دیارن دەنووسرێت، ڕاستەوخۆ پاشەکەوت دەکرێت و لە ماڵپەڕ دەردەکەوێت.</p>
+      <p id="aiCount" style="margin:0;font-weight:700"></p>
+      <label class="chk"><input type="checkbox" id="aiRedo"> <span id="aiRedoTxt">تێبینییە هەبووەکانیش لە نوێوە بنووسەوە</span></label>
+      <p class="hint" style="margin:0">هەر کاڵایەک چەند چرکەیەک دەخایەنێت؛ با ئەم پەڕەیە کراوە بێت. ئەگەر ڕاوەستا، دواتر دووبارە «دەست پێ بکە» دابگرە، لەو شوێنەوە بەردەوام دەبێت.</p>
+      <div id="aiProg" hidden><div class="aibar"><i id="aiBar"></i></div><p id="aiStat" class="hint" style="margin:6px 0 0"></p></div>
+      <p id="aiMsg" class="banner" style="margin:0" hidden></p>
+      <ul id="aiLog"></ul>
+      <div class="tools"><button type="button" id="aiGo" class="btn primary">دەست پێ بکە</button><button type="button" id="aiStop" class="btn ghost" hidden>ڕاگرتن</button></div>
+    </div>
+  </div>
   <div id="mediaSheet" class="sheet" hidden>
     <div class="sheet-bg" data-mdclose></div>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="mdTitle">
@@ -1301,7 +1335,7 @@ window.FIREBASE_CONFIG = {
           <button type="button" id="mdDel" class="btn ghost sm" hidden>لابردنی وێنە</button>
         </div>
       </div>
-      <div class="field"><label for="mdNote">تێبینی بۆ موشتەری <span class="muted">(ئارەزوومەندانە)</span></label><textarea id="mdNote" class="inp" rows="3" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ بە دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت.</span></div>
+      <div class="field"><div class="nhead"><label for="mdNote">تێبینی بۆ موشتەری <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="mdAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="mdNote" class="inp" rows="3" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ بە دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت.</span></div>
       <p id="mdWebNote" class="mdweb" hidden></p>
       <p id="mdErr" class="msg" hidden></p>
       <div class="tools"><button type="button" id="mdNext" class="btn primary">پاشەکەوت و سکانی دواتر</button><button type="button" id="mdSave" class="btn ghost">پاشەکەوت</button></div>
@@ -1322,7 +1356,7 @@ window.FIREBASE_CONFIG = {
         <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field span2"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
+        <div class="field span2"><div class="nhead"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="fAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
         <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
         <div class="field span2" id="fImgWrap">
           <span class="flabel">وێنە (بۆ ماڵپەڕ)</span>
@@ -3179,6 +3213,7 @@ function renderProducts(){
   const body=$('#pBody');
   $('#plist').classList.toggle('nocost',!seeCost);
   if(!S.prodLoaded){$('.phead').hidden=true;body.innerHTML='<div class="empty">کاڵاکان بار دەکرێن…</div>';return;}
+  if(!$('#aiSheet').hidden)aiPaintCount();
   if(v==='media'){renderMedia(all,body);return;}
   if(v==='value'){renderValue(all,body);return;}
   if(v==='cats'){renderCatMgr(all,body);return;}
@@ -4219,6 +4254,194 @@ $('#mdQ').addEventListener('keydown',e=>{
 });
 $('#mdKinds').addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;MDV.k=b.dataset.mk;renderProducts();});
 $('#pBody').addEventListener('click',e=>{if(S.pview!=='media')return;const b=e.target.closest('[data-md]');if(!b)return;const p=S.products.get(b.dataset.md);if(p)openMedia(p);});
+
+/* ================= note written from the photo ================= */
+// Gemini reads the item's photo (through Firebase AI Logic, free Gemini Developer API) and writes a short note
+// from what is printed on it. The SDK loads only when first used, so nothing else depends on it.
+const AI_V='13.2.0';
+const AI_MODELS=['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-2.5-flash-lite'];
+let AIP=null,AI_AT=0;
+function aiLoad(){
+  if(!AIP)AIP=Promise.all([import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-app.js'),import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-ai.js')])
+    .then(([A,M])=>{const a=(A.getApps().find(x=>x.name==='ai'))||A.initializeApp(cfg,'ai');return {ai:M.getAI(a,{backend:new M.GoogleAIBackend()}),M};})
+    .catch(e=>{AIP=null;e.aiLoad=true;throw e;});
+  return AIP;
+}
+function aiPrompt(name){
+  return 'You write a very short product note for customers of a cosmetics shop in Kurdistan (Iraq).\n'+
+    'Look only at the photo. Write only facts that are clearly printed or visible on the product or its box: what the product is, the brand, '+
+    'what it is for (skin or hair type, or the problem it treats), the size or volume, one main ingredient or feature, and the country it was made in if printed.\n'+
+    'Never guess and never add anything that is not visible in the photo. No prices, no advice, no praise, no emojis, no hashtags.\n'+
+    'Write in Kurdish Sorani (Arabic script). Keep brand names and units as printed (Latin letters are fine for brand names).\n'+
+    'Format: one or two short lines, at most 120 characters in total, facts separated by " · ". Reply with the note only.\n'+
+    'If the photo does not show a product, or nothing useful can be read, reply with just: -\n'+
+    'The shop calls this item: «'+String(name||'').slice(0,80)+'» (use this only to understand the photo).';
+}
+function aiClean(t){
+  t=String(t||'').replace(/\r/g,'').replace(/[*#`_>]+/g,'').trim();
+  t=t.replace(/^(note|تێبینی)\s*[:：]\s*/i,'').replace(/^["«“'\s]+|["»”'\s]+$/g,'').trim();
+  if(!t||/^[-–—.\s]*$/.test(t))return '';
+  return t.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,2).join('\n').slice(0,200).trim();
+}
+function aiText(res){
+  const r=res&&res.response;if(!r)return '';
+  try{if(typeof r.text==='function')return r.text();}catch(_){}
+  try{return ((r.candidates||[])[0].content.parts||[]).map(p=>p.text||'').join('');}catch(_){return '';}
+}
+function blob64(b){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(String(f.result).split(',')[1]||'');f.onerror=no;f.readAsDataURL(b);});}
+async function aiNote(img,name){
+  let mime,data;
+  const m=/^data:([^;,]+);base64,(.*)$/.exec(img||'');
+  if(m){mime=m[1];data=m[2];}
+  else{try{const r=await fetch(img);if(!r.ok)throw 0;const b=await r.blob();mime=b.type||'image/jpeg';data=await blob64(b);}catch(_){const e=new Error('photo');e.aiImg=true;throw e;}}
+  const {ai,M}=await aiLoad();
+  let last=null;
+  for(let i=AI_AT;i<AI_MODELS.length;i++){
+    try{
+      const model=M.getGenerativeModel(ai,{model:AI_MODELS[i],generationConfig:{temperature:0.2}});
+      const res=await model.generateContent([aiPrompt(name),{type:'inlineData',inlineData:{mimeType:mime,data:data}}]);
+      AI_AT=i;return aiClean(aiText(res));
+    }catch(e){
+      last=e;const t=String(e&&e.message||e);
+      // this model is not offered (renamed, retired, or not in the free tier): try the next one
+      if(/not.?found|404|not supported for|unsupported model|is not available|limit:\s*0\b/i.test(t)&&i<AI_MODELS.length-1)continue;
+      throw e;
+    }
+  }
+  throw last;
+}
+function aiKind(e){
+  const t=String(e&&(e.message||e.code)||e);
+  if(e&&e.aiImg)return 'img';
+  if(/safety|blocked|prohibited/i.test(t))return 'blank';
+  if(/(api|service).{0,80}(not been used|disabled|not enabled)|SERVICE_DISABLED|ai.?logic|firebasevertexai|firebaseml|API_KEY_SERVICE_BLOCKED|permission.?denied|\b403\b/i.test(t))return 'setup';
+  if(/per.?day|PerDay|daily/i.test(t)&&/quota|429|RESOURCE_EXHAUSTED|limit/i.test(t))return 'day';
+  if(/\b429\b|RESOURCE_EXHAUSTED|quota|rate.?limit|too many/i.test(t))return 'rate';
+  if(/location|region|country/i.test(t)&&/support|available/i.test(t))return 'loc';
+  if((e&&e.aiLoad)||!navigator.onLine||/failed to fetch|networkerror|load failed|network|timeout|fetch/i.test(t))return 'net';
+  return 'other';
+}
+function aiErrText(e){
+  return {setup:'یارمەتیدەری وێنە هێشتا چالاک نەکراوە. خاوەنی دوکان دەبێت یەک جار لە Firebase بەشی «AI Logic» چالاک بکات.',
+    day:'سنووری بەخۆڕایی ئەمڕۆ تەواو بوو. سبەی دووبارە هەوڵ بدەرەوە.',
+    rate:'داواکاری زۆر بوو. چەند چرکەیەکی تر دووبارە هەوڵ بدەرەوە.',
+    loc:'ئەم خزمەتگوزارییە لەم شوێنە ڕێگەپێدراو نییە.',
+    net:'ئینتەرنێت نییە یان لاوازە. دووبارە هەوڵ بدەرەوە.',
+    img:'وێنەکە نەکرایەوە. وێنەیەکی نوێ بۆ کاڵاکە بگرە.',
+    blank:'لە وێنەکەدا نووسینێکی ڕوون نەدۆزرایەوە.',
+    other:'نەتوانرا وێنەکە بخوێنرێتەوە. دووبارە هەوڵ بدەرەوە.'}[aiKind(e)];
+}
+function aiBtnBusy(btn,on){btn.disabled=on;btn.classList.toggle('work',on);btn.querySelector('span').textContent=on?'دەخوێنرێتەوە…':'نووسین لە وێنەوە';}
+// One item: the button by the note, in the item form and on the photo sheet. The note is only filled in; saving stays with the person.
+async function aiFill(btn,area,img,name,stillSame){
+  if(btn.disabled)return;
+  if(!img){toast('سەرەتا وێنەی کاڵاکە دابنێ، پاشان ئەم دوگمەیە دابگرە.','error');return;}
+  aiBtnBusy(btn,true);
+  try{
+    const note=await aiNote(img,name);
+    if(!stillSame())return;
+    if(!note){toast('لە وێنەکەدا نووسینێکی ڕوون نەدۆزرایەوە. وێنەیەکی ڕوونتر بگرە کە نووسینی سەر کاڵاکە دیار بێت.','error');return;}
+    area.value=note;area.dispatchEvent(new Event('input',{bubbles:true}));
+    toast('تێبینییەکە لە وێنەکەوە نووسرا. سەیری بکە، ئەگەر پێویست بوو دەستکاری بکە، پاشان پاشەکەوت بکە.');
+  }catch(e){if(stillSame())toast(aiErrText(e),'error');}
+  finally{aiBtnBusy(btn,false);}
+}
+$('#fAiNote').addEventListener('click',()=>{const id=S.editing;aiFill($('#fAiNote'),$('#fNote'),FI.loading?null:FI.data,$('#fName').value.trim(),()=>S.editing===id&&!$('#sheet').hidden);});
+$('#mdAiNote').addEventListener('click',()=>{
+  if(MD.busy||MD.fetch)return toast('وێنەکە هێشتا بار دەکرێت، چەند چرکەیەک چاوەڕێ بکە.');
+  const id=MD.pid,p=S.products.get(id);
+  aiFill($('#mdAiNote'),$('#mdNote'),MD.data,p?p.name:'',()=>MD.pid===id&&!$('#mediaSheet').hidden);
+});
+// Every item with a photo (owner): written and saved one after another, at a pace the free tier allows.
+const AIB={run:false,stop:false,done:new Set(),blank:new Set(),wl:null};
+function aiTargets(redo){return Array.from(S.products.values()).filter(p=>p.imgV&&(redo||(!hasNote(p)&&!AIB.blank.has(p.id+':'+p.imgV)))&&!AIB.done.has(p.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));}
+function aiPaintCount(){
+  if(AIB.run)return;
+  const all=Array.from(S.products.values()),ph=all.filter(p=>p.imgV),nn=ph.filter(p=>!hasNote(p)).length,wn=ph.length-nn,todo=aiTargets($('#aiRedo').checked).length;
+  $('#aiCount').textContent=!ph.length?'هیچ کاڵایەک وێنەی نییە. سەرەتا وێنە بۆ کاڵاکان دابنێ.'
+    :(todo?fmt(todo)+' کاڵا ئامادەن بۆ نووسینی تێبینی.':'هەموو ئەو کاڵایانەی وێنەیان هەیە تێبینییان هەیە.');
+  $('#aiRedoTxt').textContent='تێبینییە هەبووەکانیش لە نوێوە بنووسەوە ('+fmt(wn)+' کاڵا)';
+  $('#aiRedo').closest('label').hidden=!wn;
+  $('#aiGo').disabled=!todo;
+}
+function aiMsg(t,err,good){const m=$('#aiMsg');m.textContent=t||'';m.hidden=!t;m.className='banner'+(err?' err':'')+(good?' good':'');}
+function aiLogRow(p,text,cls){
+  const li=document.createElement('li');li.className=cls||'';
+  const b=document.createElement('b');b.textContent=p.name;const s=document.createElement('span');s.textContent=text;
+  li.append(b,s);const L=$('#aiLog');L.prepend(li);while(L.children.length>60)L.lastChild.remove();
+}
+function aiProg(n,total,ok){$('#aiProg').hidden=false;$('#aiBar').style.width=(total?Math.round(n*100/total):0)+'%';$('#aiStat').textContent=fmt(n)+' لە '+fmt(total)+' · '+fmt(ok)+' تێبینی نووسرا';}
+async function aiWait(ms){const end=Date.now()+ms;while(Date.now()<end&&!AIB.stop)await sleep(Math.min(250,end-Date.now()));}
+function openAiAll(){
+  if(S.role!=='owner')return;
+  $('#aiSheet').hidden=false;
+  if(!AIB.run){aiMsg('');$('#aiProg').hidden=true;$('#aiLog').textContent='';}
+  aiPaintCount();
+}
+function closeAiAll(){
+  if(AIB.run){if(!confirm('نووسینی تێبینییەکان ڕابگیرێت؟'))return;AIB.stop=true;}
+  $('#aiSheet').hidden=true;
+}
+async function aiRun(){
+  if(AIB.run||S.role!=='owner')return;
+  const redo=$('#aiRedo').checked,list=aiTargets(redo),total=list.length;
+  if(!total){aiPaintCount();return;}
+  AIB.run=true;AIB.stop=false;aiMsg('');$('#aiLog').textContent='';
+  $('#aiGo').hidden=true;$('#aiStop').hidden=false;$('#aiRedo').disabled=true;
+  try{if(navigator.wakeLock)AIB.wl=await navigator.wakeLock.request('screen');}catch(_){}
+  const gap=typeof window.__aiGap==='number'?window.__aiGap:4500;
+  let n=0,ok=0,blank=0,bad=0,why=null,streak=0;
+  aiProg(0,total,0);
+  for(const p0 of list){
+    if(AIB.stop)break;
+    const p=S.products.get(p0.id);
+    if(!p||!p.imgV||(!redo&&hasNote(p))){n++;aiProg(n,total,ok);continue;}
+    $('#aiStat').textContent=fmt(n)+' لە '+fmt(total)+' · '+fmt(ok)+' تێبینی نووسرا · ئێستا: '+p.name;
+    let img=null;
+    try{const sn=await getDoc(doc(db,'pimg',p.id));img=sn.exists()?(sn.data().d||sn.data().u||null):null;}catch(_){}
+    let note=null,err=null;
+    if(!img)err={aiImg:true};
+    else for(let t=0;t<4&&!AIB.stop;t++){
+      try{note=await aiNote(img,p.name);err=null;break;}
+      catch(e){err=e;if(aiKind(e)!=='rate'||t===3)break;
+        $('#aiStat').textContent='داواکاری زۆر بوو، کەمێک چاوەڕێ دەکات…';await aiWait(t?45000:20000);}
+    }
+    if(AIB.stop&&note===null)break;
+    if(err){
+      const k=aiKind(err);
+      if(k==='other'&&++streak>=3){why=err;break;}   // the same failure again and again: stop instead of trying every item
+      if(k==='img'||k==='blank'||k==='other'){bad++;aiLogRow(p,aiErrText(err),'bad');AIB.done.add(p.id);}
+      else{why=err;break;}
+    }else if(!note){streak=0;blank++;aiLogRow(p,'نووسینی ڕوون لە وێنەکەدا نییە، تێبینی بۆ نەنووسرا.','');AIB.done.add(p.id);AIB.blank.add(p.id+':'+p.imgV);}
+    else{
+      try{
+        const cur=S.products.get(p.id)||p,b=writeBatch(db);
+        b.update(doc(db,'products',p.id),{note:note});
+        pubPut(b,p.id,Object.assign({},cur,{note:note}));
+        await commitSoft(b.commit());
+        ok++;streak=0;AIB.done.add(p.id);aiLogRow(p,note,'ok');
+      }catch(e){why=e;break;}
+    }
+    n++;aiProg(n,total,ok);
+    if(n<total&&!AIB.stop)await aiWait(gap);
+  }
+  try{if(AIB.wl)await AIB.wl.release();}catch(_){}
+  AIB.wl=null;AIB.run=false;
+  $('#aiGo').hidden=false;$('#aiStop').hidden=true;$('#aiRedo').disabled=false;
+  const sum=fmt(ok)+' تێبینی نووسرا و پاشەکەوت کرا'+(blank?'، '+fmt(blank)+' کاڵا نووسینی ڕوونیان لەسەر وێنەکە نەبوو':'')+(bad?'، '+fmt(bad)+' کاڵا نەخوێندرانەوە':'')+'.';
+  if(why)aiMsg((aiKind(why)==='day'?'':'ڕاگیرا: ')+(aiErrText(why)||errMsg(why))+' '+sum,true);
+  else if(AIB.stop)aiMsg('ڕاگیرا. '+sum+' کە دووبارە «دەست پێ بکە» دابگریت لەو شوێنەوە بەردەوام دەبێت.');
+  else aiMsg('تەواو بوو: '+sum,false,true);
+  if(!why&&!AIB.stop)AIB.done.clear();   // a finished run starts fresh next time; a stopped one goes on from where it was
+  AIB.stop=false;aiPaintCount();
+  if(S.tab==='products')renderProducts();
+}
+$('#aiAll').addEventListener('click',openAiAll);
+$('#aiGo').addEventListener('click',aiRun);
+$('#aiStop').addEventListener('click',()=>{AIB.stop=true;$('#aiStop').disabled=true;setTimeout(()=>{$('#aiStop').disabled=false;},800);});
+$('#aiRedo').addEventListener('change',aiPaintCount);
+$$('[data-aiclose]').forEach(b=>b.addEventListener('click',closeAiAll));
+$('#aiSheet').addEventListener('keydown',e=>{if(e.key==='Escape')closeAiAll();});
 
 /* ================= public website ================= */
 // The website reads only pub/info, pub/cat and pimg/*: name, retail price, in stock or not, how many a customer may

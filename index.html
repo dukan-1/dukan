@@ -273,6 +273,10 @@ textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit
 .cchips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px;color:var(--muted);min-height:38px}
 .cchips button[aria-pressed="true"]{border-color:var(--retail);background:var(--retail-soft);color:var(--retail)}
 .cchips.sub button{font-size:13px;min-height:34px;padding:4px 10px}
+.cchips.gen{flex-wrap:nowrap}
+.cchips.gen button{flex:1;min-height:44px;font-size:15px}
+.mv-gen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mv-gen button{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:15px;color:var(--ink)}
 .cm{display:flex;flex-direction:column;gap:10px;padding:12px}
 .cm-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .cm-h{display:flex;align-items:center;gap:4px}
@@ -1372,6 +1376,14 @@ window.FIREBASE_CONFIG = {
         <label class="chk span2"><input type="checkbox" id="fWeb" checked> لە ماڵپەڕ پیشانی بدە</label>
         <div class="field span2" id="fCatWrap"><span class="flabel">بەش لە ماڵپەڕ</span>
           <div class="fcats"><div class="cchips" id="fCats" role="group" aria-label="دوگمە"></div><div class="cchips sub" id="fSubs" role="group" aria-label="بەش" hidden></div></div>
+        </div>
+        <div class="field span2" id="fGenWrap"><span class="flabel">بۆ کێ</span>
+          <div class="cchips gen" id="fGen" role="group" aria-label="بۆ کێ">
+            <button type="button" data-fg="w" aria-pressed="false">ئافرەتان</button>
+            <button type="button" data-fg="m" aria-pressed="false">پیاوان</button>
+            <button type="button" data-fg="b" aria-pressed="true">هەردووک</button>
+          </div>
+          <span class="hint">لە ماڵپەڕ لە بەشی ئافرەتان یان پیاوان دەردەکەوێت؛ «هەردووک» لە هەردوو بەشەکەدا.</span>
         </div>
       </div>
       <div id="fExist" class="exist" hidden>
@@ -3005,6 +3017,11 @@ function paintFormCats(){
   const c=catById(FC.cat),fs=$('#fSubs');fs.hidden=!(c&&c.subs.length);
   if(c&&c.subs.length)fs.innerHTML=c.subs.map(x=>'<button type="button" data-fs="'+esc(x.id)+'" aria-pressed="'+(FC.sub===x.id)+'">'+esc(x.n)+'</button>').join('');
 }
+// For whom: women, men or both (both also for items never set). A new one in «کاڵای نوێ» keeps the last choice.
+const GENS=['w','m','b'],GEN_N={w:'ئافرەتان',m:'پیاوان',b:'هەردووک'};
+const FG={v:'b'};
+function paintFormGen(){$$('#fGen [data-fg]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fg===FG.v)));}
+$('#fGen').addEventListener('click',e=>{const b=e.target.closest('[data-fg]');if(!b)return;FG.v=b.dataset.fg;paintFormGen();});
 $('#fCats').addEventListener('click',e=>{const b=e.target.closest('[data-fc]');if(!b)return;const id=b.dataset.fc;if(FC.cat!==id){FC.cat=id;FC.sub='';}paintFormCats();});
 $('#fSubs').addEventListener('click',e=>{const b=e.target.closest('[data-fs]');if(!b)return;FC.sub=FC.sub===b.dataset.fs?'':b.dataset.fs;paintFormCats();});
 /* ---------- the manager: buttons, sections, and moving products ---------- */
@@ -3058,7 +3075,7 @@ function cmVisible(){
 function paintCmList(){
   const list=cmVisible(),box=$('#cmList');if(!box)return;
   box.innerHTML=list.length?list.slice(0,600).map(p=>'<label class="cm-row'+(CM.sel.has(p.id)?' on':'')+'"><input type="checkbox" data-pid="'+esc(p.id)+'"'+(CM.sel.has(p.id)?' checked':'')+'>'+
-      '<span class="cr-t"><b>'+esc(p.name)+'</b><small>'+esc(catLabel(p))+(p.barcode?' · <span class="num">'+esc(p.barcode)+'</span>':'')+'</small></span></label>').join('')+
+      '<span class="cr-t"><b>'+esc(p.name)+'</b><small>'+esc(catLabel(p))+(p.gen==='w'||p.gen==='m'?' · '+GEN_N[p.gen]:'')+(p.barcode?' · <span class="num">'+esc(p.barcode)+'</span>':'')+'</small></span></label>').join('')+
       (list.length>600?'<div class="more">'+fmt(list.length-600)+' کاڵای تر هەیە، بگەڕێ بۆ دۆزینەوەیان.</div>':'')
     :'<div class="empty">'+(CM.q?'هیچ کاڵایەک بەم ناوە نییە.':CM.mode==='sec'?'هێشتا هیچ کاڵایەک لێرە نییە.':'هیچ کاڵایەکی تر نییە.')+'</div>';
   paintCmBar(list);
@@ -3068,7 +3085,8 @@ function paintCmBar(list){
   bar.innerHTML='<span class="n"><span class="num">'+fmt(n)+'</span> هەڵبژێردرا</span>'+
     (list.length?'<button type="button" class="btn ghost sm" data-call>'+(allOn?'لابردنی هەڵبژاردن':'هەڵبژاردنی هەمووی')+'</button>':'')+
     (CM.mode==='pick'?'<button type="button" class="btn primary sm" data-cput'+(n?'':' disabled')+'>زیادکردن بۆ ئێرە</button>'
-      :'<button type="button" class="btn primary sm" data-cmove'+(n?'':' disabled')+'>گواستنەوە بۆ…</button>'+(CM.c!=='none'?'<button type="button" class="btn ghost sm" data-cout'+(n?'':' disabled')+'>دەرهێنان لە بەش</button>':''));
+      :'<button type="button" class="btn primary sm" data-cmove'+(n?'':' disabled')+'>گواستنەوە بۆ…</button>'+
+        '<button type="button" class="btn ghost sm" data-cgen'+(n?'':' disabled')+'>ئافرەتان / پیاوان…</button>'+(CM.c!=='none'?'<button type="button" class="btn ghost sm" data-cout'+(n?'':' disabled')+'>دەرهێنان لە بەش</button>':''));
 }
 // Move the chosen products to a button/section (or out of any): one write per 400 products.
 async function assignCats(ids,cat,sub,okMsg){
@@ -3104,6 +3122,7 @@ $('#pBody').addEventListener('click',e=>{
     if(CM.s)assignCats(ids,CM.c,'',fmt(ids.length)+' کاڵا لە بەشەکە دەرهێنران (لە «'+(c?c.n:'')+'» ماونەتەوە).');
     else assignCats(ids,'','',fmt(ids.length)+' کاڵا بوون بە بێ بەش.');return;}
   if((b=t.closest('[data-cmove]'))){openMoveSheet(Array.from(CM.sel));return;}
+  if((b=t.closest('[data-cgen]'))){openGenSheet(Array.from(CM.sel));return;}
 });
 $('#pBody').addEventListener('change',e=>{
   if(S.pview!=='cats')return;
@@ -3133,7 +3152,25 @@ function openMoveSheet(ids){
     c.subs.map(x=>'<button type="button" data-mto="'+esc(c.id)+'|'+esc(x.id)+'">'+esc(x.n)+'</button>').join('')+'</div></div>').join('')||'<p class="hint">هێشتا هیچ دوگمەیەک نییە.</p>';
   $('#moveSheet').hidden=false;$('#moveSheet').dataset.ids=JSON.stringify(ids);
 }
+function openGenSheet(ids){
+  if(!ids.length)return;
+  $('#mvTitle').textContent=fmt(ids.length)+' کاڵا بۆ کێن؟';
+  $('#mvBody').innerHTML='<div class="mv-gen">'+GENS.map(g=>'<button type="button" data-gto="'+g+'">'+GEN_N[g]+'</button>').join('')+'</div>'+
+    '<p class="hint" style="margin:0">«هەردووک» واتە لە ماڵپەڕ لە بەشی ئافرەتان و پیاوان هەردووکیان دەردەکەوێت.</p>';
+  $('#moveSheet').hidden=false;$('#moveSheet').dataset.ids=JSON.stringify(ids);
+}
+async function assignGen(ids,g){
+  if(S.role!=='owner'||!ids.length||!GENS.includes(g))return;
+  try{
+    for(let i=0;i<ids.length;i+=400){const b=writeBatch(db);
+      for(const id of ids.slice(i,i+400))if(S.products.has(id))b.update(doc(db,'products',id),{gen:g});
+      await commitSoft(b.commit());}
+    CM.sel.clear();toast(fmt(ids.length)+' کاڵا بوون بە «'+GEN_N[g]+'».');renderProducts();
+  }catch(e){toast(errMsg(e),'error');}
+}
 $('#mvBody').addEventListener('click',e=>{
+  const gb=e.target.closest('[data-gto]');
+  if(gb){const ids=JSON.parse($('#moveSheet').dataset.ids||'[]');$('#moveSheet').hidden=true;assignGen(ids,gb.dataset.gto);return;}
   const b=e.target.closest('[data-mto]');if(!b)return;const [c,s]=b.dataset.mto.split('|'),ids=JSON.parse($('#moveSheet').dataset.ids||'[]');
   $('#moveSheet').hidden=true;assignCats(ids,c,s||'',fmt(ids.length)+' کاڵا گوازرانەوە بۆ «'+secName(c,s||'')+'».');
 });
@@ -3316,6 +3353,8 @@ function openSheet(id,preset,addAfter){
   // A product's own category; a new one in «کاڵای نوێ» keeps the last one chosen (items are often added by kind).
   if(p){FC.cat=p.cat||'';FC.sub=p.cat&&p.sub||'';}else if(!S.batchNew){FC.cat='';FC.sub='';}
   paintFormCats();
+  if(p)FG.v=GENS.includes(p.gen)?p.gen:'b';else if(!S.batchNew)FG.v='b';
+  paintFormGen();
   if(p&&p.imgV){
     FI.loading=true;paintImg();const want=id;
     getDoc(doc(db,'pimg',id)).then(sn=>{if(S.editing!==want||FI.changed)return;FI.data=sn.exists()?(sn.data().d||sn.data().u||null):null;}).catch(()=>{}).finally(()=>{if(S.editing===want){FI.loading=false;paintImg();}});
@@ -3409,6 +3448,7 @@ $('#pForm').addEventListener('submit',async e=>{
   if(!dStock&&prev&&prev.lastMove){data.lastMove=prev.lastMove;data.lastBy=prev.lastBy||'';}
   if(!$('#fWeb').checked)data.web=false;
   if(FC.cat&&catById(FC.cat)){data.cat=FC.cat;data.sub=FC.sub&&subById(FC.cat,FC.sub)?FC.sub:'';}
+  data.gen=GENS.includes(FG.v)?FG.v:'b';
   if(FI.loading)return formErr('وێنەکە هێشتا بار دەکرێت، چەند چرکەیەک چاوەڕێ بکە.');
   const imgV=FI.changed?(FI.data?Date.now():0):((prev&&Number(prev.imgV))||0);
   if(imgV)data.imgV=imgV;
@@ -3498,7 +3538,7 @@ $('#importGo').addEventListener('click',async()=>{
       for(const it of items.slice(i,i+200)){
         const ex=it.barcode?S.byCode.get(codeKey(it.barcode)):null;const id=ex||newId();
         const prevP=ex?S.products.get(ex):null;
-        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.imgV&&prevP.imgS?{imgS:prevP.imgS}:{}),...(prevP&&prevP.web===false?{web:false}:{}),...(prevP&&prevP.cat?{cat:prevP.cat,sub:prevP.sub||''}:{}),...(prevP&&prevP.note?{note:prevP.note}:{})};
+        const pd={name:it.name,barcode:it.barcode,wholesale:it.wholesale,retail:it.retail,stock:it.stock,updatedAt:Date.now(),createdBy:(prevP&&prevP.createdBy)||S.user.uid,...(prevP&&typeof prevP.minStock==='number'?{minStock:prevP.minStock}:{}),...(prevP&&prevP.imgV?{imgV:prevP.imgV}:{}),...(prevP&&prevP.imgV&&prevP.imgS?{imgS:prevP.imgS}:{}),...(prevP&&prevP.web===false?{web:false}:{}),...(prevP&&prevP.cat?{cat:prevP.cat,sub:prevP.sub||''}:{}),...(prevP&&prevP.note?{note:prevP.note}:{}),...(prevP&&GENS.includes(prevP.gen)?{gen:prevP.gen}:{})};
         const from=prevP&&typeof prevP.stock==='number'?prevP.stock:0,d=rq(it.stock-from);
         if(d)moved.push({pid:id,name:it.name,delta:d,from:from});
         else if(prevP&&prevP.lastMove){pd.lastMove=prevP.lastMove;pd.lastBy=prevP.lastBy||'';}
@@ -4454,9 +4494,10 @@ function pubWanted(p){
   const w={n:String(p.name),r:Number(p.retail)||0,ok:k.ok,m:k.m,iv:Number(p.imgV)||0,c:String(p.cat||''),s:String(p.cat&&p.sub||'')};
   // the customer note (always written, empty when there is none, so removing a note also clears it on the website)
   w.t=typeof p.note==='string'?p.note.trim().slice(0,300):'';
+  if(p.gen==='w'||p.gen==='m')w.g=p.gen;   // women or men only; both (or not set) shows under either
   return w;
 }
-function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0)&&String(a.c||'')===String(b.c||'')&&String(a.s||'')===String(b.s||'')&&String(a.t||'')===String(b.t||'');}
+function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0)&&String(a.c||'')===String(b.c||'')&&String(a.s||'')===String(b.s||'')&&String(a.t||'')===String(b.t||'')&&String(a.g||'')===String(b.g||'');}
 function pubPut(b,pid,p){b.set(doc(db,'pub','cat'),{p:{[pid]:pubWanted(p)||deleteField()},upd:serverTimestamp()},{merge:true});}
 let pubTimer=null,pubBusy=false;
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}

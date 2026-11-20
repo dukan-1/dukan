@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <title>دوکان</title>
 <meta name="description" content="کاڵاکانی دوکان بە نرخ و بوونیانەوە. لیستی خۆت دروست بکە و بە WhatsApp بۆ دوکانی بنێرە. نرخەکان ڕاستەوخۆ لە دوکانەوە نوێ دەبنەوە.">
-<meta name="theme-color" content="#F7F2F3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1020" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#DCC6A3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F1912" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,12 +16,13 @@
 /* A shop wall: products stand on shelves that run edge to edge, the way they do behind the counter.
    One bold thing (the shelves); everything else stays quiet so names and prices read first. */
 :root{
-  --bg:#F7F2F3; --paper:#FFFFFF; --ink:#2A1830; --muted:#7A6672; --line:#E7DADF;
-  --rose:#A8325A; --rose-ink:#FFFFFF; --rose-soft:#F6E3EA; --blush:#F1DDE3;
-  --shelf-a:#E6D2D9; --shelf-b:#D4BBC4; --shelf-shadow:rgba(42,24,48,.20);
-  --leaf:#4F7A62; --wa:#167F3F; --wa-ink:#FFFFFF; --wa-soft:#E2F1E7;
-  --scrim:rgba(42,24,48,.42); --bar:rgba(247,242,243,.92);
-  --cap1:#C98AA0; --cap2:#9C7AA6; --cap3:#B9976F; --cap4:#7FA08C;
+  --bg:#DCC6A3; --paper:#F7EEDC; --ink:#2B2118; --muted:#5A4636; --line:#B9A07C;
+  --rose:#9B2C2C; --rose-ink:#FFF7EA; --rose-soft:#F0DCC4; --blush:#EADBC2;
+  --shelf-a:#C9AE88; --shelf-b:#B79C77; --shelf-shadow:rgba(43,33,24,.22);
+  --leaf:#3F6B3A; --wa:#17703B; --wa-ink:#FFFFFF; --wa-soft:#E3EAD2;
+  --scrim:rgba(43,33,24,.45); --bar:rgba(220,198,163,.95);
+  --cap1:#9B2C2C; --cap2:#5B6E3A; --cap3:#B07A3A; --cap4:#3E5A73;
+  --field:#FFFBF2; --dash:#8C7356; --shadow:rgba(43,33,24,.24);
   --f-disp:"Noto Naskh Arabic","Noto Sans Arabic",serif;
   --f-ui:"Noto Sans Arabic",Tahoma,system-ui,sans-serif;
   --f-num:"Noto Sans","Noto Sans Arabic",system-ui,sans-serif;
@@ -29,12 +30,13 @@
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#1A1020; --paper:#251829; --ink:#F4E9EF; --muted:#B9A3B1; --line:#3A2A38;
-    --rose:#E3769A; --rose-ink:#1A1020; --rose-soft:#3A2030; --blush:#3A2433;
-    --shelf-a:#3B2838; --shelf-b:#2C1D2A; --shelf-shadow:rgba(0,0,0,.55);
-    --leaf:#8CC4A2; --wa:#2FC56A; --wa-ink:#0D1B12; --wa-soft:#18301F;
-    --scrim:rgba(0,0,0,.62); --bar:rgba(26,16,32,.92);
-    --cap1:#9A5C73; --cap2:#6F5680; --cap3:#86704F; --cap4:#577563;
+    --bg:#1F1912; --paper:#2C241B; --ink:#F1E6D2; --muted:#C7B394; --line:#5A4A37;
+    --rose:#E8907F; --rose-ink:#1F1912; --rose-soft:#3D2A22; --blush:#3A2F23;
+    --shelf-a:#4A3D2F; --shelf-b:#3A2F23; --shelf-shadow:rgba(0,0,0,.55);
+    --leaf:#9CC48F; --wa:#3DCB78; --wa-ink:#0D1B12; --wa-soft:#1F3324;
+    --scrim:rgba(0,0,0,.62); --bar:rgba(31,25,18,.95);
+    --cap1:#C0584E; --cap2:#7E9150; --cap3:#C08D4C; --cap4:#5F7E99;
+    --field:#241D15; --dash:#7A6650; --shadow:rgba(0,0,0,.45);
     color-scheme:dark;
   }
 }
@@ -228,6 +230,71 @@ body.has-list main{padding-bottom:120px}
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
 
 @media (prefers-color-scheme: dark){.pic img{mix-blend-mode:normal}}
+
+/* ---------- paper: kraft background, cream cards pinned slightly askew, ink lines and a red stamp ---------- */
+.hd{padding:26px 0 12px}
+.hd-row{display:flex;align-items:center;gap:14px}
+.stamp{flex:none;width:78px;height:78px;border-radius:50%;border:3px double var(--rose);color:var(--rose);display:grid;place-items:center;text-align:center;
+  transform:rotate(-10deg);font-family:var(--f-num);font-weight:700;font-size:14px;line-height:1.1;padding:8px;overflow:hidden;overflow-wrap:anywhere}
+.hd-t{flex:1;min-width:0}
+.shop{font-size:clamp(28px,8vw,46px);line-height:1.3}
+.uline{display:block;width:min(180px,60%);height:10px;color:var(--rose);margin-top:2px}
+.note{margin-top:4px}
+.contacts{gap:10px;margin-top:14px}
+.ib{width:auto;height:46px;min-width:46px;border-radius:10px;padding:0 16px;gap:7px;display:inline-flex;align-items:center;justify-content:center;
+  border:2px dashed var(--ink);background:transparent;color:var(--ink);font-weight:700;font-size:14px}
+.ib.wa,.ib.map{background:transparent;color:var(--ink)}
+.ib svg{width:19px;height:19px}
+.bar{border-bottom:1px solid var(--dash)}
+.search{border-radius:4px;border:1px solid var(--ink);background:var(--field)}
+.sortw,.tog{border-radius:4px;border:1px solid var(--ink);background:var(--field)}
+.cat{border-radius:4px;border:1px solid var(--ink);background:transparent;color:var(--ink);font-weight:600}
+.cat[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.subs .cat{border-style:dashed}
+.subs .cat[aria-pressed="true"]{background:var(--rose-soft);border-color:var(--rose);border-style:solid;color:var(--rose)}
+/* women / men: two big buttons on top; tapping one shows its items (and those for both) from the top */
+.gens{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gen{min-height:46px;border-radius:10px;border:2px dashed var(--ink);background:transparent;color:var(--ink);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen svg{width:20px;height:20px;flex:none}
+.gen[aria-pressed="true"]{border-style:solid;background:var(--ink);color:var(--paper)}
+main{padding-top:18px}
+.shelf{column-gap:14px;row-gap:18px}
+.it{background:var(--paper);padding:9px 9px 11px;border-radius:2px;box-shadow:2px 3px 0 var(--shadow)}
+.it:nth-child(4n+1){transform:rotate(-.7deg)}
+.it:nth-child(4n+2){transform:rotate(.6deg)}
+.it:nth-child(4n+3){transform:rotate(.4deg)}
+.it:nth-child(4n){transform:rotate(-.5deg)}
+.it.sk{transform:none}
+.ph{border:1px dashed var(--dash)}
+.ph::after{display:none}
+.pic{left:8px;right:8px;top:8px;bottom:8px;align-items:center}
+.jar{background:var(--blush);border:2px solid var(--ink);border-radius:14px 14px 8px 8px}
+.jar::before{top:-14%;border:2px solid var(--ink);border-bottom:0}
+.jar .lbl{border-block:4px solid var(--field);background:var(--field);box-shadow:0 0 0 1px var(--ink)}
+.meta{padding:10px 2px 0}
+.nm{font-weight:700}
+.price{font-weight:700}
+.add{border:2px solid var(--ink);color:var(--ink)}
+.add.in{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tip{background:transparent;border:1px dashed var(--ink);color:var(--ink)}
+.pnote{background:var(--blush);border:1px dashed var(--dash)}
+.pnote svg{color:var(--rose)}
+.ft{border-top:1px dashed var(--dash)}
+.listbar{border-top:1px dashed var(--dash)}
+.lb{background:var(--ink);color:var(--paper);border-radius:6px}
+.card{background:var(--paper)}
+.big{background:var(--blush);border:1px dashed var(--dash);border-radius:4px}
+.big::after{display:none}
+.x{background:var(--blush)}
+.btn.main{background:var(--ink);color:var(--paper);border-radius:6px}
+.btn.wa{border-radius:6px}
+.btn.plain{border-color:var(--ink);border-radius:6px}
+.step{border:1px solid var(--ink);border-radius:6px;background:var(--field)}
+.fld input,.fld textarea{background:var(--field);border:1px solid var(--dash);border-radius:6px}
+.after,.tag{background:var(--field)}
+.tot{border-top-color:var(--dash)}
+.warn{background:var(--rose-soft)}
+@media (prefers-reduced-motion: reduce){.it{transform:none!important}}
 /* phones: while the search keyboard is up, the fixed list bar would float over the results (iOS) or eat the space above the keyboard (Android) */
 @media (pointer:coarse){body.typing .listbar{display:none}}
 @media (max-width:359px){.meta{padding-inline:8px}.pr{gap:4px}}
@@ -239,14 +306,20 @@ body.has-list main{padding-bottom:120px}
 <body>
 <header class="hd">
   <div class="wrap">
-    <h1 class="shop" id="shopName">دوکان</h1>
-    <p class="note" id="shopNote" hidden></p>
+    <div class="hd-row">
+      <span class="stamp" id="stamp" aria-hidden="true"></span>
+      <div class="hd-t">
+        <h1 class="shop" id="shopName">دوکان</h1>
+        <svg class="uline" viewBox="0 0 180 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C 34 1, 68 9, 102 4 S 160 7, 178 3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <p class="note" id="shopNote" hidden></p>
+      </div>
+    </div>
     <div class="contacts">
       <a class="ib wa" id="contact" target="_blank" rel="noopener" aria-label="پەیوەندی بە WhatsApp" title="WhatsApp" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06a6.73 6.73 0 0 1-3.37-2.95c-.25-.44.25-.41.72-1.36.08-.16.04-.3-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.76 2.68 4.25 3.76 1.58.68 2.2.74 2.99.62.48-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06a6.73 6.73 0 0 1-3.37-2.95c-.25-.44.25-.41.72-1.36.08-.16.04-.3-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.76 2.68 4.25 3.76 1.58.68 2.2.74 2.99.62.48-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.11-.23-.17-.48-.29Z"/></svg><span>WhatsApp</span>
       </a>
       <a class="ib map" id="mapLink" target="_blank" rel="noopener" aria-label="ناونیشانی دوکان لەسەر نەخشە" title="ناونیشان" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2c-4 0-7.2 3.1-7.2 7 0 5.1 6.3 11.9 6.6 12.2.3.3.9.3 1.2 0 .3-.3 6.6-7.1 6.6-12.2 0-3.9-3.2-7-7.2-7Zm0 9.8a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2c-4 0-7.2 3.1-7.2 7 0 5.1 6.3 11.9 6.6 12.2.3.3.9.3 1.2 0 .3-.3 6.6-7.1 6.6-12.2 0-3.9-3.2-7-7.2-7Zm0 9.8a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6Z"/></svg><span>ناونیشان</span>
       </a>
     </div>
   </div>
@@ -254,6 +327,10 @@ body.has-list main{padding-bottom:120px}
 
 <div class="bar">
   <div class="wrap bar-in">
+    <div class="gens" id="gens" role="group" aria-label="بۆ کێ" hidden>
+      <button type="button" class="gen" data-g="w" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22M8.5 18.5h7"/></g></svg>ئافرەتان</button>
+      <button type="button" class="gen" data-g="m" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5.5"/><path d="M14 10l6-6M15 4h5v5"/></g></svg>پیاوان</button>
+    </div>
     <div class="search" role="search">
       <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.5 20.5"/></g></svg>
       <label for="q" class="sr">گەڕان بە ناوی کاڵا</label>
@@ -404,12 +481,12 @@ let toastT;
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true;},2600);}
 
 /* ---------- state ---------- */
-const S={info:{name:'',wa:'',note:'',cats:[],map:''},cat:null,err:false,q:'',sort:'name',list:new Map(),open:null,fc:'',fs:''};
+const S={info:{name:'',wa:'',note:'',cats:[],map:''},cat:null,err:false,q:'',sort:'name',list:new Map(),open:null,fc:'',fs:'',fg:''};
 const LIST_KEY='shop.list.v1',WHO_KEY='shop.who.v1';
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
-function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),t:typeof e.t==='string'?e.t.slice(0,300):''};}
+function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:Number(e.r)||0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,300):''};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -475,7 +552,7 @@ function paintItem(li,e){
 }
 function visible(){
   const words=fold(S.q).split(' ').filter(Boolean);
-  let list=items().filter(e=>e.ok);   // what the shop has run out of is not shown; it comes back with new stock
+  let list=items().filter(e=>e.ok&&genOk(e));   // what the shop has run out of is not shown; it comes back with new stock
   if(S.fc)list=list.filter(e=>e.c===S.fc);
   if(S.fc&&S.fs)list=list.filter(e=>e.s===S.fs);
   if(words.length)list=list.filter(e=>{const f=fold(e.n);return words.every(w=>f.includes(w));});
@@ -484,6 +561,14 @@ function visible(){
   else if(S.sort==='desc')list.sort((a,b)=>b.r-a.r||byName(a,b));
   else list.sort(byName);
   return list;
+}
+// Women / men: an item set for both (or not set yet) shows under either.
+function genOk(e){return !S.fg||!e.g||e.g===S.fg;}
+function paintGens(){
+  const has=items().some(e=>e.ok&&e.g);
+  if(!has)S.fg='';
+  $('#gens').hidden=!has;
+  document.querySelectorAll('#gens [data-g]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.g===S.fg)));
 }
 function skeleton(){
   grid.setAttribute('aria-busy','true');
@@ -497,10 +582,10 @@ function render(){
   const all=items(),list=visible();
   for(const id of Array.from(els.keys()))if(!entry(id)){if(io)io.unobserve(els.get(id));els.delete(id);}
   $('#count').textContent=all.length?(money(list.length)+' کاڵا'):'';
-  paintCats();
+  paintGens();paintCats();
   if(!all.length){grid.innerHTML='';st.hidden=false;st.innerHTML='<b>هێشتا هیچ کاڵایەک دانەنراوە.</b>کەمێکی تر سەردان بکەرەوە.';return;}
   if(!list.length){grid.innerHTML='';st.hidden=false;
-    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە'+(S.fc?' لەم بەشەدا':'')+'.</b>ناوێکی تر تاقی بکەرەوە'+(S.fc?'، یان «هەمووی» دابگرە':'')+'.'):(S.fc?'<b>ئێستا هیچ کاڵایەک لەم بەشەدا نییە.</b>«هەمووی» دابگرە بۆ بینینی هەموو کاڵاکان.':'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>دواتر سەردان بکەرەوە.');
+    st.innerHTML=S.q?('<b>هیچ کاڵایەک بە «'+esc(S.q)+'» نەدۆزرایەوە'+(S.fc?' لەم بەشەدا':'')+'.</b>ناوێکی تر تاقی بکەرەوە'+(S.fc?'، یان «هەمووی» دابگرە':'')+'.'):(S.fc?'<b>ئێستا هیچ کاڵایەک لەم بەشەدا نییە.</b>«هەمووی» دابگرە بۆ بینینی هەموو کاڵاکان.':S.fg?'<b>ئێستا هیچ کاڵایەک لێرەدا نییە.</b>دووبارە «'+(S.fg==='w'?'ئافرەتان':'پیاوان')+'» دابگرە بۆ بینینی هەموو کاڵاکان.':'<b>ئێستا هیچ کاڵایەک بەردەست نییە.</b>دواتر سەردان بکەرەوە.');
     return;}
   st.hidden=true;
   const kids=grid.children,same=kids.length===list.length&&list.every((e,i)=>kids[i].dataset&&kids[i].dataset.id===e.id);
@@ -523,7 +608,7 @@ function parseCats(raw){
 function okMap(u){try{const x=new URL(String(u||''));return x.protocol==='https:'&&/(^|\.)(google\.[a-z.]+|goo\.gl|g\.co|apple\.com)$/.test(x.hostname)?x.href:'';}catch(_){return '';}}
 // Only buttons (and sections) that have something in stock are shown.
 function paintCats(){
-  const inStock=items().filter(e=>e.ok),has=new Set(inStock.map(e=>e.c)),hasS=new Set(inStock.map(e=>e.c+'|'+e.s));
+  const inStock=items().filter(e=>e.ok&&genOk(e)),has=new Set(inStock.map(e=>e.c)),hasS=new Set(inStock.map(e=>e.c+'|'+e.s));
   const cats=(S.info.cats||[]).filter(c=>has.has(c.id));
   if(S.fc&&!cats.some(c=>c.id===S.fc)){S.fc='';S.fs='';}
   const box=$('#cats');box.hidden=!cats.length;
@@ -542,6 +627,8 @@ function toShelfTop(){const y=$('main').getBoundingClientRect().top+window.scrol
 $('#cats').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const id=b.dataset.c;
   if(S.fc===id&&id){S.fc='';}else S.fc=id;S.fs='';render();toShelfTop();
   const on=$('#cats [aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'});});
+$('#gens').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;
+  S.fg=S.fg===b.dataset.g?'':b.dataset.g;render();toShelfTop();});
 $('#subs').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;S.fs=b.dataset.s;render();toShelfTop();
   const on=$('#subs [aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'});});
 
@@ -722,6 +809,7 @@ $('#sort').addEventListener('change',()=>{S.sort=$('#sort').value;render();});
 function paintInfo(){
   const i=S.info,name=(i.name||'').trim()||'دوکان';
   $('#shopName').textContent=name;$('#ftName').textContent=name;document.title=name;
+  $('#stamp').textContent=name.length<=14?name:name.slice(0,2);$('#stamp').style.fontSize=name.length>9?'12px':'';
   const note=(i.note||'').trim();
   $('#shopNote').textContent=note;$('#shopNote').hidden=!note;$('#ftNote').textContent=note;$('#ftNote').hidden=!note;
   $('#ftCredit').hidden=!i.credit;

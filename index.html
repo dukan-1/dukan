@@ -1058,7 +1058,7 @@ window.FIREBASE_CONFIG = {
           <button type="button" class="mtile sm" data-pv="dup" data-addp><span class="mi"><svg><use href="#i-copy"/></svg></span><span class="mtx"><b>کاڵا دووبارەکان</b><span class="mnote" id="pDupNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="media" data-media><span class="mi"><svg><use href="#i-scanimg"/></svg></span><span class="mtx"><b>وێنە و تێبینی بە بارکۆد</b><span class="msub">سکان بکە، وێنە بگرە و تێبینی بنووسە</span><span class="mnote" id="pMediaNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="photo" data-owner><span class="mi"><svg><use href="#i-cam"/></svg></span><span class="mtx"><b>وێنە و ماڵپەڕ</b><span class="mnote" id="pPhotoNote"></span></span></button>
-          <button type="button" class="mtile sm" data-pv="cats" data-owner><span class="mi"><svg><use href="#i-grid"/></svg></span><span class="mtx"><b>بەشەکانی ماڵپەڕ</b><span class="mnote" id="pCatNote"></span></span></button>
+          <button type="button" class="mtile sm" data-pv="cats" data-catp><span class="mi"><svg><use href="#i-grid"/></svg></span><span class="mtx"><b>بەشەکانی ماڵپەڕ</b><span class="mnote" id="pCatNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="value" data-owner><span class="mi"><svg><use href="#i-chart"/></svg></span><span class="mtx"><b>پشکنینی بەهای کۆگا</b><span class="mnote" id="pValNote"></span></span></button>
           <button type="button" class="mtile sm" data-pv="excel" data-owner><span class="mi"><svg><use href="#i-file"/></svg></span><span class="mtx"><b>Excel</b><span class="msub">هاوردەکردن و داگرتن</span></span></button>
         </div>
@@ -1240,6 +1240,7 @@ window.FIREBASE_CONFIG = {
             <label class="chk"><input type="checkbox" id="sCanRet" checked> دەتوانێت گەڕاوە وەربگرێت</label>
             <label class="chk"><input type="checkbox" id="sCanBuy"> دەتوانێت نرخی کڕین ببینێت و بینووسێت</label>
             <label class="chk"><input type="checkbox" id="sCanMedia"> دەتوانێت وێنە و تێبینی بۆ کاڵاکان دابنێت (بە سکانی بارکۆد)</label>
+            <label class="chk"><input type="checkbox" id="sCanCats"> دەتوانێت بەشەکانی ماڵپەڕ ڕێک بخات (دوگمە و بەش، و دانانی کاڵاکان تێیاندا)</label>
           </div>
           <p id="sMsg" class="msg" hidden></p>
           <button type="submit" id="sBtn" class="btn primary">دروستکردنی ئەکاونت</button>
@@ -1607,7 +1608,7 @@ async function resolveRole(u){
   try{
     let os=null;
     try{os=await getDoc(doc(db,'meta','owner'));}catch(e){if(!(e&&e.code==='permission-denied'))throw e;}   // not the owner's or staff's: not shown
-    if(os&&os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true,media:true};S.myName=os.data().name||u.displayName||u.email;return start();}
+    if(os&&os.exists()&&os.data().uid===u.uid){S.role='owner';S.perm={add:true,ret:true,cost:true,media:true,cats:true};S.myName=os.data().name||u.displayName||u.email;return start();}
     const us=await getDoc(doc(db,'users',u.uid));
     if(us.exists()){const d=us.data();
       if(d.role==='staff'&&d.active===true&&!d.removed){S.role='staff';S.perm=staffPerm(d);S.myName=d.name||u.email;return start();}
@@ -1652,21 +1653,25 @@ function stopAll(){
   offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
   S.products=new Map();S.byCode=new Map();setCosts(null);S.staff=new Map();S.sales=[];S.debts=[];S.mine=[];
-  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false,media:false};
+  S.prodLoaded=false;S.salesLoaded=false;S.mineLoaded=false;S.role=null;S.perm={add:false,ret:false,cost:false,media:false,cats:false};
   if(S.costUnsub){S.costUnsub();S.costUnsub=null;}
   if(RT.unsub){RT.unsub();RT.unsub=null;}
   RT.key='';RT.loaded=false;RT.list=[];RT.denied=false;rtReset();
   if(WO.unsub){WO.unsub();WO.unsub=null;}WO.list=[];WO.first=true;WO.waitSeen=new Set();
   syncLive();
 }
-function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true,media:d.canMedia===true};}
+function staffPerm(d){return {add:d.canAddProducts===true,ret:d.canReturn!==false,cost:d.canPurchase===true,media:d.canMedia===true,cats:d.canCats===true};}
 // Show or hide what this person may do; runs at start and whenever the owner changes a staff member's permissions.
 function applyPerms(){
   const owner=S.role==='owner';
-  // The products page opens for staff who may add items, or who may only set photos and notes (then it shows just that button).
-  $$('[data-prodtab]').forEach(el=>{el.hidden=!(owner||S.perm.add||S.perm.media);});
+  // The products page opens for staff who may add items, or who may only set photos and notes, or arrange the
+  // website's sections (then it shows just those buttons).
+  $$('[data-prodtab]').forEach(el=>{el.hidden=!prodTabOk();});
   $$('[data-addp]').forEach(el=>{el.hidden=!(owner||S.perm.add);});
   $$('[data-media]').forEach(el=>{el.hidden=!(owner||S.perm.media);});
+  $$('[data-catp]').forEach(el=>{el.hidden=!canCats();});
+  if(!canCats()&&!$('#nameSheet').hidden)closeName();
+  if(!canCats()&&!$('#moveSheet').hidden)$('#moveSheet').hidden=true;
   if(!owner&&!S.perm.media&&!$('#mediaSheet').hidden)closeMedia();
   $$('[data-buytab]').forEach(el=>{el.hidden=!owner;});
   if(S.tab==='buy'&&!owner)showTab('sell');
@@ -1679,7 +1684,7 @@ function applyPerms(){
   }
   $('#retOpen').hidden=!(owner||S.perm.ret);
   if(S.tab==='ret'&&!(owner||S.perm.ret))showTab('sell');
-  if(S.tab==='products'&&!owner&&!S.perm.add&&!S.perm.media)showTab('sell');
+  if(S.tab==='products'&&!prodTabOk())showTab('sell');
   if(S.tab==='products')renderProducts();
 }
 function onErr(err){
@@ -1737,7 +1742,7 @@ window.addEventListener('online',netChange);window.addEventListener('offline',ne
 /* ================= tabs ================= */
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab==='products')S.pview='home';showTab(b.dataset.tab);}));
 function showTab(t){
-  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves','orders'].includes(t)||(t==='products'&&!S.perm.add&&!S.perm.media)))t='sell';
+  if(S.role!=='owner'&&(['reports','staff','buy','menu','debtors','moves','orders'].includes(t)||(t==='products'&&!prodTabOk())))t='sell';
   if(S.role==='owner'&&t==='mine')t='sell';
   if(t==='ret'&&!(S.role==='owner'||S.perm.ret))t='sell';
   S.tab=t;
@@ -2920,7 +2925,7 @@ function isLow(p){return (typeof p.stock==='number'?p.stock:0)<=lowOf(p);}
 function openPView(v){
   if(v==='new'){openSheet(null,{batch:true},false);return;}
   if(v==='media'){if(!canMedia())return;S.pview='media';renderProducts();window.scrollTo(0,0);scanMedia();return;}
-  if(v==='cats'){CM.mode='list';CM.sel.clear();}
+  if(v==='cats'){if(!canCats())return;CM.mode='list';CM.sel.clear();}
   S.pview=v;renderProducts();window.scrollTo(0,0);
   if(v==='search'){const i=$('#pSearch');i.focus();try{i.select();}catch(_){}}
   if(v==='price'){const i=$('#pPrice');i.focus();try{i.select();}catch(_){}}
@@ -3008,7 +3013,7 @@ function seedCats(){
   setDoc(doc(db,'pub','info'),{cats:DEFAULT_CATS},{merge:true}).catch(()=>{}).finally(()=>{catSeeding=false;});
 }
 async function saveCats(list,okMsg){
-  if(S.role!=='owner')return false;
+  if(!canCats())return false;
   const prev=S.cats;S.cats=list;catsChanged();
   try{await commitSoft(setDoc(doc(db,'pub','info'),{cats:list},{merge:true}));if(okMsg)toast(okMsg);return true;}
   catch(e){S.cats=prev;catsChanged();toast(errMsg(e),'error');return false;}
@@ -3102,11 +3107,11 @@ function paintCmBar(list){
 }
 // Move the chosen products to a button/section (or out of any): one write per 400 products.
 async function assignCats(ids,cat,sub,okMsg){
-  if(S.role!=='owner'||!ids.length)return;
+  if(!canCats()||!ids.length)return;
   try{
-    for(let i=0;i<ids.length;i+=400){const b=writeBatch(db);
-      for(const id of ids.slice(i,i+400))if(S.products.has(id))b.update(doc(db,'products',id),{cat:cat||deleteField(),sub:cat&&sub||deleteField()});
-      await commitSoft(b.commit());}
+    for(let i=0;i<ids.length;i+=400){const b=writeBatch(db),pub={};
+      for(const id of ids.slice(i,i+400))if(S.products.has(id)){b.update(doc(db,'products',id),{cat:cat||deleteField(),sub:cat&&sub||deleteField()});pub[id]={cat:cat||'',sub:cat&&sub||''};}
+      pubPutMany(b,pub);await commitSoft(b.commit());}
     CM.sel.clear();toast(okMsg);renderProducts();
   }catch(e){toast(errMsg(e),'error');}
 }
@@ -3355,7 +3360,7 @@ function renderAuto(all,body){
   body.innerHTML=h;
 }
 async function autoSave(){
-  if(S.role!=='owner'||AU.busy)return;
+  if(!canCats()||AU.busy)return;
   const pick=AU.plan.filter(x=>x.cat&&!AU.off.has(x.pid)&&S.products.has(x.pid)&&!catById(S.products.get(x.pid).cat));
   if(!pick.length)return;
   AU.busy=true;renderProducts();
@@ -3370,10 +3375,11 @@ async function autoSave(){
   try{
     if(grew&&!(await saveCats(list)))throw new Error('cats');
     const todo=pick.filter(x=>x.cid);
-    for(let i=0;i<todo.length;i+=400){const b=writeBatch(db);
+    for(let i=0;i<todo.length;i+=400){const b=writeBatch(db),pub={};
       for(const x of todo.slice(i,i+400)){const p=S.products.get(x.pid);if(!p)continue;
-        const up={cat:x.cid,sub:x.sid||deleteField()};if(x.g&&!GENS.includes(p.gen))up.gen=x.g;b.update(doc(db,'products',x.pid),up);}
-      await commitSoft(b.commit());}
+        const up={cat:x.cid,sub:x.sid||deleteField()};if(x.g&&!GENS.includes(p.gen))up.gen=x.g;b.update(doc(db,'products',x.pid),up);
+        pub[x.pid]={cat:x.cid,sub:x.sid||'',gen:up.gen||p.gen};}
+      pubPutMany(b,pub);await commitSoft(b.commit());}
     AU.busy=false;CM.mode='list';AU.plan=[];
     toast(fmt(todo.length)+' کاڵا خرانە ناو بەشەکانیان'+(skipped?'؛ '+fmt(skipped)+' کاڵا نەکران چونکە دوگمەکان گەیشتوونەتە '+CAT_MAX:'')+'.');
     renderProducts();
@@ -3387,11 +3393,11 @@ function openGenSheet(ids){
   $('#moveSheet').hidden=false;$('#moveSheet').dataset.ids=JSON.stringify(ids);
 }
 async function assignGen(ids,g){
-  if(S.role!=='owner'||!ids.length||!GENS.includes(g))return;
+  if(!canCats()||!ids.length||!GENS.includes(g))return;
   try{
-    for(let i=0;i<ids.length;i+=400){const b=writeBatch(db);
-      for(const id of ids.slice(i,i+400))if(S.products.has(id))b.update(doc(db,'products',id),{gen:g});
-      await commitSoft(b.commit());}
+    for(let i=0;i<ids.length;i+=400){const b=writeBatch(db),pub={};
+      for(const id of ids.slice(i,i+400))if(S.products.has(id)){b.update(doc(db,'products',id),{gen:g});pub[id]={gen:g};}
+      pubPutMany(b,pub);await commitSoft(b.commit());}
     CM.sel.clear();toast(fmt(ids.length)+' کاڵا بوون بە «'+GEN_N[g]+'».');renderProducts();
   }catch(e){toast(errMsg(e),'error');}
 }
@@ -3451,8 +3457,8 @@ function renderProducts(){
   const dn=$('#pDupNote');dn.className='mnote'+(dupIds.size?' danger':'');
   dn.textContent=dupIds.size?(fmt(dupIds.size)+' کاڵا ناو یان بارکۆدیان دووبارەیە'):'هیچ ناو یان بارکۆدێکی دووبارە نییە';
   let v=S.pview||'home';
-  if((v==='excel'||v==='photo'||v==='value'||v==='cats')&&!owner)v=S.pview='home';
-  if(!owner&&v!=='home'&&(v==='media'?!S.perm.media:!S.perm.add))v=S.pview='home';
+  if((v==='excel'||v==='photo'||v==='value')&&!owner)v=S.pview='home';
+  if(!owner&&v!=='home'&&(v==='media'?!S.perm.media:v==='cats'?!S.perm.cats:!S.perm.add))v=S.pview='home';
   {const np=all.filter(p=>!p.imgV).length,nn=all.filter(p=>!hasNote(p)).length,mn=$('#pMediaNote');mn.className='mnote'+(np?' warn':'');
     mn.textContent=!all.length?'':(np?fmt(np)+' کاڵا بێ وێنە':'هەموو کاڵاکان وێنەیان هەیە')+(all.length&&nn?' · '+fmt(nn)+' بێ تێبینی':'');}
   {const nn=all.filter(p=>!catById(p.cat)).length,cn=$('#pCatNote');cn.className='mnote'+(nn?' warn':'');
@@ -4398,6 +4404,9 @@ $('#offList').addEventListener('change',e=>{const c=e.target.closest('[data-off]
 const MD={pid:null,data:null,changed:false,fetch:false,busy:false,saving:false};
 const MDV={k:'nophoto',q:''};
 function canMedia(){return S.role==='owner'||!!S.perm.media;}
+// Staff the owner allowed to arrange the website's buttons and sections (and put items in them, and women / men).
+function canCats(){return S.role==='owner'||!!S.perm.cats;}
+function prodTabOk(){return S.role==='owner'||!!(S.perm.add||S.perm.media||S.perm.cats);}
 function hasNote(p){return !!p&&typeof p.note==='string'&&!!p.note.trim();}
 function cleanNote(t){return String(t||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,300);}
 function mdErr(t){const e=$('#mdErr');e.textContent=t||'';e.hidden=!t;}
@@ -4726,6 +4735,13 @@ function pubWanted(p){
 }
 function samePub(a,b){return !!a&&!!b&&a.n===b.n&&a.r===b.r&&a.ok===b.ok&&(Number(a.m)||0)===(Number(b.m)||0)&&(Number(a.iv)||0)===(Number(b.iv)||0)&&String(a.c||'')===String(b.c||'')&&String(a.s||'')===String(b.s||'')&&String(a.t||'')===String(b.t||'')&&String(a.g||'')===String(b.g||'');}
 function pubPut(b,pid,p){b.set(doc(db,'pub','cat'),{p:{[pid]:pubWanted(p)||deleteField()},upd:serverTimestamp()},{merge:true});}
+// Many items at once (each with what changes on it), in the same save, so the website follows at once even when
+// the owner's app is closed (a staff member arranging the sections).
+function pubPutMany(b,changes){
+  const ch={};let n=0;
+  for(const [pid,up] of Object.entries(changes)){const p=S.products.get(pid);if(!p)continue;ch[pid]=pubWanted(Object.assign({},p,up))||deleteField();n++;}
+  if(n)b.set(doc(db,'pub','cat'),{p:ch,upd:serverTimestamp()},{merge:true});
+}
 let pubTimer=null,pubBusy=false;
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}
 // The owner's app keeps the public copy equal to the products (also the first publish of everything).
@@ -5096,7 +5112,7 @@ $('#f-shop').addEventListener('submit',async e=>{
 $('#f-staff').addEventListener('submit',async e=>{
   e.preventDefault();
   const name=$('#sName').value.trim(),email=$('#sEmail').value.trim().toLowerCase(),pw=$('#sPass').value;
-  const perms={canAddProducts:$('#sCanAdd').checked,canReturn:$('#sCanRet').checked,canPurchase:$('#sCanBuy').checked,canMedia:$('#sCanMedia').checked};
+  const perms={canAddProducts:$('#sCanAdd').checked,canReturn:$('#sCanRet').checked,canPurchase:$('#sCanBuy').checked,canMedia:$('#sCanMedia').checked,canCats:$('#sCanCats').checked};
   if(!name)return setMsg($('#sMsg'),'ناوی شاگرد بنووسە.');
   if(!email)return setMsg($('#sMsg'),'ئیمەیڵ بنووسە.');
   if(pw.length<6)return setMsg($('#sMsg'),'پاسوێرد دەبێت لانیکەم ٦ پیت یان ژمارە بێت.');
@@ -5111,7 +5127,7 @@ $('#f-staff').addEventListener('submit',async e=>{
     await setDoc(doc(db,'users',cred.user.uid),Object.assign({name:name,email:email,role:'staff',active:true,createdAt:Date.now()},perms));
     await signOut(sa).catch(()=>{});
     setMsg($('#sMsg'),'ئەکاونتی '+name+' دروست کرا. ئیمەیڵ: '+email,true);
-    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;
+    $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;$('#sCanCats').checked=false;
   }catch(err){
     if(err&&err.code==='auth/email-already-in-use'){
       const ex=Array.from(S.staff.values()).find(x=>(x.email||'').toLowerCase()===email);
@@ -5121,7 +5137,7 @@ $('#f-staff').addEventListener('submit',async e=>{
           await updateDoc(doc(db,'users',ex.id),Object.assign({name:name,active:true,removed:false},perms));
           try{await sendPasswordResetEmail(auth,email);}catch(_){}
           setMsg($('#sMsg'),'ئەکاونتی '+name+' دووبارە چالاک کرایەوە. پاسوێردە کۆنەکەی وەک خۆیەتی؛ ئیمەیڵی گۆڕینی پاسوێردی بۆ نێردرا.',true);
-          $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;
+          $('#sName').value='';$('#sEmail').value='';$('#sPass').value='';$('#sCanAdd').checked=false;$('#sCanRet').checked=true;$('#sCanBuy').checked=false;$('#sCanMedia').checked=false;$('#sCanCats').checked=false;
         }catch(e2){setMsg($('#sMsg'),errMsg(e2));}
       }else setMsg($('#sMsg'),ex?('ئەم ئیمەیڵە هی «'+ex.name+'» ە.'):'ئەم ئیمەیڵە پێشتر ئەکاونتی هەیە. ئیمەیڵێکی تر بەکاربهێنە.');
     }else setMsg($('#sMsg'),errMsg(err));
@@ -5138,7 +5154,8 @@ function renderStaff(){
     '<div class="perms"><label class="chk"><input type="checkbox" id="pa-'+id+'" data-perm="canAddProducts" data-uid="'+id+'"'+(pa?' checked':'')+'> زیادکردنی کاڵا</label>'+
     '<label class="chk"><input type="checkbox" id="pr-'+id+'" data-perm="canReturn" data-uid="'+id+'"'+(pr?' checked':'')+'> گەڕاوە</label>'+
     '<label class="chk"><input type="checkbox" id="pb-'+id+'" data-perm="canPurchase" data-uid="'+id+'"'+(s.canPurchase===true?' checked':'')+'> نرخی کڕین</label>'+
-    '<label class="chk"><input type="checkbox" id="pm-'+id+'" data-perm="canMedia" data-uid="'+id+'"'+(s.canMedia===true?' checked':'')+'> وێنە و تێبینی</label></div>'+
+    '<label class="chk"><input type="checkbox" id="pm-'+id+'" data-perm="canMedia" data-uid="'+id+'"'+(s.canMedia===true?' checked':'')+'> وێنە و تێبینی</label>'+
+    '<label class="chk"><input type="checkbox" id="pc-'+id+'" data-perm="canCats" data-uid="'+id+'"'+(s.canCats===true?' checked':'')+'> بەشەکانی ماڵپەڕ</label></div>'+
     '<div class="sa"><button type="button" class="btn ghost sm" data-toggle-staff="'+id+'">'+(s.active?'ڕاگرتن':'چالاککردنەوە')+'</button>'+
     '<button type="button" class="btn ghost sm" data-rename-open="'+id+'">گۆڕینی ناو</button>'+
     '<button type="button" class="btn ghost sm" data-reset="'+esc(s.email)+'">ئیمەیڵی گۆڕینی پاسوێرد</button>'+
@@ -5161,7 +5178,7 @@ $('#staffList').addEventListener('click',async e=>{
 $('#staffList').addEventListener('change',async e=>{
   const c=e.target.closest('[data-perm]');if(!c)return;
   const s=S.staff.get(c.dataset.uid);if(!s)return;
-  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'نرخی کڕین',canMedia:'وێنە و تێبینی'}[f]||f;
+  const f=c.dataset.perm,on=c.checked,label={canAddProducts:'زیادکردنی کاڵا',canReturn:'گەڕاوە',canPurchase:'نرخی کڕین',canMedia:'وێنە و تێبینی',canCats:'بەشەکانی ماڵپەڕ'}[f]||f;
   try{await commitSoft(updateDoc(doc(db,'users',s.id),{[f]:on}));toast(s.name+': '+label+' '+(on?'ڕێگەی پێدرا.':'ڕێگەی لێ گیرا.'));}
   catch(err){c.checked=!on;toast(errMsg(err),'error');}
 });

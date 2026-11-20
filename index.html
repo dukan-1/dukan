@@ -269,12 +269,16 @@ textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit
 .mtile[data-pv="dup"] .mi{background:var(--danger-soft);color:var(--danger)}
 .mtile[data-pv="media"] .mi{background:var(--mode-soft);color:var(--mode)}
 .fcats{display:flex;flex-direction:column;gap:6px}
-.cchips{display:flex;gap:6px;flex-wrap:wrap}
-.cchips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px;color:var(--muted);min-height:38px}
+/* Choice buttons in even columns: each one's whole name shows, on two lines when it is long (also with the phone's larger text) */
+.cchips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:8px}
+.cchips button{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 10px;font-weight:600;font-size:14px;color:var(--muted);min-height:44px;
+  width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:center;line-height:1.35}
 .cchips button[aria-pressed="true"]{border-color:var(--retail);background:var(--retail-soft);color:var(--retail)}
-.cchips.sub button{font-size:13px;min-height:34px;padding:4px 10px}
-.cchips.gen{flex-wrap:nowrap}
-.cchips.gen button{flex:1;min-height:44px;font-size:15px}
+.cchips.sub{grid-template-columns:repeat(auto-fill,minmax(min(130px,100%),1fr));gap:6px;padding:10px;border-radius:16px;background:rgba(127,127,127,.07);border:1.5px dashed var(--line)}
+.cchips.sub .sublbl{grid-column:1/-1;font-size:13px;font-weight:700;color:var(--ink)}
+.cchips.sub button{font-size:13px;min-height:40px;padding:6px 8px}
+.cchips.gen{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cchips.gen button{min-height:46px;font-size:15px}
 .mv-gen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mv-gen button{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:15px;color:var(--ink)}
 .cm{display:flex;flex-direction:column;gap:10px;padding:12px}
@@ -3015,7 +3019,7 @@ function paintFormCats(){
   $('#fCats').innerHTML='<button type="button" data-fc="" aria-pressed="'+(!FC.cat)+'">بێ بەش</button>'+
     S.cats.map(c=>'<button type="button" data-fc="'+esc(c.id)+'" aria-pressed="'+(FC.cat===c.id)+'">'+esc(c.n)+'</button>').join('');
   const c=catById(FC.cat),fs=$('#fSubs');fs.hidden=!(c&&c.subs.length);
-  if(c&&c.subs.length)fs.innerHTML=c.subs.map(x=>'<button type="button" data-fs="'+esc(x.id)+'" aria-pressed="'+(FC.sub===x.id)+'">'+esc(x.n)+'</button>').join('');
+  if(c&&c.subs.length)fs.innerHTML='<span class="sublbl">بەشەکانی ناو «'+esc(c.n)+'» <span class="muted">(ئارەزوومەندانە)</span></span>'+c.subs.map(x=>'<button type="button" data-fs="'+esc(x.id)+'" aria-pressed="'+(FC.sub===x.id)+'">'+esc(x.n)+'</button>').join('');
 }
 // For whom: women, men or both (both also for items never set). A new one in «کاڵای نوێ» keeps the last choice.
 const GENS=['w','m','b'],GEN_N={w:'ئافرەتان',m:'پیاوان',b:'هەردووک'};

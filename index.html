@@ -350,6 +350,18 @@ textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit
 .pick .ppr{color:var(--mode);font-weight:600}
 .pick .pq{font-family:var(--f-num);font-variant-numeric:tabular-nums;position:absolute;top:8px;inset-inline-end:8px;min-width:24px;height:24px;border-radius:999px;background:var(--mode);color:var(--on-accent);font-size:13px;font-weight:700;display:grid;place-items:center;padding-inline:6px}
 .pick.flash{animation:flash 1s ease-out}
+/* The item's photo on top of its tile (sell by name / items without a barcode). */
+.pick .pk-ph{display:block;width:100%;aspect-ratio:4/3;margin-bottom:6px;border-radius:6px;overflow:hidden;background:#fff}
+.pick .pk-ph img{display:block;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .2s}
+.pick .pk-ph.ok img{opacity:1}
+.pick .pk-ph:not(.ok):not(.none){background:linear-gradient(90deg,var(--sunk) 30%,var(--line) 50%,var(--sunk) 70%);background-size:300% 100%;animation:pkload 1.3s linear infinite}
+.pick .pk-ph.none{display:grid;place-items:center;background:var(--sunk);color:var(--muted)}
+.pick .pk-ph.none svg{width:30px;height:30px;opacity:.45}
+.pick .pk-ph.none img{display:none}
+.pick:has(.pk-ph) .pn{padding-inline-end:0}
+.pick .pq{z-index:1;box-shadow:0 0 0 2px var(--surface)}
+@keyframes pkload{from{background-position:100% 0}to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.pick .pk-ph:not(.ok):not(.none){animation:none}}
 .ticket-head .th-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .chip.ret{background:var(--danger-soft);color:var(--danger)}
 .sale.ret .st{color:var(--danger)}
@@ -1476,7 +1488,7 @@ window.FIREBASE_CONFIG = {
 <script type="module">
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, initializeAuth, inMemoryPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, collection, query, where, onSnapshot, writeBatch, increment, getDocs, getCountFromServer, serverTimestamp, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocFromCache, setDoc, updateDoc, collection, query, where, onSnapshot, writeBatch, increment, getDocs, getCountFromServer, serverTimestamp, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const cfg=window.FIREBASE_CONFIG||{};
@@ -2186,11 +2198,56 @@ function renderPicker(){
   list=list.sort((a,b)=>(q?(fold(a.name).startsWith(q)?0:1)-(fold(b.name).startsWith(q)?0:1):0)||String(a.name).localeCompare(String(b.name),'ar'));
   const more=Math.max(0,list.length-PICK_MAX);list=list.slice(0,PICK_MAX);
   const buy=S.tab==='buy',inCart=new Map((buy?B.lines:(S.tab==='ret'?RT.lines:S.cart)).filter(l=>l.qty>0).map(l=>[l.pid,l.qty]));
+  // Photos show when any item listed has one; the others get an empty frame so the tiles line up.
+  const photos=list.some(p=>p.imgV);
+  const ph=p=>{if(!photos)return '';if(!p.imgV)return '<span class="pk-ph none" aria-hidden="true"><svg><use href="#i-box"/></svg></span>';
+    const src=pimgSrc(p);return '<span class="pk-ph'+(src?' ok':'')+'" data-pid="'+esc(p.id)+'"><img alt="" decoding="async"'+(src?' src="'+esc(src)+'"':'')+'></span>';};
   $('#pickGrid').innerHTML=list.length?list.map(p=>{const n=inCart.get(p.id),st=fmtQty(typeof p.stock==='number'?p.stock:0);
-    return '<button type="button" class="pick'+(n?' in':'')+'" data-pick="'+esc(p.id)+'">'+(n?'<span class="pq">'+fmtQty(n)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span>'+
+    return '<button type="button" class="pick'+(n?' in':'')+'" data-pick="'+esc(p.id)+'">'+ph(p)+(n?'<span class="pq">'+fmtQty(n)+'</span>':'')+'<span class="pn">'+esc(p.name)+'</span>'+
       (buy?'<span class="ppr num">کۆگا: '+st+'</span>':'<span class="ppr num">'+fmt(unitPrice(p,S.tab==='ret'?RT.mode:S.mode))+'</span><span class="pst">کۆگا: <span class="num">'+st+'</span></span>')+'</button>';}).join('')+
       (more?'<p class="pick-more">'+fmt(more)+' کاڵای تر هەیە. پیتی زیاتر بنووسە بۆ دۆزینەوە.</p>':'')
     :'<p class="muted" style="margin:0;grid-column:1/-1">'+(q?'هیچ کاڵایەک بەم ناوە نییە.':(byName?'هێشتا هیچ کاڵایەک تۆمار نەکراوە.':'هیچ کاڵایەکی بێ بارکۆد نییە.'))+'</p>';
+  pickImgs();
+}
+/* ---------- item photos for the tiles: fetched when a tile comes into view, kept for the session ---------- */
+// The phone's own copy (Firestore's cache) is tried first, so a photo seen once costs nothing the next time.
+const PIMG=new Map(),PIMG_WAIT=new Map(),PIMG_Q=[];let pimgBusy=0,pickIO=null;
+function pimgSrc(p){const c=p&&p.imgV?PIMG.get(p.id):null;return c&&c.v===p.imgV?c.src:'';}
+async function pimgFetch(pid,v){
+  const ref=doc(db,'pimg',pid);let sn=null;
+  try{sn=await getDocFromCache(ref);if(!sn.exists()||(v&&sn.data().v!==v))sn=null;}catch(_){sn=null;}
+  if(!sn)sn=await getDoc(ref);
+  if(!sn.exists())return '';
+  const d=sn.data(),raw=d.d||d.u||'';
+  // A photo saved inside the item is a long text; a short blob link draws faster each time the list changes.
+  if(raw.startsWith('data:')){try{return URL.createObjectURL(await (await fetch(raw)).blob());}catch(_){return raw;}}
+  return raw;
+}
+function pimgPump(){
+  while(pimgBusy<4&&PIMG_Q.length){
+    const t=PIMG_Q.shift(),k=t.pid+':'+t.v;pimgBusy++;
+    pimgFetch(t.pid,t.v).then(src=>{
+      const old=PIMG.get(t.pid);if(old&&old.src&&old.src!==src&&old.src.startsWith('blob:'))URL.revokeObjectURL(old.src);
+      PIMG.set(t.pid,{v:t.v,src:src});t.res(src);
+    },()=>t.res(null)).finally(()=>{PIMG_WAIT.delete(k);pimgBusy--;pimgPump();});
+  }
+}
+function pimgLoad(p){
+  if(!p||!p.imgV)return Promise.resolve('');
+  const c=PIMG.get(p.id);if(c&&c.v===p.imgV)return Promise.resolve(c.src);
+  const k=p.id+':'+p.imgV;if(PIMG_WAIT.has(k))return PIMG_WAIT.get(k);
+  const pr=new Promise(res=>PIMG_Q.push({pid:p.id,v:p.imgV,res:res}));PIMG_WAIT.set(k,pr);pimgPump();return pr;
+}
+function pickImgs(){
+  if(pickIO){pickIO.disconnect();pickIO=null;}
+  const els=$$('#pickGrid .pk-ph[data-pid]:not(.ok)');if(!els.length)return;
+  const load=el=>{const p=S.products.get(el.dataset.pid);if(!p)return;
+    pimgLoad(p).then(src=>{if(!el.isConnected)return;
+      if(src){const im=el.querySelector('img');im.onload=()=>el.classList.add('ok');im.onerror=()=>el.classList.add('none');im.src=src;}
+      else el.classList.add('none');});};
+  if(!('IntersectionObserver' in window)){els.slice(0,24).forEach(load);return;}
+  pickIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){pickIO.unobserve(e.target);load(e.target);}}),{root:$('#pickGrid'),rootMargin:'240px 0px'});
+  els.forEach(el=>pickIO.observe(el));
 }
 function openPicker(mode){
   S.pickMode=mode==='name'?'name':'nocode';

@@ -437,6 +437,20 @@ button.stat .hint{display:block;margin-top:2px}
 .empty b{display:block;color:var(--ink);font-family:var(--f-display);font-size:16px;margin-bottom:6px;font-weight:700}
 .empty .btn{margin-top:12px}
 .pay{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+/* The customer name: our own list of the people who owe (the phone's own list would not open from the arrow). */
+.cust-box{position:relative}
+.cust-box .inp{padding-inline-end:50px}
+.cust-btn{position:absolute;inset-inline-end:3px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:var(--r-sm);background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cust-btn:active,.cust-btn[aria-expanded="true"]{background:var(--sunk);color:var(--ink)}
+.cust-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.cust-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.cust-drop{margin-top:6px;max-height:min(300px,42vh);overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+.cust-drop .cd-h{position:sticky;top:0;display:flex;justify-content:space-between;padding:8px 12px;font-size:12px;color:var(--muted);background:var(--sunk);border-bottom:1px solid var(--line)}
+.cust-drop button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:8px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:15px;text-align:start;cursor:pointer}
+.cust-drop button:last-child{border-bottom:0}
+.cust-drop button:active,.cust-drop button.on{background:var(--danger-soft)}
+.cust-drop .cd-n{overflow-wrap:anywhere}.cust-drop .cd-n b{color:var(--danger)}
+.cust-drop .cd-a{flex:none;font-size:13px;color:var(--danger);white-space:nowrap}
 .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
 .row[data-kind="ok"] .rv{color:var(--ok)}
 .row[data-kind="debt"] .rv,.row[data-kind="debt"] .rl{color:var(--danger)}
@@ -853,8 +867,11 @@ window.FIREBASE_CONFIG = {
         <aside class="pay" aria-label="پارەدان">
           <div class="field">
             <label for="customer">ناوی کڕیار <span class="muted" id="customerHint">(بۆ جوملە و قەرز)</span></label>
-            <input id="customer" class="inp" autocomplete="off" list="custList">
-            <datalist id="custList"></datalist>
+            <div class="cust-box">
+              <input id="customer" class="inp" autocomplete="off" autocorrect="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="custDrop" aria-expanded="false">
+              <button type="button" id="custBtn" class="cust-btn" aria-label="لیستی قەرزارەکان" aria-expanded="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            </div>
+            <div id="custDrop" class="cust-drop" role="listbox" aria-label="قەرزارەکان" hidden></div>
             <p id="customerErr" class="ferr" hidden></p>
           </div>
           <div class="row"><span>کۆی کاڵاکان</span><span class="rv"><span id="sumSub" class="num">0</span><span class="cur">د.ع</span></span></div>
@@ -2264,7 +2281,7 @@ function updateTotals(){
 }
 ['#discount','#paid'].forEach(s=>$(s).addEventListener('input',updateTotals));
 $('#customer').addEventListener('input',()=>{$('#customerErr').hidden=true;$('#customer').classList.remove('bad');});
-$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';renderCart();});
+$('#clearCart').addEventListener('click',()=>{S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';closeCust();renderCart();});
 $('#checkout').addEventListener('click',checkout);
 $('#pbCheckout').addEventListener('click',checkout);
 
@@ -2291,7 +2308,7 @@ async function checkout(){
     const deltas=new Map();for(const it of items)deltas.set(it.pid,(deltas.get(it.pid)||0)-it.qty);
     addStock(b,deltas,'sale',id);
     const r=await commitSoft(b.commit());
-    S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';renderCart();
+    S.cart=[];$('#discount').value='';$('#paid').value='';$('#customer').value='';closeCust();renderCart();
     const extra=debt>0?' (قەرز: '+fmt(debt)+')':'',rec=Object.assign({},sale,{id:id,ts:null});
     toast((r==='ok'?'پسوولە '+fmtNo(id)+' تۆمارکرا · '+fmt(sale.total)+' د.ع'+extra:'پسوولە '+fmtNo(id)+' لەسەر مۆبایلەکە پاشەکەوت کرا · '+fmt(sale.total)+' د.ع. کە ئینتەرنێت هاتەوە دەنێردرێت.'),'info',{label:'ناردنی پسوولە',fn:()=>shareReceipt(rec)});
   }catch(e){toast(errMsg(e),'error');}
@@ -4998,10 +5015,54 @@ function debtorGroups(){
   out.forEach(g=>g.rows.sort((a,b)=>(a.at||0)-(b.at||0)));
   return out.sort((a,b)=>b.total-a.total);
 }
-function fillCustomers(){
-  if(S.role!=='owner')return;
-  $('#custList').innerHTML=debtorGroups().map(g=>'<option value="'+esc(g.name)+'"></option>').join('');
+function fillCustomers(){paintCust();}
+/* ---------- the customer name: the people who owe, by the first letters typed ---------- */
+// The arrow opens everyone who owes; typing shows only the names that begin with what is typed.
+const CD={open:false,all:false,i:-1,list:[]};
+function custDebtors(){return S.role==='owner'?debtorGroups().filter(g=>g.name!=='بێ ناو'):[];}
+function paintCust(){
+  const inp=$('#customer'),box=$('#custDrop'),btn=$('#custBtn'),gs=custDebtors();
+  btn.hidden=!gs.length;
+  const q=fold(inp.value);
+  let list=[];
+  if(CD.open&&gs.length){
+    list=(CD.all?gs:q?gs.filter(g=>g.key.startsWith(q)):[]).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+    // A full name already typed or picked needs no list under it.
+    if(!CD.all&&list.length===1&&list[0].key===q)list=[];
+  }
+  CD.list=list;if(CD.i>=list.length)CD.i=-1;
+  const show=list.length>0||(CD.open&&CD.all&&gs.length>0);
+  box.hidden=!show;btn.setAttribute('aria-expanded',String(show&&CD.all));inp.setAttribute('aria-expanded',String(show));
+  if(!show){box.innerHTML='';return;}
+  const hl=n=>{if(!q||CD.all&&!fold(n).startsWith(q))return esc(n);for(let k=1;k<=n.length;k++)if(fold(n.slice(0,k))===q)return '<b>'+esc(n.slice(0,k))+'</b>'+esc(n.slice(k));return esc(n);};
+  box.innerHTML='<div class="cd-h"><span>قەرزارەکان</span><span><span class="num">'+fmt(list.length)+'</span> کەس</span></div>'+
+    list.map((g,i)=>'<button type="button" role="option" data-ci="'+i+'"'+(i===CD.i?' class="on" aria-selected="true"':'')+'><span class="cd-n">'+hl(g.name)+'</span><span class="cd-a"><span class="num">'+fmt(g.total)+'</span> د.ع</span></button>').join('');
 }
+function closeCust(){if(!CD.open)return;CD.open=false;CD.all=false;CD.i=-1;paintCust();}
+function pickCust(i){
+  const g=CD.list[i];if(!g)return;
+  const inp=$('#customer');inp.value=g.name;$('#customerErr').hidden=true;inp.classList.remove('bad');
+  CD.open=false;CD.all=false;CD.i=-1;paintCust();inp.blur();
+}
+$('#customer').addEventListener('input',()=>{CD.open=true;CD.all=false;CD.i=-1;paintCust();});
+$('#customer').addEventListener('keydown',e=>{
+  if(!CD.list.length){if(e.key==='Escape')closeCust();return;}
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=CD.list.length;CD.i=e.key==='ArrowDown'?(CD.i+1)%n:(CD.i<=0?n-1:CD.i-1);paintCust();
+    const on=$('#custDrop .on');if(on)on.scrollIntoView({block:'nearest'});}
+  else if(e.key==='Enter'&&CD.i>=0){e.preventDefault();pickCust(CD.i);}
+  else if(e.key==='Escape'){e.preventDefault();closeCust();}
+});
+$('#customer').addEventListener('blur',()=>{setTimeout(()=>{if(document.activeElement!==$('#customer')&&!CD.all)closeCust();},200);});
+// Pressing the arrow or a name keeps the keyboard as it is (no blur in between), the tap then does the work.
+['pointerdown','mousedown'].forEach(t=>$('#custBtn').addEventListener(t,e=>e.preventDefault()));
+$('#custBtn').addEventListener('click',()=>{
+  if(CD.open&&CD.all){closeCust();return;}
+  CD.open=true;CD.all=true;CD.i=-1;paintCust();
+  const box=$('#custDrop');if(!box.hidden){box.scrollTop=0;setTimeout(()=>box.scrollIntoView({block:'nearest',behavior:'smooth'}),30);}
+});
+$('#custDrop').addEventListener('mousedown',e=>e.preventDefault());
+$('#custDrop').addEventListener('click',e=>{const b=e.target.closest('[data-ci]');if(b)pickCust(Number(b.dataset.ci));});
+document.addEventListener('pointerdown',e=>{if(CD.open&&!e.target.closest('.cust-box')&&!e.target.closest('#custDrop'))closeCust();});
 function renderDebtors(){
   if(S.tab!=='debtors')return;
   const all=debtorGroups(),q=fold($('#dbSearch').value);

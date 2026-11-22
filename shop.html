@@ -191,6 +191,8 @@ body.has-list main{padding-bottom:120px}
 .step button:disabled{opacity:.3;cursor:default}
 .step button.atmax{opacity:.45}
 .step output,.step span{min-width:2.4em;text-align:center;font-family:var(--f-num);font-weight:600;font-size:16px}
+.step input.qin{width:4.4em;height:44px;border:0;border-inline:1px solid var(--line);border-radius:0;background:transparent;color:inherit;text-align:center;font-family:var(--f-num);font-weight:600;font-size:16px;padding:0}
+.step input.qin:focus{outline:2px solid var(--rose);outline-offset:-2px}
 .act{display:flex;gap:10px;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;border-radius:14px;padding:12px 18px;font-weight:700;font-size:16px;line-height:1.3}
 .btn.main{flex:1;background:var(--rose);color:var(--rose-ink)}
@@ -393,7 +395,7 @@ main{padding-top:18px}
     <div class="prow"><span class="pprice" id="pPrice"></span><span class="avail" id="pAvail"></span></div>
     <div class="pnote" id="pNote" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.6a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6ZM13.3 17h-2.6v-6.4h2.6V17Z"/></svg><p id="pNoteText"></p></div>
     <div class="act" id="pAct">
-      <span class="step"><button type="button" id="pMinus" aria-label="کەمکردنەوە">−</button><output id="pQty" class="n" aria-live="polite">1</output><button type="button" id="pPlus" aria-label="زیادکردن">+</button></span>
+      <span class="step"><button type="button" id="pMinus" aria-label="کەمکردنەوە">−</button><output id="pQty" class="n" aria-live="polite">1</output><input id="pQtyIn" class="qin" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="بڕ" hidden><button type="button" id="pPlus" aria-label="زیادکردن">+</button></span>
       <button type="button" class="btn main" id="pAdd">زیادکردن بۆ لیست</button>
     </div>
   </div>
@@ -478,8 +480,10 @@ function showCode(c){const el=$('#afterCode');el.textContent='';if(!c)return;el.
 // A wholesale or special-price list: the link carries its name (?l=w_… or ?l=m_…). Without it: retail prices.
 const PL_KEY=(()=>{try{const k=new URLSearchParams(location.search).get('l')||'';return /^[wm]_[A-Za-z0-9]{24}$/.test(k)?k:'';}catch(_){return '';}})();
 const PL_KIND=PL_KEY?PL_KEY[0]:'',PL_LABEL={w:'نرخی جوملە',m:'نرخی تایبەت'};
+// Wholesale: every item can be ordered, in stock or not, in any amount (up to 9999 of each, 100 different items).
+const WS=PL_KIND==='w';
 // each kind of prices keeps its own list on the phone
-const MAXQ=50,MAXLINES=40,SENT_KEY='shop.sent.v1'+(PL_KIND?'.'+PL_KIND:'');
+const MAXQ=WS?9999:50,MAXLINES=WS?100:40,SENT_KEY='shop.sent.v1'+(PL_KIND?'.'+PL_KIND:'');
 function listSig(){return Array.from(S.list).map(([k,q])=>k+'*'+q).sort().join(';');}
 function sentCode(){const x=store.get(SENT_KEY);return x&&x.sig===listSig()&&/^[A-HJ-NP-Z2-9]{8}$/.test(x.code||'')?x.code:'';}
 function labelText(s){return String(s||'').trim().split(/\s+/).slice(0,3).join(' ');}
@@ -494,11 +498,12 @@ const LIST_KEY='shop.list.v1'+(PL_KIND?'.'+PL_KIND:''),WHO_KEY='shop.who.v1';
 // With a price list: its price (0 until it arrives, or when the shop left it out = ask in the shop); a link that
 // no longer works falls back to the retail price, and says so.
 function plOn(){return !!PL_KIND&&!S.plBad;}
+function wsOn(){return WS&&!S.plBad;}
 function priceOf(id,e){return plOn()?(S.pl?Number(S.pl[id])||0:0):(Number(e.r)||0);}
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
-function mk(id,e){const ok=e.ok===true,m=Number(e.m);return {id,n:e.n,r:priceOf(id,e),ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,300):''};}
+function mk(id,e){const ok=e.ok===true||wsOn(),m=wsOn()?MAXQ:Number(e.m);return {id,n:e.n,r:priceOf(id,e),ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,300):''};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -674,7 +679,7 @@ function renderList(){
     return '<li class="ln'+(ok?'':' gone')+'" data-id="'+esc(id)+'"><span class="lnm">'+esc(name)+'</span>'+
       '<button type="button" class="rm" data-rm aria-label="لابردنی «'+esc(name)+'»">×</button>'+
       '<span class="lsub">'+(ok&&!(e.r>0)?('<span class="n">× '+q+'</span><span class="amt">نرخ لە دوکان</span>'):ok?('<span class="n">'+money(e.r)+' × '+q+'</span><span class="amt"><span class="n">'+money(e.r*q)+'</span> د.ع</span>'):('<span class="tag">'+(e?'نەماوە':'نەماوە لە ماڵپەڕ')+'</span>'))+'</span>'+
-      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button><span class="n">'+q+'</span><button type="button" data-inc aria-label="زیادکردن"'+(e&&q>=e.m?' class="atmax"':'')+'>+</button></span>':'<span></span>')+'</li>';
+      (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button>'+(wsOn()?'<input class="qin" data-qin type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="بڕی «'+esc(name)+'»" value="'+q+'">':'<span class="n">'+q+'</span>')+'<button type="button" data-inc aria-label="زیادکردن"'+(e&&q>=e.m?' class="atmax"':'')+'>+</button></span>':'<span></span>')+'</li>';
   }).join('');
   $('#lTotal').textContent=money(v.total);
   // Fewer left than the list asks for: the list is brought down to what the shop has.
@@ -754,13 +759,18 @@ function paintSheet(){
   const inList=S.list.get(e.id)||0;
   const wasMinus=document.activeElement===$('#pMinus'),wasPlus=document.activeElement===$('#pPlus');
   if(e.ok&&pq>e.m)pq=e.m;
-  $('#pQty').textContent=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=!e.ok;$('#pPlus').classList.toggle('atmax',e.ok&&pq>=e.m);
+  $('#pQty').textContent=String(pq);$('#pQty').hidden=wsOn();$('#pQtyIn').hidden=!wsOn();if(document.activeElement!==$('#pQtyIn'))$('#pQtyIn').value=String(pq);$('#pMinus').disabled=pq<=1||!e.ok;$('#pPlus').disabled=!e.ok;$('#pPlus').classList.toggle('atmax',e.ok&&pq>=e.m);
   if(wasMinus||wasPlus)keepFocus($('#psheet .card'),wasMinus?$('#pPlus'):$('#pMinus'));
   const b=$('#pAdd');b.disabled=!e.ok;
   b.textContent=!e.ok?'ئێستا نەماوە':(inList?(inList===pq?'لە لیستەکەتە':'گۆڕینی بڕ لە لیست'):'زیادکردن بۆ لیست');
   if(e.ok&&inList&&inList===pq)b.disabled=true;
 }
 $('#pMinus').addEventListener('click',()=>{pq=Math.max(1,pq-1);paintSheet();});
+function typedQty(v){const n=Math.floor(Number(normDigits(String(v)).replace(/[^\d]/g,'')));return n>0?Math.min(MAXQ,n):0;}
+$('#pQtyIn').addEventListener('input',()=>{const n=typedQty($('#pQtyIn').value);if(n){pq=n;paintSheet();}});
+$('#pQtyIn').addEventListener('change',()=>{pq=typedQty($('#pQtyIn').value)||1;$('#pQtyIn').value=String(pq);paintSheet();});
+$('#pQtyIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#pQtyIn').blur();}});
+$('#pQtyIn').addEventListener('focus',()=>{try{$('#pQtyIn').select();}catch(_){}});
 $('#pPlus').addEventListener('click',()=>{const mx=maxOf(S.open);if(pq>=mx){toast('تەنها '+money(mx)+' دانە لەم کاڵایە هەیە.');return;}pq=pq+1;paintSheet();});
 $('#pAdd').addEventListener('click',()=>{const e=entry(S.open);if(!e||!e.ok)return;const had=S.list.has(e.id);setQty(e.id,pq);bump();closeSheet($('#psheet'));toast(had?'بڕەکە گۆڕدرا.':'زیاد کرا بۆ لیستەکەت.');});
 function bump(){const b=$('#openList');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
@@ -772,6 +782,9 @@ grid.addEventListener('click',e=>{
   if(e.target.closest('[data-open]'))openProduct(id);
 });
 $('#openList').addEventListener('click',()=>{renderList();openSheet($('#lsheet'));});
+$('#lines').addEventListener('change',e=>{const i=e.target.closest('[data-qin]');if(!i)return;const row=i.closest('.ln');if(!row)return;const n=typedQty(i.value);if(n)setQty(row.dataset.id,n);else i.value=String(S.list.get(row.dataset.id)||1);});
+$('#lines').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.closest('[data-qin]')){e.preventDefault();e.target.blur();}});
+$('#lines').addEventListener('focusin',e=>{const i=e.target.closest('[data-qin]');if(i)try{i.select();}catch(_){}});
 $('#lines').addEventListener('click',e=>{
   const li=e.target.closest('.ln');if(!li)return;const id=li.dataset.id,q=S.list.get(id)||0;
   if(e.target.closest('[data-rm]')){setQty(id,0);if(!S.list.size)closeSheet($('#lsheet'));}

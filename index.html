@@ -2799,7 +2799,7 @@ $('#rtFinish').addEventListener('click',rtFinish);
 // stock (status 'held'); the rules allow that step only once, so stock is never taken twice. A held order then
 // becomes a receipt when it is delivered ('sold', stock already out) or goes back into stock ('returned').
 const WO={list:[],unsub:null,first:true,waitSeen:new Set(),busy:new Set()};
-const WO_MAX_LINES=40,WO_MAX_QTY=50;
+const WO_MAX_LINES=40,WO_MAX_QTY=50,WO_WS_LINES=100,WO_WS_QTY=9999;   // the wholesale site: any amount, in stock or not
 function orderRaw(o){
   return typeof o.items==='string'?o.items.split(';').filter(Boolean).map(x=>{const [pid,q]=x.split('*');return {pid,q};}):(Array.isArray(o.items)?o.items:[]);
 }
@@ -2856,17 +2856,18 @@ async function acceptOrder(o,btn){
 function orderPl(o){const k=String(o&&o.lk||'');return k&&k===S.shopWk?'w':k&&k===S.shopMk?'m':'';}
 function orderPrice(p,pl){if(pl==='w')return Number(p.wholesale)>0?Number(p.wholesale):(Number(p.retail)||0);if(pl==='m')return plPrice(p,'m');return Number(p.retail)||0;}
 function orderLines(o){
-  const m=new Map(),raw=orderRaw(o),pl=orderPl(o);
-  for(const it of raw.slice(0,WO_MAX_LINES)){
-    const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it.q)||0)));
+  const m=new Map(),raw=orderRaw(o),pl=orderPl(o),ws=pl==='w',maxQ=ws?WO_WS_QTY:WO_MAX_QTY;
+  for(const it of raw.slice(0,ws?WO_WS_LINES:WO_MAX_LINES)){
+    const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(maxQ,Math.floor(Number(it.q)||0)));
     if(!p||!n||p.web===false)continue;
     const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:orderPrice(p,pl)};
-    l.want=Math.min(WO_MAX_QTY,l.want+n);m.set(p.id,l);
+    l.want=Math.min(maxQ,l.want+n);m.set(p.id,l);
   }
   const lines=[],miss=[];
   for(const l of m.values()){
     const p=S.products.get(l.pid),have=Math.max(0,Math.floor(typeof p.stock==='number'?p.stock:0));
-    l.qty=Math.min(l.want,have);
+    // A wholesale order keeps every amount asked for, even beyond the stock (like a sale at the counter can).
+    l.qty=ws?l.want:Math.min(l.want,have);
     if(!l.qty){miss.push({pid:l.pid,name:l.name,want:l.want});continue;}
     if(l.want===l.qty)delete l.want;
     lines.push(l);
@@ -2933,7 +2934,8 @@ function orderCard(o,where){
   const plc=pl==='w'?'<span class="chip m-wholesale">جوملە</span>':pl==='m'?'<span class="chip m-wholesale">نرخی ناوەند</span>':'';
   return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+plc+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
     (who?'<div class="wo-who">'+who+'</div>':'')+(o.note?'<div class="wo-who">تێبینی: '+esc(o.note)+'</div>':'')+
-    '<div>'+lines.map(l=>'<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>').join('')+'</div>'+
+    '<div>'+lines.map(l=>{const sp=o.status==='new'&&pl==='w'?S.products.get(l.pid):null,short=sp&&typeof sp.stock==='number'&&sp.stock<l.qty;
+      return '<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+(short?' <span class="chip danger">لە کۆگا '+fmtQty(Math.max(0,sp.stock))+' هەیە</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>';}).join('')+'</div>'+
     ((o.status==='held'?o.miss:lines.miss)&&(o.status==='held'?o.miss:lines.miss).length?'<div class="wo-who">لە کۆگا نەبوو: '+(o.status==='held'?o.miss:lines.miss).map(x=>esc(x.name)+' ('+fmt(x.want)+')').join('، ')+'</div>':'')+
     (open?'<div class="wo-acts">'+
       (where==='orders'&&o.status==='held'?'<label class="sr" for="wp-'+esc(o.id)+'">پارەی وەرگیراو</label><input id="wp-'+esc(o.id)+'" class="inp num-in" inputmode="decimal" placeholder="'+esc(fmt(sum))+'" autocomplete="off"><button type="button" class="btn primary sm" data-wsell>فرۆشرا</button>':'')+

@@ -442,7 +442,7 @@ button.stat .hint{display:block;margin-top:2px}
 }
 @keyframes flash{from{background:var(--mode-soft)}to{background:transparent}}
 .prow.flash{animation:flash 1.6s ease-out}
-.psearch{display:flex;gap:8px;flex:1 1 240px;min-width:0}
+.psearch{display:flex;align-items:center;gap:8px;flex:none;min-width:0}
 .psearch .inp{flex:1;min-width:0}
 .line.flash{animation:flash 1.4s ease-out}
 .empty{padding:30px 18px;text-align:center;color:var(--muted);font-size:14px}
@@ -983,7 +983,7 @@ window.FIREBASE_CONFIG = {
         <div class="kpi"><span>ژمارەی قەرزار</span><b><span id="dbCount" class="num">0</span></b><small id="dbRecs">—</small></div>
       </div>
       <label for="dbSearch" class="sr">گەڕان بە ناوی کڕیار</label>
-      <input id="dbSearch" class="inp" type="search" placeholder="گەڕان بە ناوی کڕیار" autocomplete="off">
+      <input id="dbSearch" class="inp" type="search" placeholder="گەڕان بە ناوی کڕیار" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
       <div class="panel"><div id="dbList"></div></div>
     </section>
 
@@ -2985,6 +2985,17 @@ $('#pSearch').addEventListener('keydown',e=>{
   else $('#pSearch').blur();
 });
 $('#pCam').addEventListener('click',()=>{unlockAudio();openScanner(findByBarcode,'بارکۆدی کاڵاکە سکان بکە',$('#pSearch'));});
+// Enter (or the keyboard's search key) in any search box closes the keyboard, after that box's own Enter has run.
+// keyup too: some phone keyboards send the Enter keydown as an unnamed key while a word is still being typed.
+function searchEnter(e){
+  const t=e.target;if(!(t instanceof HTMLInputElement))return;
+  if(!(e.key==='Enter'||e.keyCode===13))return;
+  if(!(t.type==='search'||t.getAttribute('enterkeyhint')==='search'))return;
+  if(e.type==='keydown'&&!e.defaultPrevented)e.preventDefault();
+  setTimeout(()=>{if(document.activeElement===t)t.blur();},0);
+}
+document.addEventListener('keydown',searchEnter);
+document.addEventListener('keyup',searchEnter);
 $('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(!b)return;
   const p=S.products.get(b.dataset.id);
   if(canEditProduct(p))openSheet(b.dataset.id,{},false);
@@ -3175,7 +3186,7 @@ function renderCatMgr(all,body){
     top+='<p class="hint" style="margin:0">ئەو کاڵایانە هەڵبژێرە کە دەتەوێت بیانخەیتە ناو «'+esc(name)+'».</p>'+
       '<label class="chk"><input type="checkbox" id="cmNone"'+(CM.onlyNone?' checked':'')+'> تەنها ئەوانەی بێ بەشن</label>';
   }
-  top+='<div class="psearch"><label for="cmQ" class="sr">گەڕان</label><input id="cmQ" class="inp" type="search" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off" value="'+esc(CM.q)+'"></div></div>';
+  top+='<div class="psearch"><label for="cmQ" class="sr">گەڕان</label><input id="cmQ" class="inp" type="search" placeholder="گەڕان بە ناو یان بارکۆد" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" value="'+esc(CM.q)+'"></div></div>';
   body.innerHTML=top+'<div id="cmList"></div><div class="cm-bar" id="cmBar"></div>';
   paintCmList();
 }

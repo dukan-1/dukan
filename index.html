@@ -527,6 +527,11 @@ button.prow:hover{background:var(--sunk)}
 .field.wh .inp:focus{border-color:var(--wholesale)}
 .field.rt .inp:focus{border-color:var(--retail)}
 .margins{display:flex;gap:6px;flex-wrap:wrap}
+.pl-box{display:flex;flex-direction:column;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.pl-card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.pl-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}.pl-h b{font-size:15px}
+.pl-card .pl-make{align-self:flex-start}
+#plPctForm{align-items:center}#plPct{max-width:96px;text-align:center}.pl-pc{font-weight:700;color:var(--muted)}
 .pr-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--sunk)}
 .pr-item b{font-size:15px;overflow-wrap:anywhere}.pr-item small{color:var(--muted);font-size:12.5px}
 .sheet-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -1226,6 +1231,26 @@ window.FIREBASE_CONFIG = {
         <p class="hint" style="margin:0 0 10px">کڕیاران لێرە ئەو کاڵایانە دەبینن کە لە کۆگا هەن (کاڵای نەماو خۆکار دەشاردرێتەوە و کە زیادت کردەوە دەگەڕێتەوە)، لەگەڵ نرخ و لیستی داواکارییان بۆ WhatsApp ی دوکان دەنێرن. هەر گۆڕانێک لە سیستەم یەکسەر لەوێش دەردەکەوێت.</p>
         <a id="webUrl" class="weburl" target="_blank" rel="noopener"></a>
         <div class="tools" style="margin-top:8px"><button type="button" id="webShare" class="btn ghost sm">ناردنی بەستەر</button><button type="button" id="webCopy" class="btn ghost sm">کۆپیکردن</button></div>
+        <div class="pl-box" id="plBox">
+          <h3 style="margin:0">ماڵپەڕی جوملە و ماڵپەڕی نرخی ناوەند</h3>
+          <p class="hint" style="margin:0">هەمان ماڵپەڕ بە نرخی تر. تەنها ئەوانە دەیبینن کە بەستەرەکەیان بۆ دەنێریت؛ ماڵپەڕە ئاساییەکە هەمیشە نرخی تاک پیشان دەدات. داواکارییەکانیان بەو نرخە دێنە ناو «داواکارییەکانی ماڵپەڕ».</p>
+          <div class="pl-card" data-pl="w">
+            <div class="pl-h"><b>ماڵپەڕی جوملە</b><span class="hint">نرخی جوملەی هەر کاڵایەک</span></div>
+            <div class="pl-on" hidden><a class="weburl" target="_blank" rel="noopener"></a>
+              <div class="tools"><button type="button" class="btn ghost sm" data-plshare>ناردنی بەستەر</button><button type="button" class="btn ghost sm" data-plcopy>کۆپیکردن</button><button type="button" class="btn ghost sm" data-plnew>بەستەری نوێ</button><button type="button" class="btn ghost sm" data-ploff>لابردن</button></div></div>
+            <button type="button" class="btn primary sm pl-make" data-plmake>دروستکردنی ماڵپەڕی جوملە</button>
+          </div>
+          <div class="pl-card" data-pl="m">
+            <div class="pl-h"><b>ماڵپەڕی نرخی ناوەند</b><span class="hint">نرخێک لە نێوان جوملە و تاک</span></div>
+            <div class="field"><label for="plPct">نرخەکە لە کوێی نێوان جوملە (٠٪) و تاک (١٠٠٪) بێت</label>
+              <form id="plPctForm" class="inrow" novalidate><input id="plPct" class="inp num-in" inputmode="numeric" autocomplete="off" placeholder="50" maxlength="3"><span class="pl-pc">%</span><button type="submit" id="plPctSave" class="btn ghost sm">پاشەکەوت</button></form>
+              <span class="hint" id="plEx"></span></div>
+            <div class="pl-on" hidden><a class="weburl" target="_blank" rel="noopener"></a>
+              <div class="tools"><button type="button" class="btn ghost sm" data-plshare>ناردنی بەستەر</button><button type="button" class="btn ghost sm" data-plcopy>کۆپیکردن</button><button type="button" class="btn ghost sm" data-plnew>بەستەری نوێ</button><button type="button" class="btn ghost sm" data-ploff>لابردن</button></div></div>
+            <button type="button" class="btn primary sm pl-make" data-plmake>دروستکردنی ماڵپەڕی نرخی ناوەند</button>
+          </div>
+          <p class="hint" style="margin:0">«بەستەری نوێ»: بەستەرە کۆنەکە ئیتر نرخەکان پیشان نادات (بۆ کاتێک نەتەوێت کەسێک بەردەوام بیبینێت). نرخەکان لەگەڵ هەر گۆڕانێک لە سیستەم خۆیان نوێ دەبنەوە.</p>
+        </div>
         <form id="f-web" class="sec" style="gap:10px;margin-top:12px" novalidate>
           <div class="field"><label for="webWa">ژمارەی WhatsApp ی دوکان</label><input id="webWa" class="inp ltr-in" type="tel" inputmode="tel" autocomplete="off" placeholder="0750 000 0000"></div>
           <div class="field"><label for="webNote">ناونیشان یان کاتی کار <span class="muted">(ئارەزوومەندانە)</span></label><input id="webNote" class="inp" autocomplete="off" maxlength="120"></div>
@@ -1695,7 +1720,7 @@ function stopAll(){
   if(S.movesUnsub){S.movesUnsub();S.movesUnsub=null;}
   if(S.rFoundUnsub){S.rFoundUnsub();S.rFoundUnsub=null;}
   S.rFound=null;S.moves=[];S.mvLoaded=false;S.mvPid=null;
-  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);
+  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);S.shopWk='';S.shopMk='';plUnwatch();
   S.expenses=[];S.lastBackup=undefined;S.pview='home';
   offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
@@ -1755,7 +1780,7 @@ function start(){
   },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
   subscribeOrders();
-  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopNt=typeof sd.nt==='string'?sd.nt:'';S.shopMap=typeof sd.map==='string'?sd.map:'';S.shopLoaded=true;renderNt();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
+  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopNt=typeof sd.nt==='string'?sd.nt:'';S.shopMap=typeof sd.map==='string'?sd.map:'';S.shopWk=PL_RE.test(sd.wk||'')?sd.wk:'';S.shopMk=PL_RE.test(sd.mk||'')?sd.mk:'';S.shopMp=sd.mp;plWatch();S.shopLoaded=true;renderNt();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
     S.dupCodes=new Map();
@@ -2827,12 +2852,15 @@ async function acceptOrder(o,btn){
 }
 // What the customer asked for, checked against today's products, prices and stock (the website's own figures are not
 // trusted): no more is taken than the shop has; what was missing is kept to show the owner.
+// An order from the wholesale / in-between website (its link's name came with it, and is still the shop's).
+function orderPl(o){const k=String(o&&o.lk||'');return k&&k===S.shopWk?'w':k&&k===S.shopMk?'m':'';}
+function orderPrice(p,pl){if(pl==='w')return Number(p.wholesale)>0?Number(p.wholesale):(Number(p.retail)||0);if(pl==='m')return plPrice(p,'m');return Number(p.retail)||0;}
 function orderLines(o){
-  const m=new Map(),raw=orderRaw(o);
+  const m=new Map(),raw=orderRaw(o),pl=orderPl(o);
   for(const it of raw.slice(0,WO_MAX_LINES)){
     const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(WO_MAX_QTY,Math.floor(Number(it.q)||0)));
     if(!p||!n||p.web===false)continue;
-    const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:Number(p.retail)||0};
+    const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:orderPrice(p,pl)};
     l.want=Math.min(WO_MAX_QTY,l.want+n);m.set(p.id,l);
   }
   const lines=[],miss=[];
@@ -2885,7 +2913,7 @@ async function sellOrder(o,paidRaw,btn){
   try{
     let id=o.id;try{if((await getDoc(doc(db,'sales',id))).exists())id=genNo();}catch(_){id=genNo();}
     const now=Date.now(),b=writeBatch(db);
-    b.set(doc(db,'sales',id),{at:now,day:dayKey(now),mode:'retail',customer:customer,items:lines.map(l=>({pid:l.pid,name:l.name,barcode:l.barcode||'',qty:l.qty,price:l.price})),
+    b.set(doc(db,'sales',id),{at:now,day:dayKey(now),mode:orderPl(o)==='w'?'wholesale':'retail',customer:customer,items:lines.map(l=>({pid:l.pid,name:l.name,barcode:l.barcode||'',qty:l.qty,price:l.price})),
       sub:sub,discount:0,total:sub,paid:paid,debt:debt,seller:S.user.uid,sellerName:S.myName,void:false,ts:serverTimestamp(),web:o.id,phone:String(o.phone||'')});
     b.update(doc(db,'orders',o.id),{status:'sold',soldAt:now,soldBy:S.user.uid,sale:id});
     await commitSoft(b.commit());
@@ -2901,8 +2929,9 @@ function orderCard(o,where){
   if(o.addr)wp.push(esc(o.addr));
   const who=wp.join(' · ');
   const st=o.status==='new'?'<span class="chip warn">چاوەڕێی پەسەندکردنە · هێشتا لە کۆگا کەم نەکراوەتەوە</span>':o.status==='held'?'<span class="chip m-retail">لە کۆگا کەمکراوە</span>':o.status==='sold'?'<span class="chip ok">فرۆشرا</span>':'<span class="chip">گەڕێندراوەتەوە</span>';
-  const open=o.status==='held'||o.status==='new';
-  return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
+  const open=o.status==='held'||o.status==='new',pl=orderPl(o);
+  const plc=pl==='w'?'<span class="chip m-wholesale">جوملە</span>':pl==='m'?'<span class="chip m-wholesale">نرخی ناوەند</span>':'';
+  return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+plc+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
     (who?'<div class="wo-who">'+who+'</div>':'')+(o.note?'<div class="wo-who">تێبینی: '+esc(o.note)+'</div>':'')+
     '<div>'+lines.map(l=>'<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>').join('')+'</div>'+
     ((o.status==='held'?o.miss:lines.miss)&&(o.status==='held'?o.miss:lines.miss).length?'<div class="wo-who">لە کۆگا نەبوو: '+(o.status==='held'?o.miss:lines.miss).map(x=>esc(x.name)+' ('+fmt(x.want)+')').join('، ')+'</div>':'')+
@@ -3804,6 +3833,7 @@ $('#pForm').addEventListener('submit',async e=>{
     pubPut(b,id,data);
     const r=await commitSoft(b.commit());
     const p=Object.assign({id:id},data);
+    if(S.role!=='owner')plPutLater([p]);
     if(!wasEdit&&S.batchNew){
       // Ready for the next item straight away: clear the form and open the camera.
       S.batchCount++;resetNewForm();
@@ -3860,6 +3890,7 @@ $('#priceForm').addEventListener('submit',async e=>{
     if(Object.keys(up).length){up.updatedAt=Date.now();b.update(doc(db,'products',p.id),up);pubPut(b,p.id,Object.assign({},p,up));}
     if(costCh)b.set(doc(db,'costs',p.id),costData(p.id,cost));
     const r=await commitSoft(b.commit());
+    if(Object.keys(up).length&&S.role!=='owner')plPutLater([Object.assign({},p,up)]);
     closePrice();toast('نرخی «'+p.name+'» گۆڕا · تاک: '+fmt(rt)+(r==='pending'?' (کە ئینتەرنێت هاتەوە دەنێردرێت)':''));
   }catch(err2){err(errMsg(err2));}
   finally{busy($('#prSave'),false);}
@@ -4900,6 +4931,42 @@ function pubPutMany(b,changes){
   for(const [pid,up] of Object.entries(changes)){const p=S.products.get(pid);if(!p)continue;ch[pid]=pubWanted(Object.assign({},p,up))||deleteField();n++;}
   if(n)b.set(doc(db,'pub','cat'),{p:ch,upd:serverTimestamp()},{merge:true});
 }
+/* ---------- the wholesale and in-between price lists (pub/w_… and pub/m_…) ---------- */
+// Same website, other prices: the document's name is the secret part of the link, and only the shop writes it.
+const PL_RE=/^[wm]_[A-Za-z0-9]{24}$/,PL_ROUND=250;
+function midPct(){const v=Number(S.shopMp);return S.shopMp!==undefined&&S.shopMp!==null&&S.shopMp!==''&&Number.isFinite(v)&&v>=0&&v<=100?v:50;}
+// Wholesale: the wholesale price (0 = ask in the shop). In-between: that far from wholesale towards retail, to 250.
+function plPrice(p,kind){
+  const r=Number(p.retail)||0,w=Number(p.wholesale)||0;
+  if(kind==='w')return w>0?w:0;
+  if(!(w>0))return r;if(!(r>0))return w;
+  const lo=Math.min(w,r),hi=Math.max(w,r),m=Math.round((w+(r-w)*midPct()/100)/PL_ROUND)*PL_ROUND;
+  return Math.min(hi,Math.max(lo,m));
+}
+function plKey(kind){return kind==='w'?S.shopWk:S.shopMk;}
+function plFull(kind){const o={};for(const p of S.products.values())if(pubWanted(p))o[p.id]=plPrice(p,kind);return o;}
+function newPlKey(kind){const a=new Uint8Array(24),c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';crypto.getRandomValues(a);let s=kind+'_';for(const x of a)s+=c[x%62];return s;}
+// The owner's app keeps a copy of each list to compare with (like pub/cat).
+const PLW={w:{key:'',un:null,doc:null},m:{key:'',un:null,doc:null}};
+function plWatch(){
+  for(const kind of ['w','m']){const want=S.role==='owner'?plKey(kind):'',x=PLW[kind];
+    if(x.key===want)continue;
+    if(x.un){try{x.un();}catch(_){}}x.un=null;x.doc=null;x.key=want;
+    if(want)x.un=onSnapshot(doc(db,'pub',want),sn=>{if(PLW[kind].key!==want)return;if(!sn.exists()&&sn.metadata&&sn.metadata.fromCache)return;PLW[kind].doc=sn.exists()?(sn.data()||{}):{p:{}};schedulePubSync();},()=>{});
+  }
+  renderPl();
+}
+function plUnwatch(){for(const kind of ['w','m']){const x=PLW[kind];if(x.un){try{x.un();}catch(_){}}x.un=null;x.doc=null;x.key='';}}
+// After staff change prices: the lists follow in a save of their own (if it is refused, the item's own save still stands).
+function plPutLater(ps){
+  try{
+    const b=writeBatch(db);let n=0;
+    for(const kind of ['w','m']){const key=plKey(kind);if(!key)continue;const ch={};
+      for(const p of ps)if(p&&p.id)ch[p.id]=pubWanted(p)?plPrice(p,kind):deleteField();
+      b.set(doc(db,'pub',key),{p:ch},{merge:true});n++;}
+    if(n)b.commit().catch(()=>{});
+  }catch(_){}
+}
 let pubTimer=null,pubBusy=false;
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}
 // The owner's app keeps the public copy equal to the products (also the first publish of everything).
@@ -4912,11 +4979,19 @@ async function pubSync(){
   let credit=false;for(const p of S.products.values())if(p.imgV&&p.imgS==='off'&&p.web!==false){credit=true;break;}
   const info={name:S.shopName||'',wa:S.shopWa||'',note:S.shopNote||'',credit:credit,nt:S.shopNt||'',map:S.shopMap||''},ci=S.pubInfo||{};
   const infoDiff=!S.pubInfo||ci.name!==info.name||(ci.wa||'')!==info.wa||(ci.note||'')!==info.note||!!ci.credit!==credit||(ci.nt||'')!==info.nt||(ci.map||'')!==info.map;
-  if(!n&&!infoDiff)return;
+  // the wholesale / in-between lists, each against its own copy
+  const pl=[];
+  for(const kind of ['w','m']){const x=PLW[kind];if(!x.key||x.key!==plKey(kind)||!x.doc)continue;
+    const have=x.doc.p||{},want=plFull(kind),d={};let k=0;
+    for(const [id,v] of Object.entries(want))if(have[id]!==v){d[id]=v;k++;}
+    for(const id of Object.keys(have))if(!(id in want)){d[id]=deleteField();k++;}
+    if(k)pl.push([x.key,d]);}
+  if(!n&&!infoDiff&&!pl.length)return;
   pubBusy=true;
   try{
     const b=writeBatch(db);
     if(n)b.set(doc(db,'pub','cat'),{p:ch,upd:serverTimestamp()},{merge:true});
+    for(const [key,d] of pl)b.set(doc(db,'pub',key),{p:d},{merge:true});
     if(infoDiff)b.set(doc(db,'pub','info'),info,{merge:true});
     await commitSoft(b.commit());
   }catch(_){}
@@ -4966,8 +5041,62 @@ function renderWeb(){
   if(document.activeElement!==$('#webMap'))$('#webMap').value=S.shopMap||'';
   let on=0,pics=0,hid=0;
   for(const p of S.products.values()){if(p.web===false){hid++;continue;}on++;if(p.imgV)pics++;}
+  renderPl();
   $('#webStats').textContent=fmt(on)+' کاڵا لە ماڵپەڕن، '+fmt(pics)+' یان وێنەیان هەیە'+(hid?'، '+fmt(hid)+' شاراوەن':'')+'.'+(S.shopWa?'':' ژمارەی WhatsApp دابنێ بۆ ئەوەی کڕیاران بتوانن داواکاری بنێرن.');
 }
+function plUrl(key){const u=new URL('shop.html',location.href);u.search='?l='+key;u.hash='';return u.href;}
+const PL_NAME={w:'ماڵپەڕی جوملە',m:'ماڵپەڕی نرخی ناوەند'};
+function renderPl(){
+  if(S.role!=='owner')return;
+  for(const card of $$('#plBox [data-pl]')){const kind=card.dataset.pl,key=plKey(kind),on=card.querySelector('.pl-on');
+    on.hidden=!key;card.querySelector('[data-plmake]').hidden=!!key;
+    const a=on.querySelector('a');if(key){a.href=plUrl(key);a.textContent=plUrl(key);}else{a.removeAttribute('href');a.textContent='';}}
+  if(document.activeElement!==$('#plPct'))$('#plPct').value=String(midPct());
+  paintPlEx();
+}
+function paintPlEx(){
+  const raw=$('#plPct').value.trim(),v=raw===''?50:Number(normDigits(raw));
+  if(!Number.isFinite(v)||v<0||v>100){$('#plEx').textContent='ژمارەیەک لە ٠ تا ١٠٠ بنووسە.';return;}
+  let ex=null;for(const p of S.products.values())if(p.wholesale>0&&p.retail>p.wholesale&&p.web!==false){ex=p;break;}
+  const keep=S.shopMp;S.shopMp=v;const m=ex?plPrice(ex,'m'):0;S.shopMp=keep;
+  $('#plEx').textContent=(v===50?'٥٠٪ = ڕێک ناوەڕاست. ':'')+(ex?'بۆ نموونە «'+ex.name+'»: جوملە '+fmt(ex.wholesale)+' · تاک '+fmt(ex.retail)+' ← '+fmt(m)+'. ':'')+'نرخەکان بۆ نزیکترین '+fmt(PL_ROUND)+' دینار خڕ دەکرێنەوە.';
+}
+$('#plPct').addEventListener('input',paintPlEx);
+$('#plPctForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(S.role!=='owner')return;
+  const raw=$('#plPct').value.trim(),v=raw===''?50:Number(normDigits(raw));
+  if(!Number.isFinite(v)||v<0||v>100){toast('ژمارەیەک لە ٠ تا ١٠٠ بنووسە.','error');$('#plPct').focus();return;}
+  const btn=$('#plPctSave');busy(btn,true);
+  try{await commitSoft(setDoc(doc(db,'meta','shop'),{mp:Math.round(v)},{merge:true}));S.shopMp=Math.round(v);$('#plPct').blur();renderPl();schedulePubSync();
+    toast('پاشەکەوت کرا. نرخەکانی ماڵپەڕی نرخی ناوەند نوێ دەبنەوە.');}
+  catch(err){toast(errMsg(err),'error');}
+  finally{busy(btn,false);}
+});
+// New, renewed (the old link stops showing prices) or removed: the shop's settings and the list in one save.
+async function plSet(kind,make,btn){
+  if(S.role!=='owner'||!S.prodLoaded)return;
+  const old=plKey(kind),key=make?newPlKey(kind):'',f=kind==='w'?'wk':'mk';
+  busy(btn,true);
+  try{
+    const b=writeBatch(db);
+    b.set(doc(db,'meta','shop'),{[f]:key||deleteField()},{merge:true});
+    if(old)b.delete(doc(db,'pub',old));
+    if(key)b.set(doc(db,'pub',key),{k:kind,p:plFull(kind)});
+    await commitSoft(b.commit());
+    if(kind==='w')S.shopWk=key;else S.shopMk=key;plWatch();
+    toast(!make?PL_NAME[kind]+' لابرا؛ بەستەرەکەی ئیتر نرخ پیشان نادات.':old?'بەستەری نوێ دروست کرا؛ بەستەرە کۆنەکە ئیتر نرخ پیشان نادات.':PL_NAME[kind]+' دروست کرا. بەستەرەکەی بۆ کڕیارەکانت بنێرە.');
+  }catch(err){toast(errMsg(err),'error');}
+  finally{if(btn.isConnected)busy(btn,false);}
+}
+$('#plBox').addEventListener('click',async e=>{
+  const card=e.target.closest('[data-pl]');if(!card)return;const kind=card.dataset.pl,key=plKey(kind);
+  const mk=e.target.closest('[data-plmake]');if(mk){plSet(kind,true,mk);return;}
+  const nw=e.target.closest('[data-plnew]');if(nw){arm(nw,'دڵنیایت؟ دووبارە دابگرە',()=>plSet(kind,true,nw));return;}
+  const of=e.target.closest('[data-ploff]');if(of){arm(of,'دڵنیایت؟ دووبارە دابگرە',()=>plSet(kind,false,of));return;}
+  if(!key)return;
+  if(e.target.closest('[data-plshare]'))shareText(plUrl(key),(S.shopName||'دوکان')+' · '+(kind==='w'?'نرخی جوملە':'نرخی تایبەت'));
+  if(e.target.closest('[data-plcopy]')){try{await navigator.clipboard.writeText(plUrl(key));toast('بەستەرەکە کۆپی کرا.');}catch(_){toast(plUrl(key));}}
+});
 $('#webShare').addEventListener('click',()=>shareText(webUrl(),S.shopName||'ماڵپەڕی دوکان'));
 $('#webCopy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(webUrl());toast('بەستەرەکە کۆپی کرا.');}catch(_){toast(webUrl());}});
 $('#f-web').addEventListener('submit',async e=>{

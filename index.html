@@ -1438,13 +1438,6 @@ window.FIREBASE_CONFIG = {
           <div class="inrow"><input id="fBarcode" class="inp num-in" inputmode="numeric" autocomplete="off" placeholder="سکان بکە یان بنووسە"><button type="button" id="fCam" class="cam" aria-label="سکان بە کامێرا"><svg><use href="#i-cam"/></svg></button></div>
           <span class="hint">ئەگەر کاڵاکە بارکۆدی نییە، بەتاڵی بهێڵە. لە کاتی فرۆشتن لە «کاڵای بێ بارکۆد» دەیدۆزیتەوە.</span>
         </div>
-        <div class="field span2"><label for="fName">ناوی کاڵا</label><input id="fName" class="inp" autocomplete="off"></div>
-        <div class="field" id="fCostWrap"><label for="fCost">نرخی کڕین</label><input id="fCost" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field span2"><div class="nhead"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="fAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
-        <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
         <div class="field span2" id="fImgWrap">
           <span class="flabel">وێنە (بۆ ماڵپەڕ)</span>
           <div class="fimg">
@@ -1458,6 +1451,13 @@ window.FIREBASE_CONFIG = {
             </div>
           </div>
         </div>
+        <div class="field span2"><label for="fName">ناوی کاڵا</label><input id="fName" class="inp" autocomplete="off"></div>
+        <div class="field" id="fCostWrap"><label for="fCost">نرخی کڕین</label><input id="fCost" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        <div class="field span2"><div class="nhead"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="fAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
+        <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
         <label class="chk span2"><input type="checkbox" id="fWeb" checked> لە ماڵپەڕ پیشانی بدە</label>
         <div class="field span2" id="fCatWrap"><span class="flabel">بەش لە ماڵپەڕ</span>
           <div class="fcats"><div class="cchips" id="fCats" role="group" aria-label="دوگمە"></div><div class="cchips sub" id="fSubs" role="group" aria-label="بەش" hidden></div></div>
@@ -3735,7 +3735,8 @@ function openSheet(id,preset,addAfter){
     FI.loading=true;paintImg();const want=id;
     getDoc(doc(db,'pimg',id)).then(sn=>{if(S.editing!==want||FI.changed)return;FI.data=sn.exists()?(sn.data().d||sn.data().u||null):null;}).catch(()=>{}).finally(()=>{if(S.editing===want){FI.loading=false;paintImg();}});
   }
-  $('#sheet').hidden=false;updateMargins();syncLive();
+  // Opens at the top: the barcode first, the photo right under it.
+  $('#sheet').hidden=false;$('#pForm').scrollTop=0;updateMargins();syncLive();
   setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
 }
 function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;S.batchNew=false;hideExisting();syncLive();}

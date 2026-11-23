@@ -1450,7 +1450,9 @@ window.FIREBASE_CONFIG = {
           <div class="fimg">
             <div class="fimg-prev" id="fImgPrev"><span>وێنە نییە</span></div>
             <div class="fimg-acts">
-              <label class="btn ghost sm" for="fImgFile">گرتن یان هەڵبژاردنی وێنە</label>
+              <label class="btn primary sm" for="fImgCam"><svg><use href="#i-cam"/></svg><span id="fImgCamTxt">وێنە بگرە</span></label>
+              <input type="file" id="fImgCam" accept="image/*" capture="environment" hidden>
+              <label class="btn ghost sm" for="fImgFile">لە گەلەری هەڵیبژێرە</label>
               <input type="file" id="fImgFile" accept="image/*" hidden>
               <button type="button" id="fImgDel" class="btn ghost sm" hidden>لابردن</button>
             </div>
@@ -3677,7 +3679,7 @@ function paintImg(){
   const box=$('#fImgPrev');
   if(FI.data){box.classList.add('has');box.innerHTML='<img alt="" src="'+esc(FI.data)+'">';}
   else{box.classList.remove('has');box.innerHTML='<span>'+(FI.loading?'بار دەکرێت…':'وێنە نییە')+'</span>';}
-  $('#fImgDel').hidden=!FI.data;
+  $('#fImgDel').hidden=!FI.data;$('#fImgCamTxt').textContent=FI.data?'وێنەی نوێ بگرە':'وێنە بگرە';
 }
 function resetImg(){FI.data=null;FI.changed=false;FI.loading=false;$('#fWeb').checked=true;paintImg();}
 async function shrinkImage(file){
@@ -3694,13 +3696,15 @@ async function shrinkImage(file){
     return d;
   }finally{URL.revokeObjectURL(url);}
 }
-$('#fImgFile').addEventListener('change',async e=>{
+async function fImgPick(e){
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
   const forId=S.editing;FI.loading=true;paintImg();
   try{const d=await shrinkImage(f);if(S.editing!==forId)return;FI.data=d;FI.changed=true;}
   catch(_){toast('وێنەکە نەخوێندرایەوە. وێنەیەکی تر هەڵبژێرە.','error');}
   finally{FI.loading=false;paintImg();}
-});
+}
+$('#fImgCam').addEventListener('change',fImgPick);
+$('#fImgFile').addEventListener('change',fImgPick);
 $('#fImgDel').addEventListener('click',()=>{FI.data=null;FI.changed=true;paintImg();});
 function openSheet(id,preset,addAfter){
   const owner=S.role==='owner';

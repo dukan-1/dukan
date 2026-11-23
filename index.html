@@ -3063,7 +3063,8 @@ function lowOf(p){return typeof p.minStock==='number'&&p.minStock>=0?p.minStock:
 function isLow(p){return (typeof p.stock==='number'?p.stock:0)<=lowOf(p);}
 // The products page is a set of buttons; each opens its own view with a way back.
 function openPView(v){
-  if(v==='new'){openSheet(null,{batch:true},false);return;}
+  // «کاڵای نوێ» opens the barcode camera at once (× or «بە دەست بنووسە» leaves the form to type).
+  if(v==='new'){openSheet(null,{batch:true},false);formScan();return;}
   if(v==='media'){if(!canMedia())return;S.pview='media';renderProducts();window.scrollTo(0,0);scanMedia();return;}
   if(v==='cats'){if(!canCats())return;CM.mode='list';CM.sel.clear();}
   S.pview=v;renderProducts();window.scrollTo(0,0);
@@ -3737,7 +3738,7 @@ function openSheet(id,preset,addAfter){
   }
   // Opens at the top: the barcode first, the photo right under it.
   $('#sheet').hidden=false;$('#pForm').scrollTop=0;updateMargins();syncLive();
-  setTimeout(()=>{(p||F.bc.value?F.name:F.bc).focus();},60);
+  setTimeout(()=>{if(!$('#scanner').hidden)return;(p||F.bc.value?F.name:F.bc).focus();},60);
 }
 function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;S.batchNew=false;hideExisting();syncLive();}
 function newTitle(){$('#sheetTitle').textContent=S.batchCount?('کاڵای نوێ · '+fmt(S.batchCount)+' زیاد کرا'):'کاڵای نوێ';}

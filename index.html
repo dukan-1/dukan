@@ -4815,6 +4815,7 @@ function aiKind(e){
   const t=String(e&&(e.message||e.code)||e);
   if(e&&e.aiImg)return 'img';
   if(/safety|blocked|prohibited/i.test(t))return 'blank';
+  if(/app.?check|UNAUTHENTICATED|\b401\b/i.test(t))return 'check';
   if(/(api|service).{0,80}(not been used|disabled|not enabled)|SERVICE_DISABLED|ai.?logic|firebasevertexai|firebaseml|API_KEY_SERVICE_BLOCKED|permission.?denied|\b403\b/i.test(t))return 'setup';
   if(/per.?day|PerDay|daily/i.test(t)&&/quota|429|RESOURCE_EXHAUSTED|limit/i.test(t))return 'day';
   if(/\b429\b|RESOURCE_EXHAUSTED|quota|rate.?limit|too many/i.test(t))return 'rate';
@@ -4822,8 +4823,11 @@ function aiKind(e){
   if((e&&e.aiLoad)||!navigator.onLine||/failed to fetch|networkerror|load failed|network|timeout|fetch/i.test(t))return 'net';
   return 'other';
 }
+// The reason in Firebase's own words (short), so a screenshot shows which setting is missing.
+function aiWhy(e){const t=String(e&&(e.message||e.code)||e),m=/API_KEY_SERVICE_BLOCKED|SERVICE_DISABLED|PERMISSION_DENIED|UNAUTHENTICATED|App ?Check|has not been used|is disabled|\b40[13]\b/i.exec(t);return m?' ('+m[0]+')':'';}
 function aiErrText(e){
-  return {setup:'یارمەتیدەری وێنە هێشتا چالاک نەکراوە. خاوەنی دوکان دەبێت یەک جار لە Firebase بەشی «AI Logic» چالاک بکات.',
+  return {setup:'یارمەتیدەری وێنە هێشتا چالاک نەکراوە. خاوەنی دوکان دەبێت یەک جار لە Firebase بەشی «AI Logic» چالاک بکات.'+aiWhy(e),
+    check:'Firebase داوای App Check دەکات و ئەپەکە هێشتا کلیلەکەی نییە.'+aiWhy(e),
     day:'سنووری بەخۆڕایی ئەمڕۆ تەواو بوو. سبەی دووبارە هەوڵ بدەرەوە.',
     rate:'داواکاری زۆر بوو. چەند چرکەیەکی تر دووبارە هەوڵ بدەرەوە.',
     loc:'ئەم خزمەتگوزارییە لەم شوێنە ڕێگەپێدراو نییە.',
@@ -4860,7 +4864,7 @@ const AUTO={f:null,m:null};
 function aiAutoErr(e){
   const k=aiKind(e);
   // once per session for what will not go away by itself; the rest stays quiet (the button is still there)
-  if(!aiQuiet&&(k==='setup'||k==='day'||k==='loc')){aiQuiet=true;toast('تێبینی خۆکار: '+aiErrText(e),'error');}
+  if(!aiQuiet&&(k==='setup'||k==='check'||k==='day'||k==='loc')){aiQuiet=true;toast('تێبینی خۆکار: '+aiErrText(e),'error');}
 }
 function aiAuto(where,img,name,pid){
   const btn=where==='f'?$('#fAiNote'):$('#mdAiNote'),gen=where==='f'?FGEN:MGEN;

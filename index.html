@@ -1397,9 +1397,9 @@ window.FIREBASE_CONFIG = {
     <div class="sheet-bg" data-aiclose></div>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
       <div class="sheet-head"><h2 id="aiTitle">نووسینی تێبینی بۆ هەموو کاڵاکان</h2><button type="button" class="x" data-aiclose aria-label="داخستن">×</button></div>
-      <p class="hint" style="margin:0">بۆ هەر کاڵایەک کە وێنەی هەیە، تێبینییەکی کورت لەو نووسینانەی سەر وێنەکە دیارن دەنووسرێت، ڕاستەوخۆ پاشەکەوت دەکرێت و لە ماڵپەڕ دەردەکەوێت.</p>
+      <p class="hint" style="margin:0">بۆ هەر کاڵایەک کە وێنەی هەیە، لە وێنەکەوە وەڵامی ئەم پرسیارانە دەنووسرێت: ناوی چییە، بۆ چی باشە، بۆ کێ باشە، بەکارهێنانی چۆنە، چەندی تێدایە. ڕاستەوخۆ پاشەکەوت دەکرێت و لە ماڵپەڕ دەردەکەوێت. کاڵای بێ وێنە تێبینی بۆ نانووسرێت.</p>
       <p id="aiCount" style="margin:0;font-weight:700"></p>
-      <label class="chk"><input type="checkbox" id="aiRedo"> <span id="aiRedoTxt">تێبینییە هەبووەکانیش لە نوێوە بنووسەوە</span></label>
+      <label class="chk"><input type="checkbox" id="aiRedo"> <span id="aiRedoTxt">تێبینییە کۆنەکانیش بە شێوەی نوێ بنووسەوە</span></label>
       <p class="hint" style="margin:0">هەر کاڵایەک چەند چرکەیەک دەخایەنێت؛ با ئەم پەڕەیە کراوە بێت. ئەگەر ڕاوەستا، دواتر دووبارە «دەست پێ بکە» دابگرە، لەو شوێنەوە بەردەوام دەبێت.</p>
       <div id="aiProg" hidden><div class="aibar"><i id="aiBar"></i></div><p id="aiStat" class="hint" style="margin:6px 0 0"></p></div>
       <p id="aiMsg" class="banner" style="margin:0" hidden></p>
@@ -1422,7 +1422,7 @@ window.FIREBASE_CONFIG = {
           <button type="button" id="mdDel" class="btn ghost sm" hidden>لابردنی وێنە</button>
         </div>
       </div>
-      <div class="field"><div class="nhead"><label for="mdNote">تێبینی بۆ موشتەری <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="mdAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="mdNote" class="inp" rows="3" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ بە دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت.</span></div>
+      <div class="field"><div class="nhead"><label for="mdNote">تێبینی بۆ موشتەری <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="mdAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="mdNote" class="inp" rows="5" maxlength="600" placeholder="بۆ نموونە:&#10;ناوی: کرێمی قژی Gatsby&#10;بۆ چی باشە: ڕێکخستنی قژ بە درەوشانەوە&#10;بۆ کێ باشە: پیاوان&#10;بەکارهێنان: کەمێک بە قژی وشکدا بهێنە&#10;چەندی تێدایە: ٨٠ گرام"></textarea><span class="hint">کە وێنە دەگریت و تێبینی بەتاڵە، خۆی لە وێنەکەوە دەینووسێت. لە ماڵپەڕ بە دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت.</span></div>
       <p id="mdWebNote" class="mdweb" hidden></p>
       <p id="mdErr" class="msg" hidden></p>
       <div class="tools"><button type="button" id="mdNext" class="btn primary">پاشەکەوت و سکانی دواتر</button><button type="button" id="mdSave" class="btn ghost">پاشەکەوت</button></div>
@@ -1456,7 +1456,7 @@ window.FIREBASE_CONFIG = {
         <div class="field"><label for="fStock">بڕی ناو کۆگا</label><input id="fStock" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field wh"><label for="fWholesale">نرخی جوملە</label><input id="fWholesale" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
         <div class="field rt"><label for="fRetail">نرخی تاک</label><input id="fRetail" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-        <div class="field span2"><div class="nhead"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="fAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="fNote" class="inp" rows="2" maxlength="300" placeholder="بۆ نموونە: بۆ پێستی چەور · ١٠٠ مل · دروستکراوی فەرەنسا"></textarea><span class="hint">لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
+        <div class="field span2"><div class="nhead"><label for="fNote">تێبینی <span class="muted">(ئارەزوومەندانە)</span></label><button type="button" class="ainote" id="fAiNote"><svg><use href="#i-spark"/></svg><span>نووسین لە وێنەوە</span></button></div><textarea id="fNote" class="inp" rows="5" maxlength="600" placeholder="بۆ نموونە:&#10;ناوی: کرێمی قژی Gatsby&#10;بۆ چی باشە: ڕێکخستنی قژ بە درەوشانەوە&#10;بۆ کێ باشە: پیاوان&#10;بەکارهێنان: کەمێک بە قژی وشکدا بهێنە&#10;چەندی تێدایە: ٨٠ گرام"></textarea><span class="hint">کە وێنە دەگریت و تێبینی بەتاڵە، خۆی لە وێنەکەوە دەینووسێت. لە ماڵپەڕ دوگمەیەکی بچووکی «تێبینی» لەسەر کاڵاکە دەردەکەوێت؛ کڕیار کە دای بگرێت ئەم نووسینە دەبینێت.</span></div>
         <div class="field span2"><label for="fMin">ئاگادارم بکەرەوە کاتێک بڕەکەی گەیشتە</label><input id="fMin" class="inp num-in" inputmode="decimal" autocomplete="off" placeholder="3"><span class="hint">کاتێک کۆگا گەیشتە ئەم ژمارەیە یان کەمتر، دەچێتە لیستی «کەم ماوە».</span></div>
         <label class="chk span2"><input type="checkbox" id="fWeb" checked> لە ماڵپەڕ پیشانی بدە</label>
         <div class="field span2" id="fCatWrap"><span class="flabel">بەش لە ماڵپەڕ</span>
@@ -3700,7 +3700,9 @@ async function shrinkImage(file){
 async function fImgPick(e){
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
   const forId=S.editing;FI.loading=true;paintImg();
-  try{const d=await shrinkImage(f);if(S.editing!==forId)return;FI.data=d;FI.changed=true;}
+  const gen=FGEN;
+  try{const d=await shrinkImage(f);if(S.editing!==forId||FGEN!==gen)return;FI.data=d;FI.changed=true;
+    if(!$('#fNote').value.trim()&&!$('#fAiNote').disabled)aiAuto('f',d,F.name.value.trim(),forId);}
   catch(_){toast('وێنەکە نەخوێندرایەوە. وێنەیەکی تر هەڵبژێرە.','error');}
   finally{FI.loading=false;paintImg();}
 }
@@ -3710,6 +3712,7 @@ $('#fImgDel').addEventListener('click',()=>{FI.data=null;FI.changed=true;paintIm
 function openSheet(id,preset,addAfter){
   const owner=S.role==='owner';
   if(!owner&&!S.perm.add)return;
+  FGEN++;AUTO.f=null;aiBtnBusy($('#fAiNote'),false);
   const p=id?S.products.get(id):null;
   if(p&&!canEditProduct(p))return;
   S.editing=id;S.addAfterSave=!!addAfter;S.addTarget=(preset&&preset.target)||'sell';
@@ -3743,8 +3746,10 @@ function openSheet(id,preset,addAfter){
 function closeSheet(){$('#sheet').hidden=true;S.editing=null;S.addAfterSave=false;S.batchNew=false;hideExisting();syncLive();}
 function newTitle(){$('#sheetTitle').textContent=S.batchCount?('کاڵای نوێ · '+fmt(S.batchCount)+' زیاد کرا'):'کاڵای نوێ';}
 function resetNewForm(){
+  FGEN++;AUTO.f=null;aiBtnBusy($('#fAiNote'),false);
   S.editing=null;hideExisting();
   [F.bc,F.name,F.cost,F.stock,F.wh,F.rt,F.min].forEach(i=>{i.value='';i.classList.remove('bad');});
+  $('#fNote').value='';   // the note belongs to the item just saved (the section and women / men carry on)
   $('#fErr').hidden=true;$('#fDelete').hidden=true;$('#fMoves').hidden=true;resetImg();updateMargins();newTitle();
 }
 /* ---------- a barcode that is already registered ---------- */
@@ -3810,13 +3815,14 @@ $('#pForm').addEventListener('submit',async e=>{
   const data={barcode:normDigits(F.bc.value).replace(/\s+/g,''),name:F.name.value.trim(),wholesale:parseNum(F.wh.value),retail:parseNum(F.rt.value),stock:rq(parseNum(F.stock.value)),updatedAt:Date.now()};
   const cost=parseNum(F.cost.value);
   if(F.min.value.trim()!=='')data.minStock=rq(Math.max(0,parseNum(F.min.value)));
-  {const nt=$('#fNote').value.replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,300);if(nt)data.note=nt;}
+  {const nt=cleanNote($('#fNote').value);if(nt)data.note=nt;}
   if(!data.name)return formErr('ناوی کاڵا بنووسە.',F.name);
   if(!(data.retail>0))return formErr('نرخی تاک بنووسە.',F.rt);
   if(data.barcode&&!S.editing&&!S.addAfterSave&&checkExisting(codeKey(data.barcode)))return;
   if(data.barcode){const other=S.byCode.get(codeKey(data.barcode));if(other&&other!==S.editing){const op=S.products.get(other);return formErr('ئەم بارکۆدە پێشتر بۆ «'+(op?op.name:'کاڵایەکی تر')+'» تۆمارکراوە.',F.bc);}}
   if(F.stock.closest('.field').hidden)data.stock=0;
   const id=S.editing||newId(),after=S.addAfterSave,wasEdit=!!S.editing;
+  const aiJob=AUTO.f&&AUTO.f.gen===FGEN&&!data.note?AUTO.f:null;   // a note still being read from the photo
   const prev=S.editing?S.products.get(S.editing):null;
   // Stock left as it was shown: keep today's number, which may have moved by a sale while the form was open.
   if(prev&&!F.stock.closest('.field').hidden&&F.stock.value.trim()===plain(S.formStock))data.stock=typeof prev.stock==='number'?prev.stock:0;
@@ -3842,6 +3848,7 @@ $('#pForm').addEventListener('submit',async e=>{
     const r=await commitSoft(b.commit());
     const p=Object.assign({id:id},data);
     if(S.role!=='owner')plPutLater([p]);
+    if(aiJob&&data.imgV)aiLater(aiJob,id,p);
     if(!wasEdit&&S.batchNew){
       // Ready for the next item straight away: clear the form and open the camera.
       S.batchCount++;resetNewForm();
@@ -4604,8 +4611,12 @@ function prodTabOk(){return S.role==='owner'||!!(S.perm.add||S.perm.media||S.per
 // Staff the owner allowed to change the selling prices of every item (and its purchase price too, if they may see it).
 function canPrice(){return S.role==='owner'||!!S.perm.price;}
 function canBrowse(){return S.role==='owner'||!!(S.perm.add||S.perm.price);}
+// A customer note: up to five short lines (name, what for, who for, how to use, how much), so up to 600 letters.
+const NOTE_MAX=600;
 function hasNote(p){return !!p&&typeof p.note==='string'&&!!p.note.trim();}
-function cleanNote(t){return String(t||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,300);}
+// written in the five-answer way (by the photo reader, or by hand the same way)
+function fullNote(p){return hasNote(p)&&/بۆ چی باشە\s*[:：]/.test(p.note);}
+function cleanNote(t){return String(t||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,NOTE_MAX);}
 function mdErr(t){const e=$('#mdErr');e.textContent=t||'';e.hidden=!t;}
 function mdPaint(){
   const box=$('#mdPrev');
@@ -4616,6 +4627,7 @@ function mdPaint(){
 function onSite(p){return p.web!==false&&(typeof p.stock==='number'?p.stock:0)>0;}
 function openMedia(p){
   if(!canMedia()||!p)return;
+  MGEN++;AUTO.m=null;aiBtnBusy($('#mdAiNote'),false);
   Object.assign(MD,{pid:p.id,data:null,changed:false,fetch:!!p.imgV,busy:false,saving:false});
   $('#mdTitle').textContent=p.name;
   $('#mdSub').innerHTML=(p.barcode?'<span class="num">'+esc(p.barcode)+'</span> · ':'')+'نرخی تاک: <span class="num">'+fmt(p.retail)+'</span> د.ع';
@@ -4656,7 +4668,9 @@ function mediaCode(code){
 async function mdPick(e){
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f||!MD.pid)return;
   const forId=MD.pid;MD.busy=true;mdErr('');mdPaint();
-  try{const d=await shrinkImage(f);if(MD.pid!==forId)return;MD.data=d;MD.changed=true;}
+  const gen=MGEN;
+  try{const d=await shrinkImage(f);if(MD.pid!==forId||MGEN!==gen)return;MD.data=d;MD.changed=true;
+    if(!$('#mdNote').value.trim()&&!$('#mdAiNote').disabled){const p=S.products.get(forId);aiAuto('m',d,p?p.name:'',forId);}}
   catch(_){toast('وێنەکە نەخوێندرایەوە. دووبارە هەوڵ بدەرەوە.','error');}
   finally{if(MD.pid===forId){MD.busy=false;mdPaint();}}
 }
@@ -4670,6 +4684,7 @@ async function mdSave(next){
   if(!p){closeMedia();toast('ئەم کاڵایە نەماوە.','error');return;}
   if(MD.busy)return mdErr('وێنەکە هێشتا ئامادە دەکرێت، چەند چرکەیەک چاوەڕێ بکە.');
   const note=cleanNote($('#mdNote').value),up={},merged=Object.assign({},p);
+  const aiJob=AUTO.m&&AUTO.m.gen===MGEN&&AUTO.m.pid===pid&&!note?AUTO.m:null;
   let v=0;
   if(MD.changed){
     if(MD.data){v=Date.now();up.imgV=v;merged.imgV=v;}
@@ -4689,6 +4704,7 @@ async function mdSave(next){
     const r=await commitSoft(b.commit());
     const what=('imgV' in up?(v?'وێنە':'لابردنی وێنە'):'')+('imgV' in up&&'note' in up?' و ':'')+('note' in up?(note?'تێبینی':'لابردنی تێبینی'):'');
     MD.saving=false;closeMedia();
+    if(aiJob&&v)aiLater(aiJob,pid,merged);
     toast('«'+p.name+'»: '+what+' پاشەکەوت کرا'+(r==='pending'?'. کە ئینتەرنێت هاتەوە دەنێردرێت.':(onSite(p)?' و لە ماڵپەڕ نوێ کرایەوە.':'.')));
     if(next)scanMedia();
   }catch(err){mdErr(errMsg(err));}
@@ -4740,21 +4756,33 @@ function aiLoad(){
     .catch(e=>{AIP=null;e.aiLoad=true;throw e;});
   return AIP;
 }
+// The five answers the shop wants on every item, one per line, each starting with its question.
+const AI_LABELS=['ناوی','بۆ چی باشە','بۆ کێ باشە','بەکارهێنان','چەندی تێدایە'];
 function aiPrompt(name){
-  return 'You write a very short product note for customers of a cosmetics shop in Kurdistan (Iraq).\n'+
-    'Look only at the photo. Write only facts that are clearly printed or visible on the product or its box: what the product is, the brand, '+
-    'what it is for (skin or hair type, or the problem it treats), the size or volume, one main ingredient or feature, and the country it was made in if printed.\n'+
-    'Never guess and never add anything that is not visible in the photo. No prices, no advice, no praise, no emojis, no hashtags.\n'+
-    'Write in Kurdish Sorani (Arabic script). Keep brand names and units as printed (Latin letters are fine for brand names).\n'+
-    'Format: one or two short lines, at most 120 characters in total, facts separated by " · ". Reply with the note only.\n'+
-    'If the photo does not show a product, or nothing useful can be read, reply with just: -\n'+
-    'The shop calls this item: «'+String(name||'').slice(0,80)+'» (use this only to understand the photo).';
+  return 'You write a product note for the customers of a shop in Kurdistan (Iraq) that sells men\'s grooming and barber products, perfumes and cosmetics.\n'+
+    'Look at the photo and identify the product. Then answer these five questions, each on its own line, in Kurdish Sorani (Arabic script), '+
+    'starting each line with exactly the label shown, then a colon:\n'+
+    'ناوی: the product\'s name and brand, as printed (Latin letters are fine for brand names)\n'+
+    'بۆ چی باشە: what it does or what it is for\n'+
+    'بۆ کێ باشە: who it is for (men, women or both; skin or hair type if printed)\n'+
+    'بەکارهێنان: how to use it, in one short sentence\n'+
+    'چەندی تێدایە: the size, volume, weight or count, as printed (for example ١٠٠ مل، ١٥٠ گرام، ١٢ دانە)\n'+
+    'Rules: read what is printed first. For what it is for, who it is for and how to use it you may use common knowledge about this kind of product, '+
+    'said simply. Never invent specific claims that are not printed (ingredients, percentages, country, certificates). '+
+    'If a line cannot be answered reliably (for example the size is not visible), leave that line out. Each answer at most 12 words. '+
+    'No prices, no praise, no emojis, no markdown. Reply with the lines only.\n'+
+    'If the photo does not show a product, reply with just: -\n'+
+    'The shop calls this item: «'+String(name||'').slice(0,80)+'» (use this to understand the photo).';
 }
 function aiClean(t){
   t=String(t||'').replace(/\r/g,'').replace(/[*#`_>]+/g,'').trim();
   t=t.replace(/^(note|تێبینی)\s*[:：]\s*/i,'').replace(/^["«“'\s]+|["»”'\s]+$/g,'').trim();
   if(!t||/^[-–—.\s]*$/.test(t))return '';
-  return t.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,2).join('\n').slice(0,200).trim();
+  const lines=t.split('\n').map(x=>x.replace(/^\s*(?:[-–—•·]+|\d+[.)])\s*/,'').replace(/[ \t]+/g,' ').trim())
+    .map(x=>x.replace(/^(ناو|ناوەکەی)\s*[:：]/,'ناوی:').replace(/^چەندی تێدایە\s*[؟?]?\s*[:：]/,'چەندی تێدایە:'))
+    // a question left without an answer is dropped
+    .filter(x=>x&&!/[:：]\s*(?:[-–—]|نەزانراو|نازانرێت|دیار نییە|unknown)?\s*[.。]?$/i.test(x));
+  return lines.slice(0,6).join('\n').slice(0,NOTE_MAX).trim();
 }
 function aiText(res){
   const r=res&&res.response;if(!r)return '';
@@ -4825,15 +4853,47 @@ $('#mdAiNote').addEventListener('click',()=>{
   const id=MD.pid,p=S.products.get(id);
   aiFill($('#mdAiNote'),$('#mdNote'),MD.data,p?p.name:'',()=>MD.pid===id&&!$('#mediaSheet').hidden);
 });
+/* ---------- the note written by itself when a photo is taken and the note box is empty ---------- */
+// If the item is saved before the note is ready, the note goes onto the saved item when it comes (if it still has none).
+let FGEN=0,MGEN=0,aiQuiet=false;
+const AUTO={f:null,m:null};
+function aiAutoErr(e){
+  const k=aiKind(e);
+  // once per session for what will not go away by itself; the rest stays quiet (the button is still there)
+  if(!aiQuiet&&(k==='setup'||k==='day'||k==='loc')){aiQuiet=true;toast('تێبینی خۆکار: '+aiErrText(e),'error');}
+}
+function aiAuto(where,img,name,pid){
+  const btn=where==='f'?$('#fAiNote'):$('#mdAiNote'),gen=where==='f'?FGEN:MGEN;
+  const job={gen:gen,pid:pid||'',done:false,note:''};
+  job.pr=aiNote(img,name).then(n=>n||'',e=>{aiAutoErr(e);return '';}).then(n=>{job.done=true;job.note=n;return n;});
+  AUTO[where]=job;aiBtnBusy(btn,true);
+  job.pr.then(n=>{
+    const same=where==='f'?(FGEN===gen&&!$('#sheet').hidden):(MGEN===gen&&!$('#mediaSheet').hidden);
+    if(!same||AUTO[where]!==job)return;
+    aiBtnBusy(btn,false);
+    const area=where==='f'?$('#fNote'):$('#mdNote');
+    if(n&&!area.value.trim()){area.value=n;area.dispatchEvent(new Event('input',{bubbles:true}));toast('تێبینییەکە لە وێنەکەوە نووسرا. سەیری بکە، پاشان پاشەکەوت بکە.');}
+  });
+}
+// After a save: a note still on its way is put on the saved item.
+function aiLater(job,pid,fallback){
+  if(!job||job.done&&!job.note)return;
+  job.pr.then(async n=>{
+    if(!n)return;const p=S.products.get(pid)||fallback;if(!p||hasNote(p))return;
+    try{const b=writeBatch(db);b.update(doc(db,'products',pid),{note:n});pubPut(b,pid,Object.assign({},p,{id:pid,note:n}));
+      await commitSoft(b.commit());toast('تێبینی بۆ «'+p.name+'» لە وێنەکەوە نووسرا و پاشەکەوت کرا.');}catch(_){}
+  });
+}
 // Every item with a photo (owner): written and saved one after another, at a pace the free tier allows.
 const AIB={run:false,stop:false,done:new Set(),blank:new Set(),wl:null};
-function aiTargets(redo){return Array.from(S.products.values()).filter(p=>p.imgV&&(redo||(!hasNote(p)&&!AIB.blank.has(p.id+':'+p.imgV)))&&!AIB.done.has(p.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));}
+// Without the box ticked: items with no note. With it: also every note not yet written the five-answer way.
+function aiTargets(redo){return Array.from(S.products.values()).filter(p=>p.imgV&&(redo?!fullNote(p):!hasNote(p))&&!AIB.blank.has(p.id+':'+p.imgV)&&!AIB.done.has(p.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ar'));}
 function aiPaintCount(){
   if(AIB.run)return;
-  const all=Array.from(S.products.values()),ph=all.filter(p=>p.imgV),nn=ph.filter(p=>!hasNote(p)).length,wn=ph.length-nn,todo=aiTargets($('#aiRedo').checked).length;
+  const all=Array.from(S.products.values()),ph=all.filter(p=>p.imgV),wn=ph.filter(p=>hasNote(p)&&!fullNote(p)).length,todo=aiTargets($('#aiRedo').checked).length;
   $('#aiCount').textContent=!ph.length?'هیچ کاڵایەک وێنەی نییە. سەرەتا وێنە بۆ کاڵاکان دابنێ.'
     :(todo?fmt(todo)+' کاڵا ئامادەن بۆ نووسینی تێبینی.':'هەموو ئەو کاڵایانەی وێنەیان هەیە تێبینییان هەیە.');
-  $('#aiRedoTxt').textContent='تێبینییە هەبووەکانیش لە نوێوە بنووسەوە ('+fmt(wn)+' کاڵا)';
+  $('#aiRedoTxt').textContent='تێبینییە کۆنەکانیش بە شێوەی نوێ بنووسەوە ('+fmt(wn)+' کاڵا)';
   $('#aiRedo').closest('label').hidden=!wn;
   $('#aiGo').disabled=!todo;
 }
@@ -4868,7 +4928,7 @@ async function aiRun(){
   for(const p0 of list){
     if(AIB.stop)break;
     const p=S.products.get(p0.id);
-    if(!p||!p.imgV||(!redo&&hasNote(p))){n++;aiProg(n,total,ok);continue;}
+    if(!p||!p.imgV||(redo?fullNote(p):hasNote(p))){n++;aiProg(n,total,ok);continue;}
     $('#aiStat').textContent=fmt(n)+' لە '+fmt(total)+' · '+fmt(ok)+' تێبینی نووسرا · ئێستا: '+p.name;
     let img=null;
     try{const sn=await getDoc(doc(db,'pimg',p.id));img=sn.exists()?(sn.data().d||sn.data().u||null):null;}catch(_){}
@@ -4926,7 +4986,7 @@ function pubWanted(p){
   const k=pubStock(typeof p.stock==='number'?p.stock:0);
   const w={n:String(p.name),r:Number(p.retail)||0,ok:k.ok,m:k.m,iv:Number(p.imgV)||0,c:String(p.cat||''),s:String(p.cat&&p.sub||'')};
   // the customer note (always written, empty when there is none, so removing a note also clears it on the website)
-  w.t=typeof p.note==='string'?p.note.trim().slice(0,300):'';
+  w.t=typeof p.note==='string'?p.note.trim().slice(0,NOTE_MAX):'';
   if(p.gen==='w'||p.gen==='m')w.g=p.gen;   // women or men only; both (or not set) shows under either
   return w;
 }

@@ -125,6 +125,7 @@ body.has-list main{padding-bottom:120px}
 .pnote{display:flex;gap:10px;align-items:flex-start;margin:4px 0 2px;padding:12px 14px;border-radius:14px;background:var(--rose-soft);color:var(--ink)}
 .pnote svg{width:20px;height:20px;flex:none;color:var(--rose);margin-top:2px}
 .pnote p{margin:0;font-size:15px;line-height:1.75;white-space:pre-line;overflow-wrap:anywhere}
+.pnote p b{font-weight:700;color:var(--rose)}
 .price{font-weight:600;font-size:15px;color:var(--rose);white-space:nowrap}
 .after .code{display:block;margin-top:4px;font-family:var(--f-ui);letter-spacing:.04em}
 .after .code:empty{display:none}
@@ -503,7 +504,16 @@ function priceOf(id,e){return plOn()?(S.pl?Number(S.pl[id])||0:0):(Number(e.r)||
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
-function mk(id,e){const ok=e.ok===true||wsOn(),m=wsOn()?MAXQ:Number(e.m);return {id,n:e.n,r:priceOf(id,e),ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,300):''};}
+// The note: a line «پرسیار: وەڵام» shows its question in bold (the five answers the shop writes for each item).
+function paintNote(el,t){
+  el.textContent='';
+  String(t).split('\n').forEach((ln,i)=>{
+    if(i)el.append('\n');
+    const m=/^([^:：\n]{2,22})[:：]\s*(.+)$/.exec(ln);
+    if(m){const b=document.createElement('b');b.textContent=m[1]+': ';el.append(b,m[2]);}else el.append(ln);
+  });
+}
+function mk(id,e){const ok=e.ok===true||wsOn(),m=wsOn()?MAXQ:Number(e.m);return {id,n:e.n,r:priceOf(id,e),ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,600):''};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -750,7 +760,7 @@ async function openProduct(id){
 function paintSheet(){
   const e=entry(S.open);if(!e){closeSheet($('#psheet'));return;}
   $('#pName').textContent=e.n;
-  $('#pNote').hidden=!e.t;$('#pNoteText').textContent=e.t||'';
+  $('#pNote').hidden=!e.t;paintNote($('#pNoteText'),e.t||'');
   $('#pPrice').innerHTML=e.r>0?'<span class="n">'+money(e.r)+'</span><span class="cur">د.ع</span>':'<span class="ask">نرخ لە دوکان بپرسە</span>';
   const a=$('#pAvail');a.textContent=e.ok?'هەیە':'نەماوە';a.classList.toggle('no',!e.ok);
   $('#pBig').classList.toggle('out',!e.ok);

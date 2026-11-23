@@ -4749,10 +4749,18 @@ $('#pBody').addEventListener('click',e=>{if(S.pview!=='media')return;const b=e.t
 // from what is printed on it. The SDK loads only when first used, so nothing else depends on it.
 const AI_V='13.2.0';
 const AI_MODELS=['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-2.5-flash-lite'];
+// The reCAPTCHA Enterprise key registered for this web app in Firebase App Check (empty: none yet). Firebase AI
+// Logic refuses requests without an App Check token once App Check is enforced for it (from 21 Jan 2027 always).
+const AC_KEY='';
 let AIP=null,AI_AT=0;
 function aiLoad(){
-  if(!AIP)AIP=Promise.all([import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-app.js'),import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-ai.js')])
-    .then(([A,M])=>{const a=(A.getApps().find(x=>x.name==='ai'))||A.initializeApp(cfg,'ai');return {ai:M.getAI(a,{backend:new M.GoogleAIBackend()}),M};})
+  if(!AIP)AIP=Promise.all([import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-app.js'),import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-ai.js'),
+      AC_KEY?import('https://www.gstatic.com/firebasejs/'+AI_V+'/firebase-app-check.js'):null])
+    .then(([A,M,C])=>{
+      const old=A.getApps().find(x=>x.name==='ai'),a=old||A.initializeApp(cfg,'ai');
+      // before the AI service is made, so its requests carry the token
+      if(C&&!old)C.initializeAppCheck(a,{provider:new C.ReCaptchaEnterpriseProvider(AC_KEY),isTokenAutoRefreshEnabled:true});
+      return {ai:M.getAI(a,{backend:new M.GoogleAIBackend()}),M};})
     .catch(e=>{AIP=null;e.aiLoad=true;throw e;});
   return AIP;
 }

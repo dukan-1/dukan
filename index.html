@@ -532,6 +532,9 @@ button.prow:hover{background:var(--sunk)}
 .pl-card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
 .pl-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}.pl-h b{font-size:15px}
 .pl-card .pl-make{align-self:flex-start}
+.deal-it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px dashed var(--line);font-size:14px}
+.deal-it:first-of-type{border-top:0}.deal-it b{font-weight:600;overflow-wrap:anywhere;min-width:0}
+.deal-it .pp2{flex:none;display:flex;gap:8px;align-items:baseline;white-space:nowrap}.deal-it .pp2 s{color:var(--muted);font-size:12.5px;font-weight:400}.deal-it .pp2>span.num{color:var(--danger);font-weight:700}
 #plPctForm{align-items:center}#plPct{max-width:96px;text-align:center}.pl-pc{font-weight:700;color:var(--muted)}
 .pr-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--sunk)}
 .pr-item b{font-size:15px;overflow-wrap:anywhere}.pr-item small{color:var(--muted);font-size:12.5px}
@@ -1252,6 +1255,18 @@ window.FIREBASE_CONFIG = {
           </div>
           <p class="hint" style="margin:0">«بەستەری نوێ»: بەستەرە کۆنەکە ئیتر نرخەکان پیشان نادات (بۆ کاتێک نەتەوێت کەسێک بەردەوام بیبینێت). نرخەکان لەگەڵ هەر گۆڕانێک لە سیستەم خۆیان نوێ دەبنەوە.</p>
         </div>
+        <div class="pl-box" id="dealBox">
+          <h3 style="margin:0">داشکاندنی هەفتانە (لە سەرەوەی ماڵپەڕ)</h3>
+          <p class="hint" style="margin:0">هەموو شەممەیەک سیستەم خۆی چەند کاڵایەکی وێنەدار لە بەشە جیاوازەکان هەڵدەبژێرێت، نرخیان لە ماڵپەڕ کەم دەکات و لە سەرەوەی ماڵپەڕ یەک لە دوای یەک بە جوڵە پیشانیان دەدات. تەنها ماڵپەڕە: لە دوکان هەر بە نرخی ئاسایی دەفرۆشرێن، بەڵام داواکاری ماڵپەڕ بە نرخی داشکاو دێت.</p>
+          <label class="chk"><input type="checkbox" id="dealOn"> داشکاندنی هەفتانە چالاک بێت</label>
+          <form id="dealForm" class="grid2" novalidate>
+            <div class="field"><label for="dealPct">چەند لە سەد داشکاندن</label><input id="dealPct" class="inp num-in" inputmode="numeric" autocomplete="off" placeholder="10" maxlength="2"></div>
+            <div class="field"><label for="dealN">چەند کاڵا لە هەفتەیەکدا</label><input id="dealN" class="inp num-in" inputmode="numeric" autocomplete="off" placeholder="6" maxlength="2"></div>
+            <button type="submit" id="dealSave" class="btn ghost sm span2">پاشەکەوت</button>
+          </form>
+          <div id="dealNow"></div>
+          <button type="button" id="dealShuffle" class="btn ghost sm" style="align-self:flex-start" hidden>کاڵای تر هەڵبژێرە</button>
+        </div>
         <form id="f-web" class="sec" style="gap:10px;margin-top:12px" novalidate>
           <div class="field"><label for="webWa">ژمارەی WhatsApp ی دوکان</label><input id="webWa" class="inp ltr-in" type="tel" inputmode="tel" autocomplete="off" placeholder="0750 000 0000"></div>
           <div class="field"><label for="webNote">ناونیشان یان کاتی کار <span class="muted">(ئارەزوومەندانە)</span></label><input id="webNote" class="inp" autocomplete="off" maxlength="120"></div>
@@ -1725,7 +1740,7 @@ function stopAll(){
   if(S.movesUnsub){S.movesUnsub();S.movesUnsub=null;}
   if(S.rFoundUnsub){S.rFoundUnsub();S.rFoundUnsub=null;}
   S.rFound=null;S.moves=[];S.mvLoaded=false;S.mvPid=null;
-  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);S.shopWk='';S.shopMk='';plUnwatch();
+  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);S.shopWk='';S.shopMk='';plUnwatch();S.deal=null;S.dealLoaded=false;
   S.expenses=[];S.lastBackup=undefined;S.pview='home';
   offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
@@ -1795,6 +1810,7 @@ function start(){
     renderCart();if(S.tab==='products')renderProducts();if(S.tab==='buy')renderBuy();updateNoCode();if(!$('#picker').hidden)renderPicker();updateBackupUI();
     schedulePubSync();renderWeb();
   },onErr));
+  S.unsubs.push(onSnapshot(doc(db,'pub','deal'),s=>{if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;S.deal=s.exists()?s.data():null;S.dealLoaded=true;if(owner)schedulePubSync();renderDeal();if(S.tab==='orders')renderOrders();},()=>{}));
   S.unsubs.push(onSnapshot(doc(db,'pub','info'),s=>{S.pubInfo=s.exists()?s.data():null;S.pubInfoLoaded=true;
     S.cats=parseCats(S.pubInfo&&S.pubInfo.cats);seedCats();catsChanged();if(owner)schedulePubSync();},()=>{}));
   if(owner){
@@ -2859,13 +2875,18 @@ async function acceptOrder(o,btn){
 // trusted): no more is taken than the shop has; what was missing is kept to show the owner.
 // An order from the wholesale / in-between website (its link's name came with it, and is still the shop's).
 function orderPl(o){const k=String(o&&o.lk||'');return k&&k===S.shopWk?'w':k&&k===S.shopMk?'m':'';}
-function orderPrice(p,pl){if(pl==='w')return Number(p.wholesale)>0?Number(p.wholesale):(Number(p.retail)||0);if(pl==='m')return plPrice(p,'m');return Number(p.retail)||0;}
+// An order from the retail website in a discount week: the items of that week at their discounted price.
+function orderDeal(o,pid){
+  const w=String(o&&o.dw||''),d=S.deal;if(!w||!d)return 0;
+  const src=d.w===w?d.p:(d.prev&&d.prev.w===w?d.prev.p:null);return src&&Number(src[pid])>0?Number(src[pid]):0;
+}
+function orderPrice(p,pl,o){if(pl==='w')return Number(p.wholesale)>0?Number(p.wholesale):(Number(p.retail)||0);if(pl==='m')return plPrice(p,'m');const dl=orderDeal(o,p.id);return dl||Number(p.retail)||0;}
 function orderLines(o){
   const m=new Map(),raw=orderRaw(o),pl=orderPl(o),ws=pl==='w',maxQ=ws?WO_WS_QTY:WO_MAX_QTY;
   for(const it of raw.slice(0,ws?WO_WS_LINES:WO_MAX_LINES)){
     const p=it&&S.products.get(String(it.pid||''));const n=Math.max(0,Math.min(maxQ,Math.floor(Number(it.q)||0)));
     if(!p||!n||p.web===false)continue;
-    const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:orderPrice(p,pl)};
+    const l=m.get(p.id)||{pid:p.id,name:p.name,barcode:p.barcode||'',qty:0,want:0,price:orderPrice(p,pl,o)};
     l.want=Math.min(maxQ,l.want+n);m.set(p.id,l);
   }
   const lines=[],miss=[];
@@ -2940,7 +2961,7 @@ function orderCard(o,where){
   return '<div class="wo" data-wo="'+esc(o.id)+'"><div class="wo-h"><b class="wo-no num">'+fmtNo(o.id)+'</b><span class="wo-t num">'+dm(o.at||Date.now())+'</span>'+st+plc+'<span class="wo-sum"><span class="num">'+fmt(sum)+'</span> د.ع</span></div>'+
     (who?'<div class="wo-who">'+who+'</div>':'')+(o.note?'<div class="wo-who">تێبینی: '+esc(o.note)+'</div>':'')+
     '<div>'+lines.map(l=>{const sp=o.status==='new'&&pl==='w'?S.products.get(l.pid):null,short=sp&&typeof sp.stock==='number'&&sp.stock<l.qty;
-      return '<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+(short?' <span class="chip danger">لە کۆگا '+fmtQty(Math.max(0,sp.stock))+' هەیە</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>';}).join('')+'</div>'+
+      return '<div class="it"><span class="in">'+esc(l.name)+(l.want>l.qty?' <span class="muted">(داوای '+fmt(l.want)+'ی کردبوو)</span>':'')+(short?' <span class="chip danger">لە کۆگا '+fmtQty(Math.max(0,sp.stock))+' هەیە</span>':'')+(o.status==='new'&&!pl&&orderDeal(o,l.pid)?' <span class="chip m-wholesale">داشکاندنی هەفتە</span>':'')+'</span><span class="num muted">'+fmtQty(l.qty)+' × '+fmt(l.price)+'</span><span class="num">'+fmt(l.qty*l.price)+'</span></div>';}).join('')+'</div>'+
     ((o.status==='held'?o.miss:lines.miss)&&(o.status==='held'?o.miss:lines.miss).length?'<div class="wo-who">لە کۆگا نەبوو: '+(o.status==='held'?o.miss:lines.miss).map(x=>esc(x.name)+' ('+fmt(x.want)+')').join('، ')+'</div>':'')+
     (open?'<div class="wo-acts">'+
       (where==='orders'&&o.status==='held'?'<label class="sr" for="wp-'+esc(o.id)+'">پارەی وەرگیراو</label><input id="wp-'+esc(o.id)+'" class="inp num-in" inputmode="decimal" placeholder="'+esc(fmt(sum))+'" autocomplete="off"><button type="button" class="btn primary sm" data-wsell>فرۆشرا</button>':'')+
@@ -5099,7 +5120,46 @@ function plPutLater(ps){
     if(n)b.commit().catch(()=>{});
   }catch(_){}
 }
+/* ---------- the weekly discount (pub/deal): picked by the owner's app every Saturday, for the website only ---------- */
+const DEAL_ROUND=250;
+function dealWeek(t){const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d;}   // its Saturday
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function dealPrice(r,pct){r=Number(r)||0;const v=Math.round(r*(1-pct/100)/DEAL_ROUND)*DEAL_ROUND;return v>0&&v<r?v:0;}
+function dealCfg(d){d=d||S.deal||{};const pct=Number(d.pct),n=Number(d.n);
+  return {on:d.on===true,pct:Number.isFinite(pct)&&pct>=1&&pct<=90?Math.round(pct):10,n:Number.isFinite(n)&&n>=1&&n<=12?Math.floor(n):6,salt:Number(d.salt)||0};}
+function hashStr(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+// Items with a photo, in stock and on the website, one from each section in turn (so the week has a mix),
+// in an order that changes every week; last week's items are left out when there are enough others.
+function dealPick(w,cfg,avoid){
+  const ok=[];for(const p of S.products.values())if(pubWanted(p)&&p.imgV&&Number(p.stock)>0&&dealPrice(p.retail,cfg.pct))ok.push(p);
+  const key=x=>hashStr(w+'|'+cfg.salt+'|'+x),fresh=ok.filter(p=>!avoid.has(p.id)),pool=fresh.length>=cfg.n?fresh:ok;
+  const groups=new Map();for(const p of pool){const c=p.cat||'';if(!groups.has(c))groups.set(c,[]);groups.get(c).push(p);}
+  const gs=Array.from(groups.entries()).sort((a,b)=>key('#'+a[0])-key('#'+b[0])).map(([,ps])=>ps.sort((a,b)=>key(a.id)-key(b.id)));
+  const out=[];
+  for(let i=0;out.length<cfg.n;i++){let any=false;for(const g of gs){if(i<g.length){any=true;out.push(g[i]);if(out.length>=cfg.n)break;}}if(!any)break;}
+  const p={};for(const x of out)p[x.id]=dealPrice(x.retail,cfg.pct);return p;
+}
+// What pub/deal should be now (the whole document), or null when it is right already.
+function dealWanted(cfg,repick){
+  const d=S.deal||{};cfg=cfg||dealCfg(d);
+  const ws=dealWeek(Date.now()),w=ymd(ws),we=new Date(ws);we.setDate(we.getDate()+7);
+  const base={on:cfg.on,pct:cfg.pct,n:cfg.n,salt:cfg.salt,w:w,from:ws.getTime(),until:we.getTime()};
+  const newWeek=d.w!==w;
+  // last week's list stays for the website orders from last week that are handled late
+  const prev=newWeek&&d.w&&d.p?{w:d.w,p:d.p}:(d.prev||null);
+  if(!cfg.on)return d.on===true||cfg.pct!==dealCfg(d).pct||cfg.n!==dealCfg(d).n?Object.assign(base,{p:{},prev:prev}):null;
+  if(newWeek||repick||!d.p||cfg.pct!==dealCfg(d).pct||cfg.n!==dealCfg(d).n||d.on!==true){
+    const avoid=new Set(Object.keys(newWeek?(d.p||{}):((d.prev&&d.prev.p)||{})));
+    return Object.assign(base,{p:dealPick(w,cfg,avoid),prev:prev});
+  }
+  // same week: prices follow the items' prices; an item gone from the website (or hidden) leaves the list
+  const p={};let ch=false;
+  for(const [id,v] of Object.entries(d.p||{})){const x=S.products.get(id),dp=x&&pubWanted(x)?dealPrice(x.retail,cfg.pct):0;if(dp){p[id]=dp;if(dp!==v)ch=true;}else ch=true;}
+  return ch?Object.assign(base,{p:p,prev:prev}):null;
+}
 let pubTimer=null,pubBusy=false;
+// a new week starts while the app stays open: the next items are picked within ten minutes
+setInterval(()=>{if(S.role==='owner'&&S.dealLoaded&&S.prodLoaded&&dealWanted())schedulePubSync();},600000);
 function schedulePubSync(){if(S.role!=='owner')return;clearTimeout(pubTimer);pubTimer=setTimeout(pubSync,1200);}
 // The owner's app keeps the public copy equal to the products (also the first publish of everything).
 async function pubSync(){
@@ -5118,13 +5178,15 @@ async function pubSync(){
     for(const [id,v] of Object.entries(want))if(have[id]!==v){d[id]=v;k++;}
     for(const id of Object.keys(have))if(!(id in want)){d[id]=deleteField();k++;}
     if(k)pl.push([x.key,d]);}
-  if(!n&&!infoDiff&&!pl.length)return;
+  const deal=S.dealLoaded?dealWanted():null;
+  if(!n&&!infoDiff&&!pl.length&&!deal)return;
   pubBusy=true;
   try{
     const b=writeBatch(db);
     if(n)b.set(doc(db,'pub','cat'),{p:ch,upd:serverTimestamp()},{merge:true});
     for(const [key,d] of pl)b.set(doc(db,'pub',key),{p:d},{merge:true});
     if(infoDiff)b.set(doc(db,'pub','info'),info,{merge:true});
+    if(deal)b.set(doc(db,'pub','deal'),Object.assign({},deal,{prev:deal.prev||null,upd:serverTimestamp()}));
     await commitSoft(b.commit());
   }catch(_){}
   finally{pubBusy=false;}
@@ -5173,7 +5235,7 @@ function renderWeb(){
   if(document.activeElement!==$('#webMap'))$('#webMap').value=S.shopMap||'';
   let on=0,pics=0,hid=0;
   for(const p of S.products.values()){if(p.web===false){hid++;continue;}on++;if(p.imgV)pics++;}
-  renderPl();
+  renderPl();renderDeal();
   $('#webStats').textContent=fmt(on)+' کاڵا لە ماڵپەڕن، '+fmt(pics)+' یان وێنەیان هەیە'+(hid?'، '+fmt(hid)+' شاراوەن':'')+'.'+(S.shopWa?'':' ژمارەی WhatsApp دابنێ بۆ ئەوەی کڕیاران بتوانن داواکاری بنێرن.');
 }
 function plUrl(key){const u=new URL('shop.html',location.href);u.search='?l='+key;u.hash='';return u.href;}
@@ -5229,6 +5291,39 @@ $('#plBox').addEventListener('click',async e=>{
   if(e.target.closest('[data-plshare]'))shareText(plUrl(key),(S.shopName||'دوکان')+' · '+(kind==='w'?'نرخی جوملە':'نرخی تایبەت'));
   if(e.target.closest('[data-plcopy]')){try{await navigator.clipboard.writeText(plUrl(key));toast('بەستەرەکە کۆپی کرا.');}catch(_){toast(plUrl(key));}}
 });
+function renderDeal(){
+  if(S.role!=='owner')return;
+  const d=S.deal||{},cfg=dealCfg(d);
+  $('#dealOn').checked=cfg.on;
+  if(document.activeElement!==$('#dealPct'))$('#dealPct').value=String(cfg.pct);
+  if(document.activeElement!==$('#dealN'))$('#dealN').value=String(cfg.n);
+  $('#dealForm').hidden=!cfg.on;$('#dealShuffle').hidden=!cfg.on;
+  const box=$('#dealNow');
+  if(!cfg.on){box.innerHTML='';return;}
+  const ids=Object.keys(d.p||{}),now=Date.now(),live=now>=(d.from||0)&&now<(d.until||0);
+  if(!ids.length||!live){box.innerHTML='<p class="hint" style="margin:0">'+(S.prodLoaded?'هیچ کاڵایەکی وێنەدار و لە کۆگا بەدەست نەکەوت؛ وێنە بۆ کاڵاکانت دابنێ.':'…')+'</p>';return;}
+  const end=new Date(d.until-1);
+  box.innerHTML='<p class="hint" style="margin:0 0 4px">ئەم هەفتەیە (تا کۆتایی هەینی <span class="num">'+end.getDate()+'/'+(end.getMonth()+1)+'</span>):</p>'+
+    ids.map(id=>{const p=S.products.get(id);if(!p)return '';return '<div class="deal-it"><b>'+esc(p.name)+'</b><span class="pp2"><s class="num">'+fmt(p.retail)+'</s><span class="num">'+fmt(d.p[id])+'</span></span></div>';}).join('');
+}
+async function dealSet(cfg,repick,btn,done){
+  if(S.role!=='owner')return;
+  if(!S.prodLoaded||!S.dealLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
+  const w=dealWanted(cfg,repick);if(!w){renderDeal();return;}
+  if(btn)busy(btn,true);
+  try{await commitSoft(setDoc(doc(db,'pub','deal'),Object.assign({},w,{prev:w.prev||null,upd:serverTimestamp()})));S.deal=Object.assign({},w);renderDeal();if(done)toast(done);}
+  catch(err){toast(errMsg(err),'error');}
+  finally{if(btn&&btn.isConnected)busy(btn,false);}
+}
+$('#dealOn').addEventListener('change',()=>{const c=dealCfg();c.on=$('#dealOn').checked;
+  dealSet(c,false,null,c.on?'داشکاندنی هەفتانە چالاک کرا؛ لە سەرەوەی ماڵپەڕ دەردەکەوێت.':'داشکاندنی هەفتانە ناچالاک کرا.');});
+$('#dealForm').addEventListener('submit',e=>{
+  e.preventDefault();const c=dealCfg(),pct=Math.round(Number(normDigits($('#dealPct').value))),n=Math.floor(Number(normDigits($('#dealN').value)));
+  if(!(pct>=1&&pct<=90)){toast('داشکاندن لە ١ تا ٩٠٪ بێت.','error');$('#dealPct').focus();return;}
+  if(!(n>=1&&n<=12)){toast('ژمارەی کاڵا لە ١ تا ١٢ بێت.','error');$('#dealN').focus();return;}
+  c.pct=pct;c.n=n;$('#dealPct').blur();$('#dealN').blur();dealSet(c,false,$('#dealSave'),'پاشەکەوت کرا.');
+});
+$('#dealShuffle').addEventListener('click',e=>{const c=dealCfg();c.salt=(c.salt+1)%100000;dealSet(c,true,e.currentTarget,'کاڵای تر هەڵبژێردران.');});
 $('#webShare').addEventListener('click',()=>shareText(webUrl(),S.shopName||'ماڵپەڕی دوکان'));
 $('#webCopy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(webUrl());toast('بەستەرەکە کۆپی کرا.');}catch(_){toast(webUrl());}});
 $('#f-web').addEventListener('submit',async e=>{

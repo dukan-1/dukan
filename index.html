@@ -322,6 +322,7 @@ textarea.inp{resize:vertical;min-height:64px;line-height:1.6;font-family:inherit
 .vsum{padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:14px}
 .vsum p{margin:0}
 .dgh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;background:var(--sunk);font-weight:700;font-size:14px;border-top:1px solid var(--line)}
+.dgh .dgk{flex:1;min-width:0;overflow-wrap:anywhere}.dgh .dg-merge{flex:none;min-height:36px}
 .dgh:first-child{border-top:0}
 .dgh .dgk{min-width:0;overflow-wrap:anywhere}
 .dgh .chip{flex:none}
@@ -1533,7 +1534,9 @@ function rq(n){return Math.round(n*1000)/1000;}
 function fmt(n){n=Math.round(Number(n)||0);return n.toLocaleString('en-US');}
 function fmtQty(n){if(typeof n!=='number'||!isFinite(n))return '—';return Number.isInteger(n)?n.toLocaleString('en-US'):String(rq(n));}
 function fold(s){return normText(s).replace(/[ەة]/g,'ه').replace(/[أإآ]/g,'ا').replace(/ؤ/g,'و').replace(/ـ/g,'').replace(/[\u064B-\u0652]/g,'');}
-function codeKey(s){return normText(s).replace(/\s+/g,'');}
+// A 13-digit barcode starting with 0 is the 12-digit one with a 0 in front (EAN-13 / UPC-A): some scanners and
+// cameras read one, some the other, so both find the same item.
+function codeKey(s){const k=normText(s).replace(/\s+/g,'');return /^0\d{12}$/.test(k)?k.slice(1):k;}
 function normText(s){return normDigits(s).toLowerCase().replace(/ي/g,'ی').replace(/ى/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pad(n){return String(n).padStart(2,'0');}
@@ -3029,6 +3032,53 @@ function searchEnter(e){
 }
 document.addEventListener('keydown',searchEnter);
 document.addEventListener('keyup',searchEnter);
+/* ---------- one item saved twice: put the copies together ---------- */
+// The one kept: with a photo, then with a barcode, then the most stock. It takes the stock of all of them, and what
+// it lacks from the others (barcode, photo, purchase price, note, section, women / men, wholesale price, alert level).
+function mergeKeep(ps){
+  const has=p=>p.imgV?4:0,bc=p=>codeKey(p.barcode||'')?2:0;
+  return ps.slice().sort((a,b)=>(has(b)+bc(b))-(has(a)+bc(a))||(Number(b.stock)||0)-(Number(a.stock)||0)||String(a.id).localeCompare(String(b.id)))[0];
+}
+async function mergeDup(ids,btn){
+  if(S.role!=='owner')return;
+  const ps=ids.map(id=>S.products.get(id)).filter(Boolean);if(ps.length<2)return;
+  const keep=mergeKeep(ps),others=ps.filter(p=>p.id!==keep.id),up={},merged=Object.assign({},keep);
+  const set=(f,v)=>{up[f]=v;merged[f]=v;};
+  const first=(ok,get)=>{for(const o of others){const v=get(o);if(ok(v))return {o,v};}return null;};
+  if(!codeKey(keep.barcode||'')){const x=first(v=>!!codeKey(v||''),o=>o.barcode);if(x)set('barcode',x.v);}
+  if(!(Number(keep.wholesale)>0)){const x=first(v=>Number(v)>0,o=>o.wholesale);if(x)set('wholesale',x.v);}
+  if(!(Number(keep.minStock)>0)){const x=first(v=>Number(v)>0,o=>o.minStock);if(x)set('minStock',x.v);}
+  if(!hasNote(keep)){const x=first(v=>typeof v==='string'&&!!v.trim(),o=>o.note);if(x)set('note',x.v);}
+  if(!keep.cat){const x=first(v=>!!v,o=>o.cat);if(x){set('cat',x.v);if(x.o.sub)set('sub',x.o.sub);}}
+  if(!GENS.includes(keep.gen)){const x=first(v=>GENS.includes(v),o=>o.gen);if(x)set('gen',x.v);}
+  busy(btn,true,'یەک دەخرێن…');
+  try{
+    // a photo only one of the copies has comes along
+    let img=null;
+    if(!keep.imgV){const o=others.find(o=>o.imgV);
+      if(o){let sn=null;try{sn=await getDocFromCache(doc(db,'pimg',o.id));}catch(_){}if(!sn||!sn.exists())sn=await getDoc(doc(db,'pimg',o.id));
+        if(sn.exists()&&sn.data().d){img={d:sn.data().d,v:Date.now()};set('imgV',img.v);}}}
+    const b=writeBatch(db),pub={};
+    if(img)b.set(doc(db,'pimg',keep.id),img);
+    if(!(costOf(keep.id)>0)){const o=others.find(o=>costOf(o.id)>0);if(o)b.set(doc(db,'costs',keep.id),costData(keep.id,costOf(o.id)));}
+    const sum=rq(others.reduce((a,o)=>a+(Number(o.stock)||0),0));
+    if(sum){
+      const from=Number(keep.stock)||0,mid=logMove(b,[{pid:keep.id,name:keep.name,delta:sum,from:from}],'merge','');
+      up.stock=increment(sum);up.lastMove=mid;up.lastBy=S.user.uid;merged.stock=rq(from+sum);
+    }
+    if(Object.keys(up).length)b.update(doc(db,'products',keep.id),up);
+    for(const o of others){b.delete(doc(db,'products',o.id));if(o.imgV)b.delete(doc(db,'pimg',o.id));if(S.costs.has(o.id))b.delete(doc(db,'costs',o.id));pub[o.id]=deleteField();}
+    pub[keep.id]=pubWanted(merged)||deleteField();
+    b.set(doc(db,'pub','cat'),{p:pub,upd:serverTimestamp()},{merge:true});
+    const r=await commitSoft(b.commit());
+    toast('«'+keep.name+'»: '+fmt(ps.length)+' دانە بوونە یەک · کۆگا '+fmtQty(Number(merged.stock)||0)+(r==='pending'?' (کە ئینتەرنێت هاتەوە دەنێردرێت)':''));
+  }catch(err){toast(errMsg(err),'error');}
+  finally{if(btn.isConnected)busy(btn,false);}
+}
+$('#pBody').addEventListener('click',e=>{
+  const mg=e.target.closest('[data-merge]');
+  if(mg){arm(mg,'دڵنیایت؟ دووبارە دابگرە',()=>mergeDup(mg.dataset.merge.split(','),mg));return;}
+});
 $('#pBody').addEventListener('click',e=>{const b=e.target.closest('.prow[data-id]');if(!b)return;
   const p=S.products.get(b.dataset.id);
   if(canEditProduct(p))openSheet(b.dataset.id,{},false);
@@ -3630,8 +3680,9 @@ function renderProducts(){
   if(v==='cats'){renderCatMgr(all,body);return;}
   if(v==='dup'){
     const groups=dupGroups(S.dupBy,S.dupPrice,seeCost),n=groups.reduce((a,g)=>a+g[1].length,0);
-    $('#dHint').textContent=S.dupBy==='name'?'ئەو کاڵایانەی ناویان وەک یەکە. ئەگەر یەکێکیان زیادەیە، دەستی لێبدە و بیسڕەوە یان ناوەکەی بگۆڕە.'
-      :S.dupBy==='barcode'?'ئەو کاڵایانەی بارکۆدیان وەک یەکە. لە کاتی سکان تەنها یەکێکیان دەدۆزرێتەوە، بۆیە باشترە یەکێکیان چاک بکەیتەوە.'
+    const mgh=S.role==='owner'?' «یەکخستن» یەکێکیان دەهێڵێتەوە (ئەوەی وێنەی هەیە)، کۆگای هەموویان دەخاتە سەری، و بارکۆد، وێنە، تێبینی و بەشیان لێ ناچێت.':'';
+    $('#dHint').textContent=S.dupBy==='name'?'ئەو کاڵایانەی ناویان وەک یەکە. ئەگەر دوو جار تۆمار کراون، لە ماڵپەڕیش دوو جار دەردەکەون.'+mgh
+      :S.dupBy==='barcode'?'ئەو کاڵایانەی بارکۆدیان وەک یەکە (یان هەمان بارکۆد بە سفرێک لە پێشەوە). لە کاتی سکان دەپرسێت کامیان.'+mgh
       :'ئەو کاڵایانەی هەمان نرخیان هەیە، لە نرخی کەمەوە بۆ زۆر.';
     $('#pvCount').innerHTML=groups.length?('<span class="num">'+fmt(groups.length)+'</span> گرووپ · <span class="num">'+fmt(n)+'</span> کاڵا'):'';
     $('.phead').hidden=!groups.length;
@@ -3639,7 +3690,8 @@ function renderProducts(){
     const byName=(a,b)=>String(a.name).localeCompare(String(b.name),'ar');
     body.innerHTML=groups.slice(0,200).map(([k,ps])=>{
       const label=S.dupBy==='price'?('<span class="num">'+fmt(Number(k))+'</span> د.ع'):S.dupBy==='barcode'?('<span class="num">'+esc(k)+'</span>'):esc(ps[0].name);
-      return '<div class="dgh"><span class="dgk">'+label+'</span><span class="chip danger"><span class="num">'+fmt(ps.length)+'</span> کاڵا</span></div>'+ps.slice().sort(byName).map(p=>rowHtml(p,null,S.dupBy==='price'?S.dupPrice:'')).join('');
+      const mg=S.role==='owner'&&S.dupBy!=='price'?'<button type="button" class="btn ghost sm dg-merge" data-merge="'+esc(ps.map(p=>p.id).join(','))+'">یەکخستن</button>':'';
+      return '<div class="dgh"><span class="dgk">'+label+'</span><span class="chip danger"><span class="num">'+fmt(ps.length)+'</span> کاڵا</span>'+mg+'</div>'+ps.slice().sort(byName).map(p=>rowHtml(p,null,S.dupBy==='price'?S.dupPrice:'')).join('');
     }).join('')+(groups.length>200?'<div class="more">'+fmt(groups.length-200)+' گرووپی تر هەیە.</div>':'');
     return;
   }
@@ -5198,8 +5250,8 @@ $('#f-web').addEventListener('submit',async e=>{
 });
 
 /* ================= stock moves ================= */
-const MOVE_LABEL={sale:'فرۆشتن',return:'گەڕاوە',purchase:'کڕین',topup:'زیادکردنی کۆگا',adjust:'گۆڕینی کۆگا بە دەست',create:'کاڵای نوێ',import:'هاوردەکردن لە Excel',saleEdit:'دەستکاری پسوولە',saleDelete:'سڕینەوەی پسوولە',buyDelete:'سڕینەوەی کڕین',restore:'گەڕاندنەوە لە یەدەگ',web:'داواکاری ماڵپەڕ',webReturn:'گەڕاندنەوەی داواکاری ماڵپەڕ'};
-const MOVE_MANUAL=['adjust','topup','create','import','saleEdit','saleDelete','buyDelete','restore'];
+const MOVE_LABEL={sale:'فرۆشتن',return:'گەڕاوە',purchase:'کڕین',topup:'زیادکردنی کۆگا',adjust:'گۆڕینی کۆگا بە دەست',create:'کاڵای نوێ',import:'هاوردەکردن لە Excel',saleEdit:'دەستکاری پسوولە',saleDelete:'سڕینەوەی پسوولە',buyDelete:'سڕینەوەی کڕین',restore:'گەڕاندنەوە لە یەدەگ',web:'داواکاری ماڵپەڕ',webReturn:'گەڕاندنەوەی داواکاری ماڵپەڕ',merge:'یەکخستنی کاڵای دووبارە'};
+const MOVE_MANUAL=['adjust','topup','create','import','saleEdit','saleDelete','buyDelete','restore','merge'];
 // One log entry per operation (a sale, a purchase, a correction): who, when, why, and how much each item changed.
 function logMove(b,items,reason,ref){
   const mref=doc(collection(db,'moves')),now=Date.now();

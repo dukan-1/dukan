@@ -1810,7 +1810,9 @@ function start(){
     renderCart();if(S.tab==='products')renderProducts();if(S.tab==='buy')renderBuy();updateNoCode();if(!$('#picker').hidden)renderPicker();updateBackupUI();
     schedulePubSync();renderWeb();
   },onErr));
-  S.unsubs.push(onSnapshot(doc(db,'pub','deal'),s=>{if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;S.deal=s.exists()?s.data():null;S.dealLoaded=true;if(owner)schedulePubSync();renderDeal();if(S.tab==='orders')renderOrders();},()=>{}));
+  // refused = the Firestore rules in the console are older than this app (pub/deal is new)
+  S.unsubs.push(onSnapshot(doc(db,'pub','deal'),s=>{if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;S.deal=s.exists()?s.data():null;S.dealLoaded=true;S.dealErr=false;if(owner)schedulePubSync();renderDeal();if(S.tab==='orders')renderOrders();},
+    e=>{S.dealErr=/permission/i.test(String(e&&(e.code||e.message)||''));renderDeal();}));
   S.unsubs.push(onSnapshot(doc(db,'pub','info'),s=>{S.pubInfo=s.exists()?s.data():null;S.pubInfoLoaded=true;
     S.cats=parseCats(S.pubInfo&&S.pubInfo.cats);seedCats();catsChanged();if(owner)schedulePubSync();},()=>{}));
   if(owner){
@@ -5299,6 +5301,7 @@ function renderDeal(){
   if(document.activeElement!==$('#dealN'))$('#dealN').value=String(cfg.n);
   $('#dealForm').hidden=!cfg.on;$('#dealShuffle').hidden=!cfg.on;
   const box=$('#dealNow');
+  if(S.dealErr){box.innerHTML='<p class="msg error" style="margin:0">ئەم بەشە پێویستی بە یاسا نوێیەکانی Firestore هەیە. فایلی firestore-rules.txt لە Firebase دابنێ و Publish دابگرە، پاشان ئەپەکە دابخە و بیکەرەوە.</p>';return;}
   if(!cfg.on){box.innerHTML='';return;}
   const ids=Object.keys(d.p||{}),now=Date.now(),live=now>=(d.from||0)&&now<(d.until||0);
   if(!ids.length||!live){box.innerHTML='<p class="hint" style="margin:0">'+(S.prodLoaded?'هیچ کاڵایەکی وێنەدار و لە کۆگا بەدەست نەکەوت؛ وێنە بۆ کاڵاکانت دابنێ.':'…')+'</p>';return;}
@@ -5308,7 +5311,8 @@ function renderDeal(){
 }
 async function dealSet(cfg,repick,btn,done){
   if(S.role!=='owner')return;
-  if(!S.prodLoaded||!S.dealLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
+  if(S.dealErr){toast('سەرەتا یاسا نوێیەکانی Firestore لە Firebase دابنێ (Publish)، پاشان ئەپەکە دابخە و بیکەرەوە.','error');renderDeal();return;}
+  if(!S.prodLoaded||!S.dealLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');renderDeal();return;}
   const w=dealWanted(cfg,repick);if(!w){renderDeal();return;}
   if(btn)busy(btn,true);
   try{await commitSoft(setDoc(doc(db,'pub','deal'),Object.assign({},w,{prev:w.prev||null,upd:serverTimestamp()})));S.deal=Object.assign({},w);renderDeal();if(done)toast(done);}

@@ -991,14 +991,14 @@ function paintPl(){
   b.textContent=S.plBad?'ئەم بەستەرە ئیتر کار ناکات؛ ئەم نرخانە نرخی تاکن. بەستەری نوێ لە دوکان داوا بکە.':PL_LABEL[PL_KIND];
 }
 skeleton();refreshList();paintPl();
-if(PL_KIND)onSnapshot(doc(db,'pub',PL_KEY),s=>{
+if(PL_KIND)onSnapshot(doc(db,'pub',PL_KEY),{includeMetadataChanges:true},s=>{
   if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;   // wait for the shop's answer
   const d=s.exists()?s.data():null;S.plBad=!d;S.pl=d&&d.p&&typeof d.p==='object'?d.p:{};
   paintPl();if(S.cat){render();refreshList();}
 },()=>{S.plBad=true;S.pl={};paintPl();if(S.cat){render();refreshList();}});
 if(!PL_KIND)onSnapshot(doc(db,'pub','deal'),s=>{S.deal=s.exists()?s.data():null;D.on=dealOn();if(S.cat){render();refreshList();}},()=>{});
 onSnapshot(doc(db,'pub','info'),s=>{const d=s.exists()?s.data():{};S.info={name:String(d.name||''),wa:normDigits(d.wa||'').replace(/\D/g,'').replace(/^00/,''),nt:/^[A-Za-z0-9_-]{1,64}$/.test(String(d.nt||''))?String(d.nt):'',cats:parseCats(d.cats),map:okMap(d.map),note:String(d.note||''),credit:d.credit===true};paintInfo();},()=>{});
-onSnapshot(doc(db,'pub','cat'),s=>{
+onSnapshot(doc(db,'pub','cat'),{includeMetadataChanges:true},s=>{
   if(!s.exists()&&s.metadata&&s.metadata.fromCache){if(!S.cat){const st=$('#state');grid.innerHTML='';st.hidden=false;st.innerHTML='<b>چاوەڕێی ئینتەرنێت…</b>کە پەیوەندی هات، کاڵاکان دەردەکەون.';}return;}
   S.err=false;S.cat=s.exists()?(s.data()||{p:{}}):{p:{}};if(!S.cat.p)S.cat.p={};render();refreshList();},()=>{S.err=true;render();});
 </script>

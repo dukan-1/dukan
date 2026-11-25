@@ -1531,7 +1531,7 @@ window.FIREBASE_CONFIG = {
 <script type="module">
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, initializeAuth, inMemoryPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocFromCache, setDoc, updateDoc, collection, query, where, onSnapshot, writeBatch, increment, getDocs, getCountFromServer, serverTimestamp, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocFromCache, getDocFromServer, setDoc, updateDoc, collection, query, where, onSnapshot, writeBatch, increment, getDocs, getCountFromServer, serverTimestamp, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const cfg=window.FIREBASE_CONFIG||{};
@@ -1811,7 +1811,7 @@ function start(){
     schedulePubSync();renderWeb();
   },onErr));
   // refused = the Firestore rules in the console are older than this app (pub/deal is new)
-  S.unsubs.push(onSnapshot(doc(db,'pub','deal'),s=>{if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;S.deal=s.exists()?s.data():null;S.dealLoaded=true;S.dealErr=false;if(owner)schedulePubSync();renderDeal();if(S.tab==='orders')renderOrders();},
+  S.unsubs.push(onSnapshot(doc(db,'pub','deal'),{includeMetadataChanges:true},s=>{if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;S.deal=s.exists()?s.data():null;S.dealLoaded=true;S.dealErr=false;if(owner)schedulePubSync();renderDeal();if(S.tab==='orders')renderOrders();},
     e=>{S.dealErr=/permission/i.test(String(e&&(e.code||e.message)||''));renderDeal();}));
   S.unsubs.push(onSnapshot(doc(db,'pub','info'),s=>{S.pubInfo=s.exists()?s.data():null;S.pubInfoLoaded=true;
     S.cats=parseCats(S.pubInfo&&S.pubInfo.cats);seedCats();catsChanged();if(owner)schedulePubSync();},()=>{}));
@@ -5107,7 +5107,7 @@ function plWatch(){
   for(const kind of ['w','m']){const want=S.role==='owner'?plKey(kind):'',x=PLW[kind];
     if(x.key===want)continue;
     if(x.un){try{x.un();}catch(_){}}x.un=null;x.doc=null;x.key=want;
-    if(want)x.un=onSnapshot(doc(db,'pub',want),sn=>{if(PLW[kind].key!==want)return;if(!sn.exists()&&sn.metadata&&sn.metadata.fromCache)return;PLW[kind].doc=sn.exists()?(sn.data()||{}):{p:{}};schedulePubSync();},()=>{});
+    if(want)x.un=onSnapshot(doc(db,'pub',want),{includeMetadataChanges:true},sn=>{if(PLW[kind].key!==want)return;if(!sn.exists()&&sn.metadata&&sn.metadata.fromCache)return;PLW[kind].doc=sn.exists()?(sn.data()||{}):{p:{}};schedulePubSync();},()=>{});
   }
   renderPl();
 }
@@ -5312,7 +5312,15 @@ function renderDeal(){
 async function dealSet(cfg,repick,btn,done){
   if(S.role!=='owner')return;
   if(S.dealErr){toast('سەرەتا یاسا نوێیەکانی Firestore لە Firebase دابنێ (Publish)، پاشان ئەپەکە دابخە و بیکەرەوە.','error');renderDeal();return;}
-  if(!S.prodLoaded||!S.dealLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');renderDeal();return;}
+  if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');renderDeal();return;}
+  // The phone's copy may not have said yet whether a discount exists: ask Firebase directly.
+  if(!S.dealLoaded){
+    try{const s=await getDocFromServer(doc(db,'pub','deal'));S.deal=s.exists()?s.data():null;S.dealLoaded=true;S.dealErr=false;}
+    catch(err){
+      if(/permission/i.test(String(err&&(err.code||err.message)||''))){S.dealErr=true;toast('سەرەتا یاسا نوێیەکانی Firestore لە Firebase دابنێ (Publish)، پاشان ئەپەکە دابخە و بیکەرەوە.','error');}
+      else toast('پەیوەندی بە ئینتەرنێتەوە نییە؛ کە ئینتەرنێت هات دووبارە هەوڵ بدەرەوە.','error');
+      renderDeal();return;}
+  }
   const w=dealWanted(cfg,repick);if(!w){renderDeal();return;}
   if(btn)busy(btn,true);
   try{await commitSoft(setDoc(doc(db,'pub','deal'),Object.assign({},w,{prev:w.prev||null,upd:serverTimestamp()})));S.deal=Object.assign({},w);renderDeal();if(done)toast(done);}

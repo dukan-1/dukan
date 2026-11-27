@@ -1,0 +1,18 @@
+name: media-export
+on:
+  push:
+    branches: [media-export]
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 .github/export.py
+      - run: |
+          git config user.name "media-export"
+          git config user.email "media-export@users.noreply.github.com"
+          git add media-export
+          git commit -q -m "Website photos and catalogue (one-off copy)" || true
+          git push

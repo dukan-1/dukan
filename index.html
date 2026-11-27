@@ -1255,6 +1255,14 @@ window.FIREBASE_CONFIG = {
           </div>
           <p class="hint" style="margin:0">«بەستەری نوێ»: بەستەرە کۆنەکە ئیتر نرخەکان پیشان نادات (بۆ کاتێک نەتەوێت کەسێک بەردەوام بیبینێت). نرخەکان لەگەڵ هەر گۆڕانێک لە سیستەم خۆیان نوێ دەبنەوە.</p>
         </div>
+        <div class="pl-box" id="codeBox">
+          <h3 style="margin:0">کۆدی داشکاندن (بە نرخی جوملە)</h3>
+          <p class="hint" style="margin:0">کڕیار لە ماڵپەڕی ئاسایی، لە لیستەکەیدا کۆدەکە دەنووسێت و یەکسەر نرخەکان دەبنە نرخی جوملە، و پێی دەڵێت نرخەکە لە چەندەوە بوو بە چەند. داواکارییەکەی بە نرخی جوملە دێتە ناو «داواکارییەکانی ماڵپەڕ». کۆدەکە لە هیچ شوێنێکی ماڵپەڕ دیار نییە.</p>
+          <p id="dcNow" style="margin:0" hidden></p>
+          <form id="dcForm" class="inrow" novalidate><input id="dcIn" class="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="بۆ نموونە: FCS2026" maxlength="24" aria-label="کۆدی داشکاندن"><button type="submit" id="dcSave" class="btn primary sm">پاشەکەوت</button></form>
+          <button type="button" id="dcOff" class="btn ghost sm" style="align-self:flex-start" hidden>لابردنی کۆد</button>
+          <p class="hint" style="margin:0">لانیکەم ٤ پیت یان ژمارە. پیتی گەورە و بچووک و بۆشایی جیاوازی نییە. کە کۆدێکی نوێ دادەنێیت، کۆدە کۆنەکە ئیتر کار ناکات.</p>
+        </div>
         <div class="pl-box" id="dealBox">
           <h3 style="margin:0">داشکاندنی هەفتانە (لە سەرەوەی ماڵپەڕ)</h3>
           <p class="hint" style="margin:0">هەموو شەممەیەک سیستەم خۆی چەند کاڵایەکی وێنەدار لە بەشە جیاوازەکان هەڵدەبژێرێت، نرخیان لە ماڵپەڕ کەم دەکات و لە سەرەوەی ماڵپەڕ یەک لە دوای یەک بە جوڵە پیشانیان دەدات. تەنها ماڵپەڕە: لە دوکان هەر بە نرخی ئاسایی دەفرۆشرێن، بەڵام داواکاری ماڵپەڕ بە نرخی داشکاو دێت.</p>
@@ -1740,7 +1748,7 @@ function stopAll(){
   if(S.movesUnsub){S.movesUnsub();S.movesUnsub=null;}
   if(S.rFoundUnsub){S.rFoundUnsub();S.rFoundUnsub=null;}
   S.rFound=null;S.moves=[];S.mvLoaded=false;S.mvPid=null;
-  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);S.shopWk='';S.shopMk='';plUnwatch();S.deal=null;S.dealLoaded=false;
+  S.pub=null;S.pubLoaded=false;S.pubInfo=null;S.shopWa='';S.shopNote='';S.shopLoaded=false;clearTimeout(pubTimer);S.shopWk='';S.shopMk='';S.shopDc='';S.shopDk='';plUnwatch();S.deal=null;S.dealLoaded=false;
   S.expenses=[];S.lastBackup=undefined;S.pview='home';
   offReset();   // a photo search does not outlive the sign-out
   B.unsubs.forEach(f=>{try{f();}catch(_){}});B.unsubs=[];B.key='';B.hist=[];B.debts=[];B.lines=[];B.loaded=false;
@@ -1800,7 +1808,7 @@ function start(){
   },()=>{}));
   setStatus(navigator.onLine?'wait':'off',navigator.onLine?'پەیوەندی دەکرێت…':'ئۆفلاین');
   subscribeOrders();
-  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopNt=typeof sd.nt==='string'?sd.nt:'';S.shopMap=typeof sd.map==='string'?sd.map:'';S.shopWk=PL_RE.test(sd.wk||'')?sd.wk:'';S.shopMk=PL_RE.test(sd.mk||'')?sd.mk:'';S.shopMp=sd.mp;plWatch();S.shopLoaded=true;renderNt();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
+  S.unsubs.push(onSnapshot(doc(db,'meta','shop'),s=>{const sd=s.exists()?s.data():{};S.shopWa=sd.wa||'';S.shopNote=sd.note||'';S.shopNt=typeof sd.nt==='string'?sd.nt:'';S.shopMap=typeof sd.map==='string'?sd.map:'';S.shopWk=PL_RE.test(sd.wk||'')?sd.wk:'';S.shopMk=PL_RE.test(sd.mk||'')?sd.mk:'';S.shopMp=sd.mp;S.shopDc=typeof sd.dc==='string'?sd.dc:'';S.shopDk=DK_RE.test(sd.dk||'')?sd.dk:'';plWatch();renderCode();S.shopLoaded=true;renderNt();schedulePubSync();renderWeb();S.shopName=(s.exists()&&s.data().name)||'';$('#shopName').textContent=S.shopName||'حساباتی دوکان';document.title=S.shopName||'حساباتی دوکان';if(document.activeElement!==$('#shopInput'))$('#shopInput').value=S.shopName;},()=>{}));
   S.unsubs.push(onSnapshot(collection(db,'products'),snap=>{
     S.products=new Map();S.byCode=new Map();
     S.dupCodes=new Map();
@@ -2882,7 +2890,7 @@ function orderDeal(o,pid){
   const w=String(o&&o.dw||''),d=S.deal;if(!w||!d)return 0;
   const src=d.w===w?d.p:(d.prev&&d.prev.w===w?d.prev.p:null);return src&&Number(src[pid])>0?Number(src[pid]):0;
 }
-function orderPrice(p,pl,o){if(pl==='w')return Number(p.wholesale)>0?Number(p.wholesale):(Number(p.retail)||0);if(pl==='m')return plPrice(p,'m');const dl=orderDeal(o,p.id);return dl||Number(p.retail)||0;}
+function orderPrice(p,pl,o){if(pl==='w'){const r=Number(p.retail)||0,w=Number(p.wholesale)||0,x=w>0?(r>0?Math.min(w,r):w):r,dl=orderDeal(o,p.id);return dl&&dl<x?dl:x;}if(pl==='m')return plPrice(p,'m');const dl=orderDeal(o,p.id);return dl||Number(p.retail)||0;}
 function orderLines(o){
   const m=new Map(),raw=orderRaw(o),pl=orderPl(o),ws=pl==='w',maxQ=ws?WO_WS_QTY:WO_MAX_QTY;
   for(const it of raw.slice(0,ws?WO_WS_LINES:WO_MAX_LINES)){
@@ -5274,12 +5282,15 @@ async function plSet(kind,make,btn){
   const old=plKey(kind),key=make?newPlKey(kind):'',f=kind==='w'?'wk':'mk';
   busy(btn,true);
   try{
-    const b=writeBatch(db);
-    b.set(doc(db,'meta','shop'),{[f]:key||deleteField()},{merge:true});
+    const b=writeBatch(db),ms={[f]:key||deleteField()},dk=kind==='w'?S.shopDk:'';
+    // the discount code follows the wholesale list: to the new link, or away with it
+    if(dk){if(key)b.set(doc(db,'pub',dk),{l:key});else{b.delete(doc(db,'pub',dk));ms.dc=deleteField();ms.dk=deleteField();}}
+    b.set(doc(db,'meta','shop'),ms,{merge:true});
     if(old)b.delete(doc(db,'pub',old));
     if(key)b.set(doc(db,'pub',key),{k:kind,p:plFull(kind)});
     await commitSoft(b.commit());
     if(kind==='w')S.shopWk=key;else S.shopMk=key;plWatch();
+    if(dk&&!key){S.shopDc='';S.shopDk='';renderCode();toast(PL_NAME[kind]+' و کۆدی داشکاندن لابران.');return;}
     toast(!make?PL_NAME[kind]+' لابرا؛ بەستەرەکەی ئیتر نرخ پیشان نادات.':old?'بەستەری نوێ دروست کرا؛ بەستەرە کۆنەکە ئیتر نرخ پیشان نادات.':PL_NAME[kind]+' دروست کرا. بەستەرەکەی بۆ کڕیارەکانت بنێرە.');
   }catch(err){toast(errMsg(err),'error');}
   finally{if(btn.isConnected)busy(btn,false);}
@@ -5293,6 +5304,41 @@ $('#plBox').addEventListener('click',async e=>{
   if(e.target.closest('[data-plshare]'))shareText(plUrl(key),(S.shopName||'دوکان')+' · '+(kind==='w'?'نرخی جوملە':'نرخی تایبەت'));
   if(e.target.closest('[data-plcopy]')){try{await navigator.clipboard.writeText(plUrl(key));toast('بەستەرەکە کۆپی کرا.');}catch(_){toast(plUrl(key));}}
 });
+/* ---------- the discount code: the website keeps only its fingerprint (pub/k_…), which points to the wholesale list ---------- */
+const DK_RE=/^k_[0-9a-f]{32}$/;
+function normCode(s){return normDigits(s).normalize('NFC').replace(/[\s\u200B-\u200F\u0640]/g,'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').toLowerCase();}
+async function codeDoc(s){const n=normCode(s);if(n.length<4||!(window.crypto&&crypto.subtle))return '';
+  const b=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('fcs-code|'+n)));let h='k_';for(const x of b.slice(0,16))h+=x.toString(16).padStart(2,'0');return h;}
+function renderCode(){
+  if(S.role!=='owner')return;
+  const has=!!S.shopDk,now=$('#dcNow');
+  now.hidden=!has;if(has)now.innerHTML='کۆدی ئێستا: <b dir="auto" style="font-size:17px">'+esc(S.shopDc||'—')+'</b>';
+  $('#dcOff').hidden=!has;$('#dcIn').placeholder=has?'کۆدی نوێ':'بۆ نموونە: FCS2026';
+  if(!$('#dcSave').disabled)$('#dcSave').textContent=has?'گۆڕین':'پاشەکەوت';
+}
+async function codeSet(raw,btn){
+  if(S.role!=='owner')return;
+  if(!S.prodLoaded){toast('کاڵاکان هێشتا بار دەکرێن…');return;}
+  const txt=String(raw||'').trim().slice(0,24),k=txt?await codeDoc(txt):'';
+  if(txt&&!k){toast('کۆدەکە لانیکەم ٤ پیت یان ژمارە بێت.','error');$('#dcIn').focus();return;}
+  busy(btn,true);
+  try{
+    const b=writeBatch(db),old=S.shopDk;let wk=S.shopWk,made=false;
+    // no wholesale list yet: it is made now (the code needs its prices); its link is there too if wanted
+    if(k&&!wk){wk=newPlKey('w');made=true;b.set(doc(db,'pub',wk),{k:'w',p:plFull('w')});}
+    if(old&&old!==k)b.delete(doc(db,'pub',old));
+    if(k)b.set(doc(db,'pub',k),{l:wk});
+    const ms=k?{dc:txt,dk:k}:{dc:deleteField(),dk:deleteField()};if(made)ms.wk=wk;
+    b.set(doc(db,'meta','shop'),ms,{merge:true});
+    await commitSoft(b.commit());
+    if(made){S.shopWk=wk;plWatch();renderPl();}
+    S.shopDc=k?txt:'';S.shopDk=k;$('#dcIn').value='';$('#dcIn').blur();renderCode();
+    toast(k?'کۆدەکە پاشەکەوت کرا: «'+txt+'». کڕیار لە لیستەکەی ماڵپەڕدا دەینووسێت.':'کۆدەکە لابرا؛ ئیتر کار ناکات.');
+  }catch(err){toast(/permission/i.test(String(err&&(err.code||err.message)||''))?'سەرەتا یاسا نوێیەکانی Firestore لە Firebase دابنێ (Publish)، پاشان دووبارە هەوڵ بدەرەوە.':errMsg(err),'error');}
+  finally{if(btn.isConnected)busy(btn,false);renderCode();}
+}
+$('#dcForm').addEventListener('submit',e=>{e.preventDefault();const v=$('#dcIn').value.trim();if(!v){toast('کۆدەکە بنووسە.','error');$('#dcIn').focus();return;}codeSet(v,$('#dcSave'));});
+$('#dcOff').addEventListener('click',e=>{const b=e.currentTarget;arm(b,'دڵنیایت؟ دووبارە دابگرە',()=>codeSet('',b));});
 function renderDeal(){
   if(S.role!=='owner')return;
   const d=S.deal||{},cfg=dealCfg(d);

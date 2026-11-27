@@ -219,6 +219,22 @@ body.has-list main{padding-bottom:120px}
 .tot strong{font-size:24px;font-weight:600;color:var(--rose)}
 .tot .cur{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin-inline-start:4px;font-weight:500}
 .warn{margin:0;font-size:14px;color:var(--rose);background:var(--rose-soft);padding:9px 12px;border-radius:12px}
+/* the discount code: a strip of paper with a dashed edge, like a coupon cut from a flyer */
+.tot .was{font-size:16px;margin-left:10px;font-weight:500}
+.lbt .was{margin-left:4px}
+.saved{margin:0;font-size:14px;line-height:1.7;color:var(--leaf);font-weight:600}
+.saved .n{font-family:var(--f-num)}
+.coupon{display:flex;flex-direction:column;gap:6px}
+.cform{display:flex;gap:8px;align-items:stretch}
+.cform input{flex:1;min-width:0;border:1px dashed var(--dash);border-radius:6px;background:var(--field);color:var(--ink);padding:10px 12px;font-size:16px;outline:none;text-align:center}
+.cform input::placeholder{color:var(--muted);opacity:.85}
+.cform input:focus{border-color:var(--rose);border-style:solid}
+.cform .btn{flex:none}
+.cmsg{margin:0;font-size:13px;color:var(--rose)}
+.con{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--wa-soft);border:1px dashed var(--leaf);border-radius:6px;padding:6px 6px 6px 12px;padding-inline-start:12px}
+.con span{font-size:14px;color:var(--ink);min-width:0}
+.con b{color:var(--leaf);font-family:var(--f-num)}
+.con .btn{min-height:38px;padding:6px 12px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fields .wide{grid-column:1/-1}
 .fld{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -457,7 +473,17 @@ main{padding-top:18px}
     <div class="sh"><h2 id="lTitle">لیستەکەم</h2><button type="button" class="x" data-close aria-label="داخستن">×</button></div>
     <ul class="lines" id="lines"></ul>
     <p class="warn" id="lWarn" hidden></p>
-    <div class="tot" id="lTot"><span>کۆی گشتی</span><span><strong class="n" id="lTotal">0</strong><span class="cur">د.ع</span></span></div>
+    <div class="tot" id="lTot"><span>کۆی گشتی</span><span><s class="was n" id="lWas" hidden></s><strong class="n" id="lTotal">0</strong><span class="cur">د.ع</span></span></div>
+    <p class="saved" id="lSaved" role="status" hidden></p>
+    <div class="coupon" id="cBox" hidden>
+      <form class="cform" id="cForm" novalidate>
+        <label for="cIn" class="sr">کۆدی داشکاندن</label>
+        <input id="cIn" placeholder="کۆدی داشکاندنت هەیە؟" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" maxlength="30">
+        <button type="submit" class="btn plain" id="cGo">بەکارهێنان</button>
+      </form>
+      <p class="cmsg" id="cMsg" role="alert" hidden></p>
+    </div>
+    <div class="con" id="cOn" hidden><span>✓ کۆدی <b id="cName" dir="auto"></b> · نرخی جوملە</span><button type="button" class="btn plain" id="cOff">لابردن</button></div>
     <div class="fields" id="lFields">
       <div class="fld"><label for="fName">ناو</label><input id="fName" autocomplete="name"></div>
       <div class="fld"><label for="fPhone">ژمارەی مۆبایل</label><input id="fPhone" type="tel" inputmode="tel" autocomplete="tel"></div>
@@ -548,11 +574,23 @@ const LIST_KEY='shop.list.v1'+(PL_KIND?'.'+PL_KIND:''),WHO_KEY='shop.who.v1';
 // no longer works falls back to the retail price, and says so.
 function plOn(){return !!PL_KIND&&!S.plBad;}
 function wsOn(){return WS&&!S.plBad;}
-function priceOf(id,e){if(plOn())return S.pl?Number(S.pl[id])||0:0;const r=Number(e.r)||0,d=dealOf(id);return d&&d<r?d:r;}
+function basePrice(id,e){const r=Number(e.r)||0,d=dealOf(id);return d&&d<r?d:r;}
+function priceOf(id,e){if(plOn())return S.pl?Number(S.pl[id])||0:0;const b=basePrice(id,e),c=codePrice(id,Number(e.r)||0);return c&&c<b?c:b;}
+// A discount code (retail website): the shop's code turns the prices into its wholesale prices. The code itself is
+// never on the website: it names a document (its fingerprint) that points to the wholesale list.
+const CODE_KEY='shop.code.v1',WL_RE=/^w_[A-Za-z0-9]{24}$/;
+const C={c:'',k:'',l:'',p:null,unK:null,unL:null,bad:0,until:0};
+function normCode(s){return normDigits(s).normalize('NFC').replace(/[\s\u200B-\u200F\u0640]/g,'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').toLowerCase();}
+async function codeDoc(s){const n=normCode(s);if(n.length<4||!(window.crypto&&crypto.subtle))return '';
+  const b=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('fcs-code|'+n)));let h='k_';for(const x of b.slice(0,16))h+=x.toString(16).padStart(2,'0');return h;}
+function codeOn(){return !PL_KIND&&!!C.l&&!!C.p;}
+// wholesale price, or the retail price where the shop has none (the same way the shop's app prices the order)
+function codePrice(id,r){if(!codeOn()||!(r>0))return 0;const w=Number(C.p[id])||0;return w>0&&w<r?w:0;}
 // This week's discount (retail website only): the shop's app picks the items every Saturday; it ends by itself.
 function dealOn(){const d=S.deal;if(PL_KIND||!d||d.on!==true||!d.p||typeof d.p!=='object')return false;const t=Date.now();return t>=(Number(d.from)||0)&&t<(Number(d.until)||0);}
 function dealOf(id){return dealOn()?Number(S.deal.p[id])||0:0;}
 function dealPct(){return Math.round(Number(S.deal&&S.deal.pct)||0);}
+function offPct(e){return e.why==='deal'&&dealPct()?dealPct():Math.max(1,Math.round((1-e.r/e.r0)*100));}
 (function(){const l=store.get(LIST_KEY);if(l&&typeof l==='object')for(const [k,v] of Object.entries(l)){const n=Math.floor(Number(v));if(n>0)S.list.set(k,Math.min(n,MAXQ));}})();
 function saveList(){const o={};for(const [k,v] of S.list)o[k]=v;store.set(LIST_KEY,o);}
 // m: how many a customer may ask for (the shop's stock, at most 50; older copies without it: 50).
@@ -565,7 +603,7 @@ function paintNote(el,t){
     if(m){const b=document.createElement('b');b.textContent=m[1]+': ';el.append(b,m[2]);}else el.append(ln);
   });
 }
-function mk(id,e){const ok=e.ok===true||wsOn(),m=wsOn()?MAXQ:Number(e.m),r=priceOf(id,e),r0=Number(e.r)||0;return {id,n:e.n,r,r0:!plOn()&&r0>r&&r>0?r0:0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,600):''};}
+function mk(id,e){const ok=e.ok===true||wsOn(),m=wsOn()?MAXQ:Number(e.m),r=priceOf(id,e),r0=Number(e.r)||0,b=plOn()?r:basePrice(id,e);return {id,n:e.n,r,b,why:!plOn()&&r>0&&r<b?'code':!plOn()&&r>0&&r<r0?'deal':'',r0:!plOn()&&r0>r&&r>0?r0:0,ok,m:ok?(m>0?Math.min(MAXQ,Math.floor(m)):MAXQ):0,iv:Number(e.iv)||0,c:String(e.c||''),s:String(e.s||''),g:e.g==='w'||e.g==='m'?e.g:'',t:typeof e.t==='string'?e.t.slice(0,600):''};}
 function items(){const p=(S.cat&&S.cat.p)||{},out=[];for(const [id,e] of Object.entries(p)){if(e&&typeof e.n==='string'&&e.n.trim())out.push(mk(id,e));}return out;}
 function entry(id){const e=S.cat&&S.cat.p&&S.cat.p[id];return e&&typeof e.n==='string'&&e.n.trim()?mk(id,e):null;}
 
@@ -618,7 +656,7 @@ function paintItem(li,e){
   li.querySelector('.ph').setAttribute('aria-label',e.n+(e.ok?'':'، نەماوە'));
   li.querySelector('.price .now').textContent=e.r>0?money(e.r):'بپرسە';li.querySelector('.price .cur').hidden=!(e.r>0);
   const was=li.querySelector('.price .was'),dl=li.querySelector('.dl');was.hidden=dl.hidden=!e.r0;li.querySelector('.price').classList.toggle('deal',!!e.r0);
-  if(e.r0){was.textContent=money(e.r0);dl.textContent='-'+dealPct()+'%';}
+  if(e.r0){was.textContent=money(e.r0);dl.textContent='-'+offPct(e)+'%';}
   li.querySelector('.oos').hidden=e.ok;
   const add=li.querySelector('.add'),q=S.list.get(e.id)||0;
   add.hidden=!e.ok;add.classList.toggle('in',q>0);add.textContent=q>0?String(q):'+';
@@ -720,16 +758,16 @@ function setQty(id,q){q=Math.max(0,Math.floor(q));const mx=maxOf(id);
 function listView(){
   const rows=[];let total=0,count=0,gone=0;
   let cut=0;
+  let base=0;
   for(const [id,q0] of S.list){const e=entry(id);let q=q0;
-    if(e&&e.ok){if(q>e.m){q=e.m;cut++;}total+=e.r*q;count+=q;}else gone++;rows.push({id,q,e});}
-  return {rows,total,count,gone,cut};
-  return {rows,total,count,gone};
+    if(e&&e.ok){if(q>e.m){q=e.m;cut++;}total+=e.r*q;base+=(e.b||e.r)*q;count+=q;}else gone++;rows.push({id,q,e});}
+  return {rows,total,base,count,gone,cut};
 }
 function refreshList(){
   const v=listView(),bar=$('#listbar');
   bar.hidden=!S.list.size;document.body.classList.toggle('has-list',S.list.size>0);
   $('#lbCount').innerHTML='لیستەکەم: <span class="n">'+money(v.count)+'</span> دانە';
-  $('#lbTotal').innerHTML='<span class="n">'+money(v.total)+'</span> د.ع';
+  $('#lbTotal').innerHTML=(codeOn()&&v.base>v.total?'<s class="was n">'+money(v.base)+'</s> ':'')+'<span class="n">'+money(v.total)+'</span> د.ع';
   for(const [id,li] of els){const e=entry(id);if(e)paintItem(li,e);}
   if(S.cat)paintDeals();
   if(!$('#lsheet').hidden)renderList();
@@ -747,6 +785,7 @@ function renderList(){
       (ok?'<span class="step"><button type="button" data-dec aria-label="کەمکردنەوە"'+(q<=1?' disabled':'')+'>−</button>'+(wsOn()?'<input class="qin" data-qin type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="بڕی «'+esc(name)+'»" value="'+q+'">':'<span class="n">'+q+'</span>')+'<button type="button" data-inc aria-label="زیادکردن"'+(e&&q>=e.m?' class="atmax"':'')+'>+</button></span>':'<span></span>')+'</li>';
   }).join('');
   $('#lTotal').textContent=money(v.total);
+  paintCode(v);
   // Fewer left than the list asks for: the list is brought down to what the shop has.
   if(v.cut){for(const r of v.rows)if(r.e&&r.e.ok&&S.list.get(r.id)>r.q)S.list.set(r.id,r.q);saveList();}
   const w=$('#lWarn'),wt=[];
@@ -771,9 +810,10 @@ function phoneDigits(v){return normDigits(v).replace(/[\s\-().]/g,'');}
 // and with an order code the shop sees every item anyway.
 const RLM='\u200F',URL_MAX=7000;
 function message(code,cut){
-  const v=listView(),head=[plOn()?'سڵاو، دەمەوێت ئەمانە بکڕم ('+(PL_KIND==='w'?'بە نرخی جوملە':'بە نرخی تایبەت')+'):':'سڵاو، دەمەوێت ئەمانە بکڕم:'],items=[],tail=[];
+  const v=listView(),head=[plOn()?'سڵاو، دەمەوێت ئەمانە بکڕم ('+(PL_KIND==='w'?'بە نرخی جوملە':'بە نرخی تایبەت')+'):':codeOn()?'سڵاو، دەمەوێت ئەمانە بکڕم (بە کۆدی داشکاندن، نرخی جوملە):':'سڵاو، دەمەوێت ئەمانە بکڕم:'],items=[],tail=[];
   if(code)head.push('کۆدی داواکاری: '+fmtCode(code));
-  for(const {q,e} of v.rows)if(e&&e.ok)items.push(RLM+'• '+e.n+' × '+q+(e.r>0?' = '+money(e.r*q)+' د.ع':'')+(e.r0?' (داشکاندنی هەفتە)':''));
+  for(const {q,e} of v.rows)if(e&&e.ok)items.push(RLM+'• '+e.n+' × '+q+(e.r>0?' = '+money(e.r*q)+' د.ع':'')+(e.why==='deal'?' (داشکاندنی هەفتە)':''));
+  if(codeOn()){tail.push('کۆدی داشکاندن: '+C.c);if(v.base>v.total)tail.push('پێش کۆد: '+money(v.base)+' د.ع');}
   tail.push('کۆی گشتی: '+money(v.total)+' د.ع');
   const f=[['ناو',$('#fName').value],['مۆبایل',phoneDigits($('#fPhone').value)],['ناونیشان',$('#fAddr').value],['تێبینی',$('#fNote').value]];
   for(const [k,val] of f){const t=String(val||'').trim();if(t)tail.push(k+': '+t);}
@@ -873,7 +913,8 @@ $('#send').addEventListener('click',async()=>{
       name:val($('#fName').value).slice(0,80),phone:phoneDigits(val($('#fPhone').value)).slice(0,30),addr:val($('#fAddr').value).slice(0,200),note:val($('#fNote').value).slice(0,300),
       total:Math.round(Number(v.total)||0),at:Date.now(),ts:serverTimestamp()};
     if(plOn())order.lk=PL_KEY;   // the shop prices it from the same list
-    if(lines.some(r=>r.e.r0)&&S.deal&&/^\d{4}-\d{2}-\d{2}$/.test(String(S.deal.w||'')))order.dw=S.deal.w;   // …and this week's discount
+    else if(codeOn())order.lk=C.l;   // with the discount code: the wholesale list the code points to
+    if(lines.some(r=>dealOf(r.id)>0)&&S.deal&&/^\d{4}-\d{2}-\d{2}$/.test(String(S.deal.w||'')))order.dw=S.deal.w;   // …and this week's discount
     // Saved, or still on its way on a slow line (it is kept on the phone and sent when it can): the code goes in the message.
     // Refused (the shop has not switched orders on): the message goes without a code, as before.
     let r;try{r=await Promise.race([setDoc(doc(db,'orders',cand),order).then(()=>'ok'),new Promise(ok=>setTimeout(()=>ok('slow'),5000))]);}catch(_){r='no';}
@@ -886,6 +927,73 @@ $('#send').addEventListener('click',async()=>{
   $('#after').hidden=false;$('#clear').hidden=true;
   location.href=url;   // a navigation, not a pop-up, so phones allow it after the wait
 });
+
+/* ---------- the discount code ---------- */
+function codeRepaint(){if(S.cat)render();refreshList();}
+function codeStop(){if(C.unK){C.unK();C.unK=null;}if(C.unL){C.unL();C.unL=null;}}
+function codeMsg(t){const m=$('#cMsg');m.textContent=t||'';m.hidden=!t;}
+// The shop removed or changed the code: back to the usual prices, and the customer is told.
+function codeGone(say){
+  const had=!!C.k;codeStop();Object.assign(C,{c:'',k:'',l:'',p:null});store.set(CODE_KEY,null);
+  codeRepaint();if(say&&had)toast('کۆدی داشکاندنەکە ئیتر کار ناکات؛ نرخەکان گەڕانەوە بۆ نرخی ئاسایی.');
+}
+// Live: the code's document says which wholesale list it uses (it changes when the shop renews that link).
+function codeWatch(){
+  codeStop();const k=C.k;if(!k)return;
+  C.unK=onSnapshot(doc(db,'pub',k),{includeMetadataChanges:true},s=>{
+    if(C.k!==k)return;
+    if(!s.exists()&&s.metadata&&s.metadata.fromCache)return;
+    const l=s.exists()?String((s.data()||{}).l||''):'';
+    if(!WL_RE.test(l)){codeGone(true);return;}
+    if(l===C.l&&C.unL)return;
+    if(C.unL)C.unL();if(l!==C.l){C.l=l;C.p=null;}
+    C.unL=onSnapshot(doc(db,'pub',l),{includeMetadataChanges:true},sn=>{
+      if(C.k!==k||C.l!==l)return;
+      if(!sn.exists()&&sn.metadata&&sn.metadata.fromCache)return;
+      const d=sn.exists()?(sn.data()||{}):null;C.p=d&&d.p&&typeof d.p==='object'?d.p:null;codeRepaint();
+    },()=>{});
+    codeRepaint();
+  },e=>{if(/permission/i.test(String(e&&(e.code||e.message)||'')))codeGone(true);});
+}
+function paintCode(v){
+  const box=$('#cBox'),on=$('#cOn'),sv=$('#lSaved'),was=$('#lWas'),show=!PL_KIND&&v.rows.length>0;
+  const active=show&&codeOn();
+  box.hidden=!show||!!C.k;on.hidden=!show||!C.k;
+  if(C.k)$('#cName').textContent=C.c;
+  const off=active&&v.base>v.total;
+  was.hidden=!off;if(off)was.textContent=money(v.base);
+  sv.hidden=!(show&&C.k);
+  if(!sv.hidden)sv.innerHTML=!C.p?'نرخەکانی کۆدەکە بار دەکرێن…':off?
+    'بە کۆدی داشکاندن نرخەکە لە <span class="n">'+money(v.base)+'</span> بوو بە <span class="n">'+money(v.total)+'</span> د.ع · <span class="n">'+money(v.base-v.total)+'</span> د.ع کەمتر':
+    'کۆدەکە چالاکە، بەڵام ئەم کاڵایانە نرخی جوملەیان نییە.';
+}
+$('#cForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(PL_KIND)return;
+  const raw=$('#cIn').value.trim(),btn=$('#cGo');
+  if(!raw){codeMsg('کۆدەکە بنووسە.');$('#cIn').focus();return;}
+  if(Date.now()<C.until){codeMsg('چەند جار هەڵە بوو؛ خولەکێک چاوەڕێ بکە و دووبارە هەوڵ بدەرەوە.');return;}
+  const k=await codeDoc(raw);
+  const wrong=()=>{C.bad++;if(C.bad>=5){C.bad=0;C.until=Date.now()+60000;}codeMsg('ئەم کۆدە دروست نییە. وەک خۆی بینووسە.');};
+  if(!k){wrong();return;}
+  btn.disabled=true;codeMsg('');
+  try{
+    let l='',p=null;
+    try{const s=await getDoc(doc(db,'pub',k));l=s.exists()?String((s.data()||{}).l||''):'';
+      if(WL_RE.test(l)){const s2=await getDoc(doc(db,'pub',l));const d=s2.exists()?(s2.data()||{}):null;p=d&&d.p&&typeof d.p==='object'?d.p:null;}}
+    catch(err){if(!/permission/i.test(String(err&&(err.code||err.message)||''))){codeMsg('پەیوەندی بە ئینتەرنێتەوە نییە؛ دووبارە هەوڵ بدەرەوە.');return;}}
+    if(!WL_RE.test(l)||!p){wrong();return;}
+    const before=listView().total;
+    Object.assign(C,{c:raw.slice(0,30),k,l,p,bad:0});store.set(CODE_KEY,{c:C.c,k});
+    $('#cIn').value='';$('#cIn').blur();
+    codeRepaint();codeWatch();
+    const after=listView().total;
+    toast(after<before?'کۆدەکە کاری کرد ✓ '+money(before)+' ← '+money(after)+' د.ع':'کۆدەکە کاری کرد ✓ نرخی جوملە');
+  }finally{btn.disabled=false;}
+});
+$('#cIn').addEventListener('input',()=>codeMsg(''));
+$('#cOff').addEventListener('click',()=>{codeStop();Object.assign(C,{c:'',k:'',l:'',p:null});store.set(CODE_KEY,null);codeRepaint();toast('کۆدەکە لابرا؛ نرخی ئاسایی.');});
+// A code used before on this phone stays on (and is checked again with the shop).
+if(!PL_KIND){const s=store.get(CODE_KEY);if(s&&typeof s==='object'&&/^k_[0-9a-f]{32}$/.test(String(s.k||''))){C.c=String(s.c||'').slice(0,30);C.k=s.k;codeWatch();}}
 
 /* ---------- toolbar ---------- */
 let qT;
@@ -921,7 +1029,7 @@ function paintDeals(){
   const kids=DT.children;
   list.forEach((e,i)=>{const el=kids[i];if(!el)return;const q=S.list.get(e.id)||0;
     el.querySelector('.dnm').textContent=e.n;el.querySelector('.was').textContent=money(e.r0);el.querySelector('.dnow .n').textContent=money(e.r);
-    el.querySelector('.dstamp').textContent='-'+dealPct()+'%';
+    el.querySelector('.dstamp').textContent='-'+offPct(e)+'%';
     const b=el.querySelector('.dadd');b.classList.toggle('in',q>0);b.textContent=q>0?'لە لیستە · '+q:'+ زیادکردن';
     b.setAttribute('aria-label',q>0?('«'+e.n+'» '+q+' دانە لە لیستە، یەکی تر زیاد بکە'):('زیادکردنی «'+e.n+'» بۆ لیست'));
     const pic=el.querySelector('.pic');
